@@ -22,7 +22,7 @@ except KeyError as e:
 
 
 HERE = Path(__file__).parent
-LOCAL_FILES = HERE.joinpath("local_data")
+LOCAL_FILES = HERE.parent.joinpath("local_data")
 LOCAL_FILES.mkdir(exist_ok=True)
 curation_training_data = LOCAL_FILES.joinpath("training_data.tsv")
 
