@@ -64,6 +64,69 @@ def get_names_gilda(db_refs, name):
     return synonyms
 
 
+def find_synonyms(ev_text: str, eng_stmt: str, synonym_list, case_sensitive=False):
+    ev_text = ev_text.lower() if not case_sensitive else ev_text
+    eng_stmt = eng_stmt.lower() if not case_sensitive else eng_stmt
+
+    text_syn = None
+    eng_syn = None
+    for syn in synonym_list:
+        syn_lower = syn.lower() if not case_sensitive else syn
+        if syn_lower in ev_text:
+            text_syn = syn
+        if syn_lower in eng_stmt:
+            eng_syn = syn
+
+        if text_syn and eng_syn:
+            break
+    return text_syn, eng_syn
+
+
+def generate_synonyms_string_per_example(syn_list,
+                                         example_sentence,
+                                         example_eng_stmt):
+    """Generate a string with the synonyms for a given example.
+
+    Parameters
+    ----------
+    syn_list : list
+        A list of lists of synonyms for each agent in the statement.
+    example_sentence : str
+        The example sentence.
+    example_eng_stmt : str
+        The example statement in English.
+
+    Returns
+    -------
+    str
+        A string with the synonyms for the given example. If no synonyms
+        are found, an empty string is returned.
+    """
+    selected_synonyms = []
+    for ag_synonyms in syn_list:
+        s_in_text, s_in_stmt = find_synonyms(
+            example_sentence, example_eng_stmt, ag_synonyms, False
+        )
+        if s_in_text and s_in_stmt and s_in_stmt != s_in_text:
+            selected_synonyms.append((s_in_text, s_in_stmt))
+
+    if selected_synonyms:
+        if len(selected_synonyms) == 1:
+            s_in_text, s_in_stmt = selected_synonyms[0]
+            synonym_str = (
+                f'Assume "{s_in_text}" and "{s_in_stmt}" are '
+                f'synonyms in the above sentence\n'
+            )
+        else:
+            synonym_str = ("Assume the following pairs "
+                           "are synonyms in the above sentence:\n")
+            for s_in_text, s_in_stmt in selected_synonyms:
+                synonym_str += f'"{s_in_text}" and "{s_in_stmt}"\n'
+        return synonym_str
+    else:
+        return ""
+
+
 def get_create_training_set(
     curations_file: str = None, statement_json_file: str = None, refresh: bool = False
 ) -> pd.DataFrame:
