@@ -2,15 +2,14 @@ import json
 import logging
 import os
 import sys
-from collections import defaultdict
 from pathlib import Path
 
 import pandas as pd
-import tqdm
-import random
+import requests
 import openai
 from indra.assemblers.english import EnglishAssembler
 from indra.statements.io import stmts_from_json_file
+from indra.assemblers.indranet.assembler import NS_PRIORITY_LIST
 
 
 try:
@@ -42,6 +41,27 @@ old_prompt = (
     'simple yes or no. Sentence: "{check_sentence}" Statement: '
     '"{check_eng_stmt}" Answer:'
 )
+
+
+def get_ag_ns_id(db_refs, default):
+    """Return a tuple of name space, id from an Agent's db_refs."""
+    for ns in NS_PRIORITY_LIST:
+        if ns in db_refs:
+            return ns, db_refs[ns]
+    return "TEXT", db_refs.get("TEXT", default)
+
+
+def get_names_gilda(db_refs, name):
+    """Get the names for a given db_refs dict using the Gilda API."""
+    db, id = get_ag_ns_id(db_refs, name)
+    res = requests.post("http://grounding.indra.bio/names", json={"db": db, "id": id})
+    res.raise_for_status()
+    synonyms = res.json()
+    if name not in synonyms:
+        synonyms.append(name)
+    if "TEXT" in db_refs and db_refs["TEXT"] not in synonyms:
+        synonyms.append(db_refs["TEXT"])
+    return synonyms
 
 
 def get_create_training_set(
