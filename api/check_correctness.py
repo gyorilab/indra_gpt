@@ -82,6 +82,20 @@ def find_synonyms(ev_text: str, eng_stmt: str, synonym_list, case_sensitive=Fals
     return text_syn, eng_syn
 
 
+def get_synonyms(examples):
+    synonyms_per_example = []
+    # Loop over examples
+    for ex_text, ex_stmt, ag_json_list in examples:
+        all_ag_synonyms = []
+        # Loop over agents in the example
+        for ag_json in ag_json_list:
+            db_refs = ag_json.get("db_refs", {})
+            name = ag_json.get("name") or db_refs.get("TEXT")
+            all_ag_synonyms.append(get_names_gilda(db_refs=db_refs, name=name))
+        synonyms_per_example.append(all_ag_synonyms)
+    return synonyms_per_example
+
+
 def generate_synonyms_string_per_example(syn_list,
                                          example_sentence,
                                          example_eng_stmt):
@@ -316,18 +330,12 @@ def run_openai_chat(
     return _get_response(response)
 
 
-if __name__ == "__main__":
-    args = sys.argv[1:]
-    if len(args) != 2:
-        logger.error("Please provide the curations file and the statement json file")
-        sys.exit(1)
-
-    curations = args[0]
-    statement_jsons_file = args[1]
-
+def main(curations_file, statements_file):
+    """Main function."""
     # 1. Get the dataframe of statements, evidence text and curation tags
+    # todo: generate synonyms for the examples at this point already
     cur_df = get_create_training_set(
-        curations_file=curations, statement_json_file=statement_jsons_file
+        curations_file=curations_file, statement_json_file=statements_file
     )
 
     # 2. Get two correct examples
@@ -336,19 +344,11 @@ if __name__ == "__main__":
     # 3. Get one example to check at random
     checker_dict = cur_df.sample(1).to_dict(orient="records")[0]
     checker = (checker_dict["text"], checker_dict["english"])
-
-    synonyms_per_example = []
-    for ex_text, ex_stmt, ag_json_list in example_list:
-        all_ag_synonyms = []
-        for ag_json in ag_json_list:
-            db_refs = ag_json.get("db_refs", {})
-            name = ag_json.get("name") or db_refs.get("TEXT")
-            all_ag_synonyms.append(get_names_gilda(db_refs=db_refs, name=name))
-        synonyms_per_example.append(all_ag_synonyms)
+    synonyms = get_synonyms(example_list)
 
     # 4. Run the chat completion
     choice = run_openai_chat(
-        example_list, checker, synonym_list=synonyms_per_example, max_tokens=2
+        example_list, checker, synonym_list=synonyms, max_tokens=2
     )
 
     # 5. Get the response and the tag and check if the response is correct
@@ -358,6 +358,17 @@ if __name__ == "__main__":
         f"Originally "
         f"tagged as: {checker_dict['tag']}"
     )
+
+
+if __name__ == "__main__":
+    args = sys.argv[1:]
+    if len(args) != 2:
+        logger.error("Please provide the curations file and the statement json file")
+        sys.exit(1)
+
+    curations = args[0]
+    statement_jsons_file = args[1]
+    main(curations_file=curations, statements_file=statement_jsons_file)
 
 # curs_sample = random.sample(curs, 100)
 # responses = []
