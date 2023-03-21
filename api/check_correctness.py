@@ -47,7 +47,7 @@ old_prompt = (
 def get_create_training_set(
     curations_file: str = None, statement_json_file: str = None, refresh: bool = False
 ) -> pd.DataFrame:
-    if curation_training_data.exists():
+    if curation_training_data.exists() and not refresh:
         return pd.read_csv(curation_training_data, sep="\t")
 
     # Create the training set
@@ -71,7 +71,8 @@ def get_create_training_set(
         ev = [e for e in stmt.evidence if e.get_source_hash() == cur["source_hash"]][0]
         cur["text"] = ev.text
         eng_stmt = EnglishAssembler([stmt]).make_model()
-        cur["english_stmt"] = eng_stmt
+        cur["english"] = eng_stmt
+        cur["agent_dict"] = [a for a in stmt.agent_list()]
         curation_data.append(cur)
 
     # Save the training data
