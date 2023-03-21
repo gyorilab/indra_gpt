@@ -4,13 +4,13 @@ import os
 import sys
 from pathlib import Path
 
+import openai
 import pandas as pd
 import requests
-import openai
-from indra.assemblers.english import EnglishAssembler
-from indra.statements.io import stmts_from_json_file
-from indra.assemblers.indranet.assembler import NS_PRIORITY_LIST
 
+from indra.assemblers.english import EnglishAssembler
+from indra.assemblers.indranet.assembler import NS_PRIORITY_LIST
+from indra.statements.io import stmts_from_json_file
 
 try:
     openai.api_key = os.environ["OPENAI_API_KEY"]
@@ -169,7 +169,7 @@ def get_create_training_set(
         cur["text"] = ev.text
         eng_stmt = EnglishAssembler([stmt]).make_model()
         cur["english"] = eng_stmt
-        cur["agent_json"] = [a for a in stmt.agent_list()]
+        cur["agent_json_list"] = [a.to_json() for a in stmt.agent_list()]
         curation_data.append(cur)
 
     # Save the training data
@@ -194,7 +194,7 @@ def generate_examples_by_tag(curation_df: pd.DataFrame, tag: str, n_examples: in
     Returns
     -------
     examples :
-        A list of tuples with (sentence, english_stmt, agent_json)
+        A list of tuples with (sentence, english_stmt, agent_json_list)
     """
     if n_examples == -1:
         kwargs = {"frac": 1.0}
@@ -203,7 +203,7 @@ def generate_examples_by_tag(curation_df: pd.DataFrame, tag: str, n_examples: in
 
     examples = []
     for row in (
-        curation_df[["text", "english", "agent_json"]][curation_df["tag"] == tag]
+        curation_df[["text", "english", "agent_json_list"]][curation_df["tag"] == tag]
         .sample(**kwargs)
         .values
     ):
