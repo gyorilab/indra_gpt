@@ -197,9 +197,57 @@ def generate_examples_by_tag(curation_df: pd.DataFrame, tag: str, n_examples: in
     return examples
 
 
+def generate_prompt(ex_list, check, prompt_template, syn_list=None):
+    """Generate a prompt for the given examples.
+
+    Parameters
+    ----------
+    ex_list :
+        A list of tuples with (sentence, english_stmt)
+    check :
+        The sentence, english pair to generate the prompt for
+    prompt_template :
+        The prompt template to use.
+    syn_list :
+        A list of synonyms to use in the prompt. The default is None. It is
+        assumed that the synonyms are in the same order as the examples in
+        ex_list. Each item in the list is a list of synonyms, one for entity
+        in the sentence and statement.
+
+    Returns
+    -------
+    prompt :
+        The prompt string
+    """
+    if prompt_template == default_prompt_template:
+        examples_str = ""
+        syn_list_iter = (None,) * len(ex_list) if syn_list is None else syn_list
+        for i, ((sentence, eng_stmt), sl) in enumerate(ex_list, syn_list_iter):
+            examples_str += (
+                f'Sentence{i+1}: "{sentence}"\nStatement{i+1}: "{eng_stmt}"\n'
+            )
+
+            if sl is not None:
+                synonym_str = generate_synonyms_string_per_example(
+                    syn_list=sl, example_sentence=sentence, example_eng_stmt=eng_stmt
+                )
+                if synonym_str:
+                    examples_str += synonym_str
+
+        prmt = default_prompt_template.format(
+            examples=examples_str, check_sentence=check[0],
+            check_eng_stmt=check[1]
+        )
+    else:
+        prmt = prompt_template.format(check_sentence=check[0],
+                                      check_eng_stmt=check[1])
+    return prmt
+
+
 def run_openai_chat(
     examples,
     check,
+    synonym_list=None,
     prompt_template=default_prompt_template,
     model="gpt-3.5-turbo",
     max_tokens=1,
@@ -214,6 +262,11 @@ def run_openai_chat(
     check :
         A tuple with (sentence, english_stmt) for the check sentence and
         statement
+    synonym_list :
+        A list of synonyms to use in the prompt. The default is None. It is
+        assumed that the synonyms are in the same order as the examples in
+        ex_list. Each item in the list is a list of synonyms, one for
+        each entity in the sentence and statement.
     prompt_template :
         The prompt template to use. If the default is used, the examples
         will be used to fill in the template. If a custom template is used,
@@ -234,33 +287,21 @@ def run_openai_chat(
         else:  # text-davinci-003
             return resp["choices"][0]["text"].strip()
 
-    def _generate_prompt(ex_list, ch):
-        examples_str = ""
-        for i, (sentence, eng_stmt) in enumerate(ex_list):
-            examples_str += (
-                f'Sentence{i+1}: "{sentence}"\nStatement{i+1}: "{eng_stmt}"\n'
-            )
-
-        if prompt_template == default_prompt_template:
-            prmt = default_prompt_template.format(
-                examples=examples_str, check_sentence=ch[0], check_eng_stmt=ch[1]
-            )
-        else:
-            prmt = prompt_template.format(check_sentence=ch[0], check_eng_stmt=ch[1])
-        return prmt
-
     options = {}
     # todo: play around with the prompt. Add examples of correct and maybe
     #  also incorrect
     # For gpt-3.5-turbo chat mode:
     # https://platform.openai.com/docs/api-reference/chat/create
-    prompt = _generate_prompt(examples, check)
-    options["messages"] = [{"role": "user", "content": prompt}]
-    api_class = openai.ChatCompletion
+    if model == "gpt-3.5-turbo":
+        prompt = generate_prompt(examples, check, prompt_template,
+                                 syn_list=synonym_list)
+        options["messages"] = [{"role": "user", "content": prompt}]
+        api_class = openai.ChatCompletion
+    else:  # text-davinci-003
+        # For text-davinci-003 chat mode:
+        options["prompt"] = old_prompt % (check[0], check[1])
+        api_class = openai.Completion
 
-    # For text-davinci-003 chat mode:
-    # options["prompt"] = prompt % (ev.text, eng_stmt)
-    # api_class = openai.Completion
     response = api_class.create(
         model=model,
         temperature=0,
