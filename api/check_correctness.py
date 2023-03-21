@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import sys
 from collections import defaultdict
@@ -21,6 +22,9 @@ except KeyError as e:
     ) from e
 
 
+logger = logging.getLogger(__name__)
+
+
 HERE = Path(__file__).parent
 LOCAL_FILES = HERE.parent.joinpath("local_data")
 LOCAL_FILES.mkdir(exist_ok=True)
@@ -41,18 +45,20 @@ old_prompt = (
 
 
 def get_create_training_set(
-    curations: str = None, statement_json_file: str = None
+    curations_file: str = None, statement_json_file: str = None, refresh: bool = False
 ) -> pd.DataFrame:
     if curation_training_data.exists():
         return pd.read_csv(curation_training_data, sep="\t")
 
     # Create the training set
-    assert curations is not None and statement_json_file is not None, (
+    assert curations_file is not None and statement_json_file is not None, (
         f"Please provide the curations and statement json file if "
         f"pre-generated training data is not available at "
         f"{curation_training_data}"
     )
-    curs = json.load(open(curations, "r"))
+    logger.info("Loading curations")
+    curs = json.load(open(curations_file, "r"))
+    logger.info("Loading statements")
     stmts = stmts_from_json_file(statement_json_file)
     stmts_by_hash = {s.get_hash(): s for s in stmts}
 
@@ -181,22 +187,22 @@ def run_openai_chat(
         **options,
     )
 
-    print("Got response: ", response)
+    logger.info("Got response: ", response)
     return _get_response(response)
 
 
 if __name__ == "__main__":
     args = sys.argv[1:]
     if len(args) != 2:
-        print("Please provide the curations file and the statement json file")
+        logger.error("Please provide the curations file and the statement json file")
         sys.exit(1)
 
-    curations_file = args[0]
-    statement_json_file = args[1]
+    curations = args[0]
+    statement_jsons_file = args[1]
 
     # 1. Get the dataframe of statements, evidence text and curation tags
     cur_df = get_create_training_set(
-        curations=curations_file, statement_json_file=statement_json_file
+        curations_file=curations, statement_json_file=statement_jsons_file
     )
 
     # 2. Get two correct examples
