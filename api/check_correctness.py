@@ -337,8 +337,19 @@ if __name__ == "__main__":
     checker_dict = cur_df.sample(1).to_dict(orient="records")[0]
     checker = (checker_dict["text"], checker_dict["english"])
 
+    synonyms_per_example = []
+    for ex_text, ex_stmt, ag_json_list in example_list:
+        all_ag_synonyms = []
+        for ag_json in ag_json_list:
+            db_refs = ag_json.get("db_refs", {})
+            name = ag_json.get("name") or db_refs.get("TEXT")
+            all_ag_synonyms.append(get_names_gilda(db_refs=db_refs, name=name))
+        synonyms_per_example.append(all_ag_synonyms)
+
     # 4. Run the chat completion
-    choice = run_openai_chat(example_list, checker, max_tokens=2)
+    choice = run_openai_chat(
+        example_list, checker, synonym_list=synonyms_per_example, max_tokens=2
+    )
 
     # 5. Get the response and the tag and check if the response is correct
     print(f'Check text:\n"{checker[0]}"\n\nCheck statement:\n{checker[1]}\n\n')
