@@ -15,10 +15,10 @@ from indra.assemblers.indranet.assembler import NS_PRIORITY_LIST
 try:
     openai.api_key = os.environ["OPENAI_API_KEY"]
     openai.organization = os.environ["OPENAI_ORG"]
-except KeyError as e:
+except KeyError as err:
     raise KeyError(
         "Please set the OPENAI_API_KEY and OPENAPI_ORG " "environment " "variable."
-    ) from e
+    ) from err
 
 
 logger = logging.getLogger(__name__)
@@ -53,8 +53,8 @@ def get_ag_ns_id(db_refs, default):
 
 def get_names_gilda(db_refs, name):
     """Get the names for a given db_refs dict using the Gilda API."""
-    db, id = get_ag_ns_id(db_refs, name)
-    res = requests.post("http://grounding.indra.bio/names", json={"db": db, "id": id})
+    db, _id = get_ag_ns_id(db_refs, name)
+    res = requests.post("http://grounding.indra.bio/names", json={"db": db, "id": _id})
     res.raise_for_status()
     synonyms = res.json()
     if name not in synonyms:
@@ -169,7 +169,7 @@ def get_create_training_set(
         cur["text"] = ev.text
         eng_stmt = EnglishAssembler([stmt]).make_model()
         cur["english"] = eng_stmt
-        cur["agent_dict"] = [a for a in stmt.agent_list()]
+        cur["agent_json"] = [a for a in stmt.agent_list()]
         curation_data.append(cur)
 
     # Save the training data
@@ -211,15 +211,22 @@ def generate_examples_by_tag(curation_df: pd.DataFrame, tag: str, n_examples: in
     return examples
 
 
-def generate_prompt(ex_list, check, prompt_template, syn_list=None):
+def generate_prompt(
+    check,
+    ex_list=None,
+    prompt_template=default_prompt_template,
+    syn_list=None
+):
     """Generate a prompt for the given examples.
 
     Parameters
     ----------
-    ex_list :
-        A list of tuples with (sentence, english_stmt)
     check :
         The sentence, english pair to generate the prompt for
+    ex_list :
+        A list of tuples with (sentence, english_stmt) for the examples to
+        use in the prompt. The default is None. This is only used if the
+        prompt template is the default template.
     prompt_template :
         The prompt template to use.
     syn_list :
@@ -280,7 +287,7 @@ def run_openai_chat(
         A list of synonyms to use in the prompt. The default is None. It is
         assumed that the synonyms are in the same order as the examples in
         ex_list. Each item in the list is a list of synonyms, one for
-        each entity in the sentence and statement.
+        each entity in the sentence and statement for the example.
     prompt_template :
         The prompt template to use. If the default is used, the examples
         will be used to fill in the template. If a custom template is used,
@@ -306,14 +313,15 @@ def run_openai_chat(
     #  also incorrect
     # For gpt-3.5-turbo chat mode:
     # https://platform.openai.com/docs/api-reference/chat/create
+    prompt = generate_prompt(examples, check, prompt_template,
+                             syn_list=synonym_list)
+
     if model == "gpt-3.5-turbo":
-        prompt = generate_prompt(examples, check, prompt_template,
-                                 syn_list=synonym_list)
         options["messages"] = [{"role": "user", "content": prompt}]
         api_class = openai.ChatCompletion
     else:  # text-davinci-003
         # For text-davinci-003 chat mode:
-        options["prompt"] = old_prompt % (check[0], check[1])
+        options["prompt"] = prompt
         api_class = openai.Completion
 
     response = api_class.create(
