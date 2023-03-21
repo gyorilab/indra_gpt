@@ -145,7 +145,17 @@ def get_create_training_set(
     curations_file: str = None, statement_json_file: str = None, refresh: bool = False
 ) -> pd.DataFrame:
     if curation_training_data.exists() and not refresh:
-        return pd.read_csv(curation_training_data, sep="\t")
+        df = pd.read_csv(curation_training_data, sep="\t")
+        if isinstance(df["agent_json_list"][0], str):
+            from collections import OrderedDict
+            logger.info(
+                "agent_json_list dtype is str, using eval to convert "
+                "to list of OrderedDicts")
+            # Apply 'eval' to the column and provide the OrderedDict class
+            # as an arg variable to be used in the eval call
+            df["agent_json_list"] = df["agent_json_list"].apply(
+                eval, args=({"OrderedDict": OrderedDict},))
+        return df
 
     # Create the training set
     assert curations_file is not None and statement_json_file is not None, (
@@ -169,7 +179,7 @@ def get_create_training_set(
         cur["text"] = ev.text
         eng_stmt = EnglishAssembler([stmt]).make_model()
         cur["english"] = eng_stmt
-        cur["agent_json_list"] = [a.to_json() for a in stmt.agent_list()]
+        cur["agent_json_list"] = [dict(a.to_json()) for a in stmt.agent_list()]
         curation_data.append(cur)
 
     # Save the training data
