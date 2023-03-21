@@ -74,11 +74,33 @@ def get_create_training_set(
     return df
 
 
-def generate_correct_examples(curation_df: pd.DataFrame, n_examples: int = 5):
+def generate_examples_by_tag(curation_df: pd.DataFrame, tag: str, n_examples: int = 5):
+    """Generate pairs of sentence-english statement for a given tag
+
+    Parameters
+    ----------
+    curation_df :
+        The curation dataframe
+    tag :
+        The tag to use e.g. "correct", "no_relation", "grounding"
+    n_examples :
+        The number of examples to generate for the tag. The default is 5. If
+        -1 is given, all examples will be returned.
+
+    Returns
+    -------
+    examples :
+        A list of tuples with (sentence, english_stmt)
+    """
+    if n_examples == -1:
+        kwargs = {"frac": 1.0}
+    else:
+        kwargs = {"n": max(abs(n_examples), 1)}
+
     examples = []
     for row in (
-        curation_df[["text", "english"]][curation_df["tag"] == "correct"]
-        .sample(n_examples)
+        curation_df[["text", "english"]][curation_df["tag"] == tag]
+        .sample(**kwargs)
         .values
     ):
         examples.append(tuple(row))
@@ -178,7 +200,7 @@ if __name__ == "__main__":
     )
 
     # 2. Get two correct examples
-    example_list = generate_correct_examples(cur_df, n_examples=2)
+    example_list = generate_examples_by_tag(cur_df, n_examples=2, tag="correct")
 
     # 3. Get one example to check at random
     checker_dict = cur_df.sample(1).to_dict(orient="records")[0]
