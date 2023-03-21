@@ -165,7 +165,7 @@ def get_create_training_set(
 
 
 def generate_examples_by_tag(curation_df: pd.DataFrame, tag: str, n_examples: int = 5):
-    """Generate pairs of sentence-english statement for a given tag
+    """Generate triples of sentence-english-agent json statement for a tag
 
     Parameters
     ----------
@@ -180,7 +180,7 @@ def generate_examples_by_tag(curation_df: pd.DataFrame, tag: str, n_examples: in
     Returns
     -------
     examples :
-        A list of tuples with (sentence, english_stmt)
+        A list of tuples with (sentence, english_stmt, agent_json)
     """
     if n_examples == -1:
         kwargs = {"frac": 1.0}
@@ -189,7 +189,7 @@ def generate_examples_by_tag(curation_df: pd.DataFrame, tag: str, n_examples: in
 
     examples = []
     for row in (
-        curation_df[["text", "english"]][curation_df["tag"] == tag]
+        curation_df[["text", "english", "agent_json"]][curation_df["tag"] == tag]
         .sample(**kwargs)
         .values
     ):
