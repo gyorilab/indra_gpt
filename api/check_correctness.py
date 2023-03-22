@@ -150,6 +150,38 @@ def generate_synonyms_string_per_example(syn_list,
         return len(equals) > 0
 
 
+def generate_synonyms_string_check(syn_list, check_sentence, check_eng_stmt):
+    selected_synonyms = []
+    equals = []
+    for ag_synonyms in syn_list:
+        s_in_text, s_in_stmt = find_synonyms(
+            check_sentence, check_eng_stmt, ag_synonyms, False
+        )
+        # Both synonyms must be not-None and not be equal, if they are
+        # equal, there is no need to add them to the list.
+        if s_in_text and s_in_stmt and s_in_stmt != s_in_text:
+            selected_synonyms.append((s_in_text, s_in_stmt))
+        elif s_in_text and s_in_stmt and s_in_stmt == s_in_text:
+            equals.append(s_in_text)
+
+    if selected_synonyms:
+        if len(selected_synonyms) == 1:
+            s_in_text, s_in_stmt = selected_synonyms[0]
+            synonym_str = (
+                f'Assume "{s_in_text}" and "{s_in_stmt}" are synonyms.\n'
+            )
+        else:
+            synonym_str = "Assume the following list of pairs are synonyms:\n"
+            for s_in_text, s_in_stmt in selected_synonyms:
+                synonym_str += f'"{s_in_text}" and "{s_in_stmt}"\n'
+        return synonym_str
+    else:
+        # True if there is a match in entity name between the sentence and
+        # the statement, False otherwise.
+        return len(equals) > 0
+
+
+
 def get_create_training_set(
     curations_file: str = None, statement_json_file: str = None, refresh: bool = False
 ) -> pd.DataFrame:
