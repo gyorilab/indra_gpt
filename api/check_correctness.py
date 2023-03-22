@@ -220,14 +220,9 @@ def generate_examples_by_tag(curation_df: pd.DataFrame, tag: str, n_examples: in
     else:
         kwargs = {"n": max(abs(n_examples), 1)}
 
-    examples = []
-    for row in (
-        curation_df[["text", "english", "agent_json_list"]][curation_df["tag"] == tag]
-        .sample(**kwargs)
-        .values
-    ):
-        examples.append(tuple(row))
-    return examples
+    cols = ["text", "english", "agent_json_list"]
+    return list(map(tuple, curation_df[cols][curation_df["tag"] == tag]
+                    .sample(**kwargs).values))
 
 
 def generate_prompt(
