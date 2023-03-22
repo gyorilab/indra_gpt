@@ -97,10 +97,10 @@ def get_synonyms(examples):
     return synonyms_per_example
 
 
-def generate_synonyms_string_per_example(syn_list,
-                                         example_sentence,
-                                         example_eng_stmt,
-                                         index: int):
+def generate_synonyms_string_example(syn_list,
+                                     example_sentence,
+                                     example_eng_stmt,
+                                     index: int):
     """Generate a string with the synonyms for a given example.
 
     Parameters
@@ -300,7 +300,7 @@ def generate_prompt(
         for i, ((sentence, eng_stmt), sl) in enumerate(zip(ex_list, syn_list_iter)):
             # Get synonyms
             if sl is not None:
-                synonym_str = generate_synonyms_string_per_example(
+                synonym_str = generate_synonyms_string_example(
                     syn_list=sl, example_sentence=sentence,
                     example_eng_stmt=eng_stmt, index=i+1
                 )
