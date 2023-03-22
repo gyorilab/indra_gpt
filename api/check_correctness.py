@@ -315,22 +315,8 @@ def run_openai_chat(
 
     Parameters
     ----------
-    examples :
-        A list of tuples with (sentence, english_stmt) for the examples to
-        give.
-    check :
-        A tuple with (sentence, english_stmt) for the check sentence and
-        statement
-    synonym_list :
-        A list of synonyms to use in the prompt. The default is None. It is
-        assumed that the synonyms are in the same order as the examples in
-        ex_list. Each item in the list is a list of synonyms, one for
-        each entity in the sentence and statement for the example.
-    prompt_template :
-        The prompt template to use. If the default is used, the examples
-        will be used to fill in the template. If a custom template is used,
-        only the check sentence and statement will be used to fill in the
-        template.
+    prompt :
+        The prompt to send to the chat
     model :
         The model to use. The default is the gpt-3.5-turbo model.
     max_tokens :
