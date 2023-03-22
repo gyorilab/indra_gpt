@@ -148,6 +148,8 @@ def generate_synonyms_string_example(syn_list,
                 synonym_str += f'"{s_in_text}" and "{s_in_stmt}"\n'
         return synonym_str
     else:
+        # True if there is a match in entity name between the sentence and
+        # the statement, False otherwise.
         return len(equals) > 0
 
 
@@ -285,9 +287,9 @@ def generate_prompt(
         The prompt template to use.
     syn_list :
         A list of synonyms to use in the prompt. The default is None. It is
-        assumed that the synonyms are in the same order as the examples in
-        ex_list. Each item in the list is a list of synonyms, one for entity
-        in the sentence and statement.
+        assumed that the synonym lists are in the same order as the
+        examples in ex_list. Each item in the list is a list of lists of
+        synonyms, one for each entity appearing in the statement.
     min_examples :
         The minimum number of examples to use in the prompt. The default is 2.
 
@@ -309,6 +311,7 @@ def generate_prompt(
                     "for the statement to check")
         return ""
     if prompt_template == default_prompt_template:
+        # Generate example text
         example_template = (
             'Sentence{ix}: "{sentence}"\nStatement{ix}: {english}{synonyms}\n'
         )
@@ -325,7 +328,7 @@ def generate_prompt(
                     if isinstance(synonym_str, str) and len(synonym_str) > 0:
                         sstr = "\n" + synonym_str
                     else:
-                        sstr = ""
+                        sstr = "\n"
                     examples_str += example_template.format(
                         ix=i + 1, sentence=sentence,
                         english=eng_stmt, synonyms=sstr
@@ -405,7 +408,7 @@ def run_openai_chat(
         **options,
     )
 
-    logger.info("Got response: ", response)
+    logger.info("Got response: ", str(response))
     return _get_response(response)
 
 
@@ -432,13 +435,13 @@ def two_correct_sample(training_data_df: pd.DataFrame):
 
     if not prompt:
         logger.warning("No prompt was generated. Will not run OpenAI.")
-        return ""
+        return
 
     # Run the chat completion
     choice = run_openai_chat(prompt=prompt, max_tokens=2)
 
     # Get the response and the tag and check if the response is correct
-    print(f'Text:\n"{checker[0]}"\n\nStatement:\n{checker[1]}\n\n')
+    print(f'Text:\n"{checker[0]}"\n\nStatement:\n"{checker[1]}"\n\n')
     print(
         f"Output\n------\nChoice - Yes/No/(None):\n{choice or '(None)'}.\n"
         f"Originally tagged as: "
