@@ -65,6 +65,7 @@ def get_names_gilda(db_refs, name):
 
 
 def find_synonyms(ev_text: str, eng_stmt: str, synonym_list, case_sensitive=False):
+    """Find which synonym is in evidence text and which is in the English stmt."""
     ev_text = ev_text.lower() if not case_sensitive else ev_text
     eng_stmt = eng_stmt.lower() if not case_sensitive else eng_stmt
 
