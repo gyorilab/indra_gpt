@@ -310,10 +310,7 @@ def generate_prompt(
 
 
 def run_openai_chat(
-    examples,
-    check,
-    synonym_list=None,
-    prompt_template=default_prompt_template,
+    prompt: str,
     model="gpt-3.5-turbo",
     max_tokens=1,
 ):
@@ -357,9 +354,6 @@ def run_openai_chat(
     #  also incorrect
     # For gpt-3.5-turbo chat mode:
     # https://platform.openai.com/docs/api-reference/chat/create
-    prompt = generate_prompt(examples, check, prompt_template,
-                             syn_list=synonym_list)
-
     if model == "gpt-3.5-turbo":
         options["messages"] = [{"role": "user", "content": prompt}]
         api_class = openai.ChatCompletion
@@ -398,10 +392,20 @@ def main(curations_file, statements_file):
     checker = (checker_dict["text"], checker_dict["english"])
     synonyms = get_synonyms(example_list)
 
+    # Only keep the sentence and statement for the examples
+    text_examples = [ex[:2] for ex in example_list]
+
+    # Generate the prompt
+    prompt = generate_prompt(check=checker,
+                             ex_list=text_examples,
+                             syn_list=synonyms)
+
+    if not prompt:
+        logger.warning("No prompt was generated. Will not run OpenAI.")
+        return ""
+
     # 4. Run the chat completion
-    choice = run_openai_chat(
-        example_list, checker, synonym_list=synonyms, max_tokens=2
-    )
+    choice = run_openai_chat(prompt=prompt, max_tokens=2)
 
     # 5. Get the response and the tag and check if the response is correct
     print(f'Check text:\n"{checker[0]}"\n\nCheck statement:\n{checker[1]}\n\n')
