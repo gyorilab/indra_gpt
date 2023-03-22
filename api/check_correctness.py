@@ -359,19 +359,13 @@ def run_openai_chat(
     return _get_response(response)
 
 
-def main(curations_file, statements_file):
-    """Main function."""
-    # 1. Get the dataframe of statements, evidence text and curation tags
-    # todo: generate synonyms for the examples at this point already
-    cur_df = get_create_training_set(
-        curations_file=curations_file, statement_json_file=statements_file
-    )
+def two_correct_sample(training_data_df: pd.DataFrame):
+    """Test function to run the chat completion with two correct examples."""
+    # Get two correct examples
+    example_list = generate_examples_by_tag(training_data_df, n_examples=2, tag="correct")
 
-    # 2. Get two correct examples
-    example_list = generate_examples_by_tag(cur_df, n_examples=2, tag="correct")
-
-    # 3. Get one example to check at random
-    checker_dict = cur_df.sample(1).to_dict(orient="records")[0]
+    # Get one example to check at random
+    checker_dict = training_data_df.sample(1).to_dict(orient="records")[0]
     checker = (checker_dict["text"], checker_dict["english"])
     synonyms = get_synonyms(example_list)
 
@@ -387,15 +381,15 @@ def main(curations_file, statements_file):
         logger.warning("No prompt was generated. Will not run OpenAI.")
         return ""
 
-    # 4. Run the chat completion
+    # Run the chat completion
     choice = run_openai_chat(prompt=prompt, max_tokens=2)
 
-    # 5. Get the response and the tag and check if the response is correct
-    print(f'Check text:\n"{checker[0]}"\n\nCheck statement:\n{checker[1]}\n\n')
+    # Get the response and the tag and check if the response is correct
+    print(f'Text:\n"{checker[0]}"\n\nStatement:\n{checker[1]}\n\n')
     print(
-        f"Output\n------\nChoice (correct? Yes/No): {choice or '(None)'}, "
-        f"Originally "
-        f"tagged as: {checker_dict['tag']}"
+        f"Output\n------\nChoice - Yes/No/(None):\n{choice or '(None)'}.\n"
+        f"Originally tagged as: "
+        f"{'correct' if checker_dict['tag'] == 'correct' else 'incorrect'}"
     )
 
 
