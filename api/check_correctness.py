@@ -233,7 +233,8 @@ def generate_prompt(
     check,
     ex_list=None,
     prompt_template=default_prompt_template,
-    syn_list=None
+    syn_list=None,
+    min_examples=2,
 ):
     """Generate a prompt for the given examples.
 
@@ -252,27 +253,52 @@ def generate_prompt(
         assumed that the synonyms are in the same order as the examples in
         ex_list. Each item in the list is a list of synonyms, one for entity
         in the sentence and statement.
+    min_examples :
+        The minimum number of examples to use in the prompt. The default is 2.
 
     Returns
     -------
     prompt :
         The prompt string
     """
+    min_examples = max(min_examples, 2)
+    examples_used = 0
     if prompt_template == default_prompt_template:
+        example_template = (
+            "Sentence{ix}: \"{sentence}\"\nStatement{ix}: {english}{synonyms}\n"
+        )
         examples_str = ""
         syn_list_iter = (None,) * len(ex_list) if syn_list is None else syn_list
-        for i, ((sentence, eng_stmt), sl) in enumerate(ex_list, syn_list_iter):
-            examples_str += (
-                f'Sentence{i+1}: "{sentence}"\nStatement{i+1}: "{eng_stmt}"\n'
-            )
-
+        for i, ((sentence, eng_stmt), sl) in enumerate(zip(ex_list, syn_list_iter)):
+            # Get synonyms
             if sl is not None:
                 synonym_str = generate_synonyms_string_per_example(
-                    syn_list=sl, example_sentence=sentence, example_eng_stmt=eng_stmt
+                    syn_list=sl, example_sentence=sentence,
+                    example_eng_stmt=eng_stmt, index=i+1
                 )
                 if synonym_str:
-                    examples_str += synonym_str
+                    sstr = "\n" + synonym_str if isinstance(
+                        synonym_str, str) and len(synonym_str) > 0 else ""
+                    examples_str += example_template.format(
+                        ix=i+1, sentence=sentence, english=eng_stmt,
+                        synonyms=sstr
+                    )
+                    examples_used += 1
+                    if examples_used >= min_examples:
+                        break
+                else:
+                    logger.warning(
+                        "No synonyms were generated for the example "
+                        f"{sentence} - {eng_stmt}"
+                    )
+                    continue
 
+        if examples_used < min_examples:
+            logger.warning(
+                f"Only {examples_used} examples were used in the "
+                f"prompt. The minimum number of examples is {min_examples}."
+            )
+            return ""
         prmt = default_prompt_template.format(
             examples=examples_str, check_sentence=check[0],
             check_eng_stmt=check[1]
