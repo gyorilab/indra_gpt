@@ -259,6 +259,7 @@ def generate_examples_by_tag(curation_df: pd.DataFrame, tag: str, n_examples: in
 
 def generate_prompt(
     check,
+    check_synonyms=None,
     ex_list=None,
     prompt_template=default_prompt_template,
     syn_list=None,
@@ -269,7 +270,12 @@ def generate_prompt(
     Parameters
     ----------
     check :
-        The sentence, english pair to generate the prompt for
+        The sentence - english statement pair to generate the prompt for.
+    check_synonyms :
+        A list of synonyms associated with the sentence - english statement
+        pair to add to the prompt. Each item in the list is list of
+        synonyms, one for each entity in the check statement. The default is
+        None.
     ex_list :
         A list of tuples with (sentence, english_stmt) for the examples to
         use in the prompt. The default is None. This is only used if the
@@ -291,6 +297,16 @@ def generate_prompt(
     """
     min_examples = max(min_examples, 2)
     examples_used = 0
+    # Generate a synonym string for the statement to check
+    check_syn_str = generate_synonyms_string_check(
+        check_synonyms, check[0], check[1]
+    )
+    if check_syn_str:
+        check_syn_str = "\n" + check_syn_str if isinstance(check_syn_str, str) else ""
+    else:
+        logger.info("Although synonyms were needed, no synonyms were found "
+                    "for the statement to check")
+        return ""
     if prompt_template == default_prompt_template:
         example_template = (
             'Sentence{ix}: "{sentence}"\nStatement{ix}: {english}{synonyms}\n'
@@ -330,6 +346,7 @@ def generate_prompt(
             )
             return ""
         prmt = default_prompt_template.format(examples=examples_str,
+                                              check_synonyms=check_syn_str,
                                               check_sentence=check[0],
                                               check_eng_stmt=check[1])
     else:
@@ -399,6 +416,8 @@ def two_correct_sample(training_data_df: pd.DataFrame):
     # Get one example to check at random
     checker_dict = training_data_df.sample(1).to_dict(orient="records")[0]
     checker = (checker_dict["text"], checker_dict["english"])
+    checker_synonyms = get_synonyms([(*checker, checker_dict[
+        "agent_json_list"])])[0]
     synonyms = get_synonyms(example_list)
 
     # Only keep the sentence and statement for the examples
@@ -406,6 +425,7 @@ def two_correct_sample(training_data_df: pd.DataFrame):
 
     # Generate the prompt
     prompt = generate_prompt(check=checker,
+                             check_synonyms=checker_synonyms,
                              ex_list=text_examples,
                              syn_list=synonyms)
 
