@@ -86,7 +86,7 @@ def find_synonyms(ev_text: str, eng_stmt: str, synonym_list, case_sensitive=Fals
 def get_synonyms(examples):
     synonyms_per_example = []
     # Loop over examples
-    for ex_text, ex_stmt, ag_json_list in examples:
+    for _, _, ag_json_list in examples:
         all_ag_synonyms = []
         # Loop over agents in the example
         for ag_json in ag_json_list:
@@ -261,7 +261,7 @@ def generate_prompt(
     examples_used = 0
     if prompt_template == default_prompt_template:
         example_template = (
-            "Sentence{ix}: \"{sentence}\"\nStatement{ix}: {english}{synonyms}\n"
+            'Sentence{ix}: "{sentence}"\nStatement{ix}: {english}{synonyms}\n'
         )
         examples_str = ""
         syn_list_iter = (None,) * len(ex_list) if syn_list is None else syn_list
@@ -273,11 +273,13 @@ def generate_prompt(
                     example_eng_stmt=eng_stmt, index=i+1
                 )
                 if synonym_str:
-                    sstr = "\n" + synonym_str if isinstance(
-                        synonym_str, str) and len(synonym_str) > 0 else ""
+                    if isinstance(synonym_str, str) and len(synonym_str) > 0:
+                        sstr = "\n" + synonym_str
+                    else:
+                        sstr = ""
                     examples_str += example_template.format(
-                        ix=i+1, sentence=sentence, english=eng_stmt,
-                        synonyms=sstr
+                        ix=i + 1, sentence=sentence,
+                        english=eng_stmt, synonyms=sstr
                     )
                     examples_used += 1
                     if examples_used >= min_examples:
@@ -295,10 +297,9 @@ def generate_prompt(
                 f"prompt. The minimum number of examples is {min_examples}."
             )
             return ""
-        prmt = default_prompt_template.format(
-            examples=examples_str, check_sentence=check[0],
-            check_eng_stmt=check[1]
-        )
+        prmt = default_prompt_template.format(examples=examples_str,
+                                              check_sentence=check[0],
+                                              check_eng_stmt=check[1])
     else:
         prmt = prompt_template.format(check_sentence=check[0],
                                       check_eng_stmt=check[1])
