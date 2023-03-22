@@ -33,7 +33,7 @@ default_prompt_template = """The following sentences are paired with statements 
 
 {examples}
 
-Does the following sentence "{check_sentence}" imply this statement "{check_eng_stmt}"?
+Does the following sentence "{check_sentence}" imply this statement "{check_eng_stmt}"?{check_synonyms}
 Please answer with just Yes or No."""
 old_prompt = (
     "You need to help me verify if a sentence I give you implies "
@@ -137,12 +137,13 @@ def generate_synonyms_string_example(syn_list,
         if len(selected_synonyms) == 1:
             s_in_text, s_in_stmt = selected_synonyms[0]
             synonym_str = (
-                f'Assume "{s_in_text}" and "{s_in_stmt}" are '
-                f'synonyms in Sentence{index} above\n'
+                f'Assume "{s_in_text}" in Sentence{index} and "{s_in_stmt}" '
+                f'Statement{index} are synonyms.\n'
             )
         else:
-            synonym_str = ("Assume the following pairs are synonyms in "
-                           f"Sentence{index} above:\n")
+            synonym_str = ("Assume the following list of pairs are synonyms "
+                           f"in Sentence{index} and Statement{index}, "
+                           f"respectively, above:\n")
             for s_in_text, s_in_stmt in selected_synonyms:
                 synonym_str += f'"{s_in_text}" and "{s_in_stmt}"\n'
         return synonym_str
