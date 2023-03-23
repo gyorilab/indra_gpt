@@ -69,16 +69,31 @@ def get_names_gilda(db_refs, name):
 
 def find_synonyms(ev_text: str, eng_stmt: str, synonym_list, case_sensitive=False):
     """Find which synonym is in evidence text and which is in the English stmt."""
+    # Remove possible punctuations and parentheses and the split the string
+    # on space to match exact words instead of substrings.
     ev_text = ev_text.lower() if not case_sensitive else ev_text
+    ev_text = (
+        ev_text.replace("(", "").replace(")", "").replace(":", "").replace(
+            ";", "").replace("?", "").replace("!", "").replace(
+            ",", "").replace(".", "")
+    )
+    ev_text_list = ev_text.split()
+
     eng_stmt = eng_stmt.lower() if not case_sensitive else eng_stmt
+    eng_stmt = (
+        eng_stmt.replace("(", "").replace(")", "").replace(":", "").replace(
+            ";", "").replace("?", "").replace("!", "").replace(
+            ",", "").replace(".", "")
+    )
+    eng_stmt_list = eng_stmt.split()
 
     text_syn = None
     eng_syn = None
     for syn in synonym_list:
         syn_lower = syn.lower() if not case_sensitive else syn
-        if syn_lower in ev_text:
+        if text_syn is None and syn_lower in ev_text_list:
             text_syn = syn
-        if syn_lower in eng_stmt:
+        if eng_syn is None and syn_lower in eng_stmt_list:
             eng_syn = syn
 
         if text_syn and eng_syn:
