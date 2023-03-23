@@ -33,7 +33,10 @@ default_prompt_template = """The following sentences are paired with statements 
 
 {examples}
 
-Does the following sentence "{check_sentence}" imply this statement "{check_eng_stmt}"?{check_synonyms}
+Does the following sentence
+"{check_sentence}"
+imply the following statement
+"{check_eng_stmt}"?{check_synonyms}
 Please answer with just Yes or No."""
 old_prompt = (
     "You need to help me verify if a sentence I give you implies "
