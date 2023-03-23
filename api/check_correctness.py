@@ -381,6 +381,8 @@ def run_openai_chat(
     prompt: str,
     model="gpt-3.5-turbo",
     max_tokens=1,
+    retry_count=3,
+    debug=False,
 ):
     """Run OpenAI to check if the check sentence implies the check statement
 
@@ -394,7 +396,18 @@ def run_openai_chat(
         The maximum number of tokens to generate for chat completion. One
         token is roughly one word in plain text, however it can be more per
         word in some cases.
+    retry_count :
+        The number of times to retry the request if it fails. The default is
+        3. After the retry count is reached, the function will raise an
+        exception.
+    debug :
+        If True, the function will print the full response from
+        openai.Completion/CharCompletion.create(). The default is False.
 
+    Returns
+    -------
+    :
+        The response from OpenAI as a string
     """
 
     def _get_response(resp):
@@ -404,29 +417,39 @@ def run_openai_chat(
             return resp["choices"][0]["text"].strip()
 
     options = {}
-    # todo: play around with the prompt. Add examples of correct and maybe
-    #  also incorrect
     # For gpt-3.5-turbo chat mode:
     # https://platform.openai.com/docs/api-reference/chat/create
     if model == "gpt-3.5-turbo":
         options["messages"] = [{"role": "user", "content": prompt}]
         api_class = openai.ChatCompletion
     else:  # text-davinci-003
-        # For text-davinci-003 chat mode:
         options["prompt"] = prompt
         api_class = openai.Completion
 
-    response = api_class.create(
-        model=model,
-        temperature=0,
-        max_tokens=max_tokens,
-        top_p=1.0,
-        frequency_penalty=0.0,
-        presence_penalty=0.0,
-        **options,
-    )
+    # Retry the request if it fails
+    retry_count = max(retry_count, 1)
+    for i in range(retry_count):
+        try:
+            response = api_class.create(
+                model=model,
+                temperature=0,
+                max_tokens=max_tokens,
+                top_p=1.0,
+                frequency_penalty=0.0,
+                presence_penalty=0.0,
+                **options,
+            )
+            break
+        except Exception as e:
+            if i < retry_count - 1:
+                logger.warning(f"Request failed with error: {e}. Retrying "
+                               f"after 5 seconds.")
+                sleep(5)
+            else:
+                raise e
 
-    logger.info("Got response: ", str(response))
+    if debug:
+        logger.info(f"Got response:\n'{str(response)}' to prompt:\n'{prompt}'")
     return _get_response(response)
 
 
