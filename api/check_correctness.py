@@ -493,6 +493,131 @@ def two_correct_sample(training_data_df: pd.DataFrame):
     )
 
 
+def run_stats_positive_examples(
+        training_data_df: pd.DataFrame, n=100, n_pos_examples=2,
+        # n_neg_examples=NotImplemented
+) -> pd.DataFrame:
+    """Run the chat completion on n positive examples
+
+    Parameters
+    ----------
+    training_data_df :
+        The training data
+    n :
+        The number of chat completions to run
+    n_pos_examples :
+        The number of positive examples to use in the prompt per run
+
+    Returns
+    -------
+    :
+        A dataframe with the results of the chat completions
+    """
+    # Get n positive examples
+    if positive_examples_path.exists() and positive_examples_path.stat().st_size > 0:
+        pos_df = pd.read_csv(positive_examples_path, sep="\t")
+        if pos_df.shape[0] < n_pos_examples:
+            logger.info(f"Only {len(pos_df)} positive examples "
+                        "found. Creating more...")
+            save_examples(training_data_df, correct=True)
+            pos_df = pd.read_csv(positive_examples_path, sep="\t")
+    else:
+        logger.info("No positive examples found. Creating...")
+        save_examples(training_data_df, correct=True)
+        pos_df = pd.read_csv(positive_examples_path, sep="\t")
+
+    # Convert the agent json string to a list of agent jsons
+    pos_df["agent_json_list"] = pos_df["agent_json_list"].apply(
+        eval, args=({"OrderedDict": OrderedDict},))
+
+    # Get n negative examples
+    # if negative_examples_path.exists() and negative_examples_path.stat().st_size > 0:
+    #     example_list_neg = pd.read_csv(negative_examples_path, sep="\t").to_dict(
+    #         orient="records")
+    #     if len(example_list_neg) < n:
+    #         logger.info(f"Only {len(example_list_neg)} negative examples "
+    #                     "found. Creating more...")
+    #         save_examples(training_data_df, correct=False)
+    # else:
+    #     logger.info("No negative examples found. Creating...")
+    #     save_examples(training_data_df, correct=False)
+    #     example_list_neg = pd.read_csv(negative_examples_path, sep="\t").to_dict(
+    #         orient="records")
+
+    # todo:
+    #  - get negative examples in the pipeline
+    #  - allow to set the number of positive and negative examples to use in
+    #    the prompt separately
+
+    # Initialize 2x2 dataframe to store the results
+    confusions = pd.DataFrame(
+        data=[[0, 0], [0, 0]],
+        columns=["cur_correct", "cur_incorrect"],
+        index=["gpt_correct", "gpt_incorrect"]
+    )
+    previous_checks = set()
+    for attempt in tqdm(range(n), desc="Running chat completions", total=n):
+        # Get one example to check at random from the examples not matching
+        # the positive examples' source_hash
+        excluded_ids = set(pos_df["id"]) | previous_checks
+        checker_dict = training_data_df[~training_data_df["id"].isin(
+            excluded_ids)].sample(n=1).to_dict(orient="records")[0]
+
+        previous_checks.add(checker_dict["id"])
+
+        # Get the positive examples from the dataframe
+        pos_examples = list(
+            map(tuple,
+                pos_df[['text', 'english', 'agent_json_list']].sample(
+                    n=n_pos_examples).values)
+        )
+
+        checker = (checker_dict["text"], checker_dict["english"])
+        checker_synonyms = get_synonyms([(*checker, checker_dict[
+            "agent_json_list"])])[0]
+        synonyms = get_synonyms(pos_examples)
+
+        # Only keep the sentence and statement for the examples
+        text_examples = [ex[:2] for ex in pos_examples]
+
+        # Generate the prompt
+        prompt = generate_prompt(check=checker,
+                                 check_synonyms=checker_synonyms,
+                                 ex_list=text_examples,
+                                 syn_list=synonyms)
+
+        if not prompt:
+            logger.warning("No prompt was generated, skipping...")
+            continue
+
+        # Run the chat completion
+        try:
+            choice = run_openai_chat(prompt=prompt, max_tokens=2)
+        except Exception as e:
+            logger.warning(f"Error while running chat completion: {e}")
+            continue
+
+        # Update the confusion matrix
+        if choice.lower() == "yes" and checker_dict["tag"] == "correct":
+            confusions.loc["gpt_correct", "cur_correct"] += 1
+        elif choice.lower() == "yes" and checker_dict["tag"] != "correct":
+            confusions.loc["gpt_correct", "cur_incorrect"] += 1
+        elif choice.lower() == "no" and checker_dict["tag"] == "correct":
+            confusions.loc["gpt_incorrect", "cur_correct"] += 1
+        elif choice.lower() == "no" and checker_dict["tag"] != "correct":
+            confusions.loc["gpt_incorrect", "cur_incorrect"] += 1
+        else:
+            logger.warning(f"Choice {choice} not recognized.")
+
+        sleep(0.1)
+
+    # Add sum row and column
+    confusions.loc["sum"] = confusions.sum()
+    confusions["sum"] = confusions.sum(axis=1)
+
+    return confusions
+
+
 def save_examples(training_data_df, correct: bool = True):
     """Save the examples to a csv file"""
     saved = []
