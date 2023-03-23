@@ -31,6 +31,8 @@ HERE = Path(__file__).parent
 LOCAL_FILES = HERE.parent.joinpath("local_data")
 LOCAL_FILES.mkdir(exist_ok=True)
 curation_training_data = LOCAL_FILES.joinpath("training_data.tsv")
+positive_examples_path = LOCAL_FILES.joinpath("positive_examples.tsv")
+negative_examples_path = LOCAL_FILES.joinpath("negative_examples.tsv")
 
 default_prompt_template = """The following sentences are paired with statements that are implied from their sentence:
 
@@ -491,6 +493,68 @@ def two_correct_sample(training_data_df: pd.DataFrame):
     )
 
 
+def save_examples(training_data_df, correct: bool = True):
+    """Save the examples to a csv file"""
+    saved = []
+    if correct:
+        eq = "=="
+        out_file = positive_examples_path
+    else:
+        eq = "!="
+        out_file = negative_examples_path
+    for row in training_data_df.query('tag @eq "correct"').sample(
+            frac=1.0).itertuples():
+        eval(f'assert row.tag {eq} "correct"')
+        synonyms = get_synonyms([(row.text, row.english,
+                                  row.agent_json_list)])[0]
+        syn_pairs = []
+        for sl in synonyms:
+            in_text, in_stmt = find_synonyms(row.text, row.english, sl, case_sensitive=False)
+            if in_text and in_stmt:
+                syn_pairs.append((in_text, in_stmt))
+        if len(syn_pairs) != len(synonyms):
+            skip = "Not all synonyms were found in the sentence and " \
+                   "statement, recommend skipping this one\n"
+        else:
+            skip = ""
+        syn_pairs_str = "\n".join([f"{s[0]} - {s[1]}" for s in syn_pairs])
+
+        choice = input(
+            f"Sentence:\n---------\n {row.text}\nStatement:\n----------"
+            f"\n{row.english}\n\nSynonyms:\n---------\n{syn_pairs_str}\n\n"
+            f"{skip}Got {len(saved)} examples so far\nSave? (y/n/b): "
+        )
+        if choice == "b":
+            print("Breaking")
+            break
+        elif choice == "y":
+            print("Saving")
+            saved.append(row.Index)
+        else:
+            print("Not saving")
+
+    if saved:
+        dump_options = dict(index=False, header=True, sep="\t")
+        if out_file.exists():
+            # Get the file size
+            file_size = out_file.stat().st_size
+            choice = input(f"File {out_file} already exists (Size "
+                           f"{file_size} B). Overwrite, Append or Cancel? "
+                           f"(o/a/c): ")
+            if choice == "o":
+                print(f"Saving {len(saved)} examples to {out_file}")
+                training_data_df.loc[saved].to_csv(out_file, **dump_options)
+            elif choice == "a":
+                print(f"Appending {len(saved)} examples to {out_file}")
+                # Skip header and set mode to append
+                dump_options.update(header=False, mode="a")
+                training_data_df.loc[saved].to_csv(out_file, **dump_options)
+        else:
+            print(f"Saving {len(saved)} examples to {out_file}")
+            training_data_df.loc[saved].to_csv(out_file, **dump_options)
+
+
+# todo: create cli with click
 if __name__ == "__main__":
     args = sys.argv[1:]
     if len(args) != 2:
