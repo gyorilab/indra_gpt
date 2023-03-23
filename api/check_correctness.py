@@ -319,7 +319,7 @@ def generate_prompt(
     prompt :
         The prompt string
     """
-    min_examples = max(min_examples, 2)
+    min_examples = max(min_examples, 1)
     examples_used = 0
     # Generate a synonym string for the statement to check
     check_syn_str = generate_synonyms_string_check(
