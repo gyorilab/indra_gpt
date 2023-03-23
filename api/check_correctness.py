@@ -688,7 +688,7 @@ if __name__ == "__main__":
 
     curations = args[0]
     statement_jsons_file = args[1]
-    main(curations_file=curations, statements_file=statement_jsons_file)
+    #main(curations_file=curations, statements_file=statement_jsons_file)
 
 # curs_sample = random.sample(curs, 100)
 # responses = []
