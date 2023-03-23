@@ -2,11 +2,14 @@ import json
 import logging
 import os
 import sys
+from collections import OrderedDict
 from pathlib import Path
+from time import sleep
 
 import openai
 import pandas as pd
 import requests
+from tqdm import tqdm
 
 from indra.assemblers.english import EnglishAssembler
 from indra.assemblers.indranet.assembler import NS_PRIORITY_LIST
@@ -202,14 +205,12 @@ def generate_synonyms_string_check(syn_list, check_sentence, check_eng_stmt):
         return len(equals) > 0
 
 
-
 def get_create_training_set(
     curations_file: str = None, statement_json_file: str = None, refresh: bool = False
 ) -> pd.DataFrame:
     if curation_training_data.exists() and not refresh:
         df = pd.read_csv(curation_training_data, sep="\t")
         if isinstance(df["agent_json_list"][0], str):
-            from collections import OrderedDict
             logger.info(
                 "agent_json_list dtype is str, using eval to convert "
                 "to list of OrderedDicts")
