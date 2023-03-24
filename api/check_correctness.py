@@ -630,11 +630,12 @@ def two_correct_sample(training_data_df: pd.DataFrame):
 
 
 def run_stats(
-        training_data_df: pd.DataFrame,
-        n_iter=100,
-        n_pos_examples=2,
-        n_neg_examples=2,
-        neg_tag: str = None
+    training_data_df: pd.DataFrame,
+    n_iter=100,
+    n_pos_examples=2,
+    n_neg_examples=2,
+    neg_tag: str = None,
+    debug_print: bool = False
 ) -> pd.DataFrame:
     """Run the chat completion on n positive examples
 
@@ -653,6 +654,9 @@ def run_stats(
     neg_tag :
         The tag to use for the negative examples. If None, all tags will be
         used. Default: None.
+    debug_print :
+        If True, the function will print the prompt and the response from
+        OpenAI. The default is False.
 
     Returns
     -------
@@ -818,7 +822,9 @@ def run_stats(
 
         # Run the chat completion
         try:
-            choice = run_openai_chat(prompt=prompt, max_tokens=2)
+            choice = run_openai_chat(prompt=prompt,
+                                     max_tokens=2,
+                                     debug=debug_print)
         except Exception as e:
             logger.warning(f"Error while running chat completion: {e}")
             continue
