@@ -496,7 +496,6 @@ def generate_prompt(
     else:
         neg_ex_str = ""
 
-    # fixme: Test this in the openai playground to see if it is a good prompt
     examples_str = pos_ex_str + neg_ex_str + "\n=======\n"
 
     # Generate query string
@@ -859,7 +858,7 @@ def run_stats(
 
 
 def save_examples(training_data_df, correct: bool = True):
-    """Save the examples to a csv file"""
+    """Save the examples to a tsv file"""
     saved = []
     saved_tags = []
     if correct:
