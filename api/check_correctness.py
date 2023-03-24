@@ -463,14 +463,18 @@ def generate_prompt(
         The english statement to query.
     pos_ex_list :
         A list of tuples with (sentence, english_stmt, synonym_list)
-        for the examples to use in the prompt. 'correct' is a boolean that
-        indicates if the statement is implied by the sentence or not.
+        for the examples to use in the prompt. The synonym list is assumed
+        to be a list of tuples with (synonym_in_sentence,
+        synonym_in_statement). Default: None.
     neg_ex_list :
-
+        A list of tuples with (sentence, english_stmt, synonym_list)
+        for the examples to use in the prompt. The synonym list is assumed
+        to be a list of tuples with (synonym_in_sentence,
+        synonym_in_statement). Default: None.
     query_synonyms :
         A list of synonyms associated with the sentence - english statement
-        pair that is queries. Each item in the list is list of synonyms,
-        one for each entity in the check statement. The default is None.
+        pair that is queries. Each item in the list of tuples with
+        (synonym in sentence, synonym in statement). The default is None.
 
     Returns
     -------
