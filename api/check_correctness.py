@@ -439,101 +439,60 @@ def check_prompt_generation():
 
 
 def generate_prompt(
-    check,
-    check_synonyms=None,
-    ex_list=None,
-    prompt_template=default_prompt_template,
-    syn_list=None,
-    min_examples=2,
+    query_sentence,
+    query_stmt,
+    pos_ex_list=None,
+    neg_ex_list=None,
+    query_synonyms=None,
 ):
     """Generate a prompt for the given examples.
 
     Parameters
     ----------
-    check :
-        The sentence - english statement pair to generate the prompt for.
-    check_synonyms :
+    query_sentence :
+        The sentence to query.
+    query_stmt :
+        The english statement to query.
+    pos_ex_list :
+        A list of tuples with (sentence, english_stmt, synonym_list)
+        for the examples to use in the prompt. 'correct' is a boolean that
+        indicates if the statement is implied by the sentence or not.
+    neg_ex_list :
+
+    query_synonyms :
         A list of synonyms associated with the sentence - english statement
-        pair to add to the prompt. Each item in the list is list of
-        synonyms, one for each entity in the check statement. The default is
-        None.
-    ex_list :
-        A list of tuples with (sentence, english_stmt) for the examples to
-        use in the prompt. The default is None. This is only used if the
-        prompt template is the default template.
-    prompt_template :
-        The prompt template to use.
-    syn_list :
-        A list of synonyms to use in the prompt. The default is None. It is
-        assumed that the synonym lists are in the same order as the
-        examples in ex_list. Each item in the list is a list of lists of
-        synonyms, one for each entity appearing in the statement.
-    min_examples :
-        The minimum number of examples to use in the prompt. The default is 2.
+        pair that is queries. Each item in the list is list of synonyms,
+        one for each entity in the check statement. The default is None.
 
     Returns
     -------
     prompt :
         The prompt string
     """
-    min_examples = max(min_examples, 1)
-    examples_used = 0
-    # Generate a synonym string for the statement to check
-    check_syn_str = generate_synonyms_string_check(
-        check_synonyms, check[0], check[1]
-    )
-    if check_syn_str:
-        check_syn_str = "\n" + check_syn_str if isinstance(check_syn_str, str) else ""
-    else:
-        logger.info("Although synonyms were needed, no synonyms were found "
-                    "for the statement to check")
-        return ""
-    if prompt_template == default_prompt_template:
-        # Generate example text
-        example_template = (
-            'Sentence{ix}: "{sentence}"\nStatement{ix}: {english}{synonyms}\n'
-        )
-        examples_str = ""
-        syn_list_iter = (None,) * len(ex_list) if syn_list is None else syn_list
-        for i, ((sentence, eng_stmt), sl) in enumerate(zip(ex_list, syn_list_iter)):
-            # Get synonyms
-            if sl is not None:
-                synonym_str = generate_synonyms_string_example(
-                    syn_list=sl, example_sentence=sentence,
-                    example_eng_stmt=eng_stmt, index=i+1
-                )
-                if synonym_str:
-                    if isinstance(synonym_str, str) and len(synonym_str) > 0:
-                        sstr = "\n" + synonym_str
-                    else:
-                        sstr = "\n"
-                    examples_str += example_template.format(
-                        ix=i + 1, sentence=sentence,
-                        english=eng_stmt, synonyms=sstr
-                    )
-                    examples_used += 1
-                    if examples_used >= min_examples:
-                        break
-                else:
-                    logger.warning(
-                        "No synonyms were generated for the example "
-                        f"{sentence} - {eng_stmt}"
-                    )
-                    continue
+    if pos_ex_list is None and neg_ex_list is None:
+        raise ValueError("Must provide at least one example list.")
 
-        if examples_used < min_examples:
-            logger.warning(
-                f"Only {examples_used} examples were used in the "
-                f"prompt. The minimum number of examples is {min_examples}."
-            )
-            return ""
-        prmt = default_prompt_template.format(examples=examples_str,
-                                              check_synonyms=check_syn_str,
-                                              check_sentence=check[0],
-                                              check_eng_stmt=check[1])
+    # Get positive and negative examples
+    indexer = count(1)
+    if pos_ex_list is not None:
+        pos_ex_str = generate_example_list(pos_ex_list, True, indexer)
     else:
-        prmt = prompt_template.format(check_sentence=check[0],
-                                      check_eng_stmt=check[1])
+        pos_ex_str = ""
+
+    if neg_ex_list is not None:
+        neg_ex_str = generate_example_list(neg_ex_list, False, indexer)
+    else:
+        neg_ex_str = ""
+
+    # fixme: Test this in the openai playground to see if it is a good prompt
+    examples_str = pos_ex_str + neg_ex_str + "\n=======\n"
+
+    # Generate query string
+    query_str = generate_query_str(query_sentence, query_stmt, query_synonyms)
+
+    # Generate positive and negative examples
+    prmt = default_prompt_template.format(examples=examples_str,
+                                          query=query_str)
     return prmt
 
 
