@@ -21,7 +21,7 @@ try:
     openai.organization = os.environ["OPENAI_ORG"]
 except KeyError as err:
     raise KeyError(
-        "Please set the OPENAI_API_KEY and OPENAPI_ORG " "environment " "variable."
+        "Please set the OPENAI_API_KEY and OPENAPI_ORG environment variables."
     ) from err
 
 
