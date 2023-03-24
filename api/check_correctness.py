@@ -350,7 +350,7 @@ def generate_example(
     if synonyms:
         syn_str = "\n" + generate_synonym_str(synonyms, index)
     else:
-        syn_str = ""
+        syn_str = "\n"
     return example_template.format(sent_str=sent_str, sentence=sentence,
                                    stmt_str=stmt_str, english=statement,
                                    synonyms=syn_str)
@@ -412,16 +412,16 @@ def check_prompt_generation():
     test_stmt1 = "A activates B"
     test_synonyms1 = [("a", "A"), ("b", "B")]
 
-    test_sentence2 = "c phosphorylates D in this text"
+    test_sentence2 = "C phosphorylates D in this text"
     test_stmt2 = "C phosphorylates D"
-    test_synonyms2 = [("c", "C")]
 
     test_sentence3 = "E deactivates f in this text"
     test_stmt3 = "E activates F"
     test_synonyms3 = [("f", "F")]
 
     test_sentence4 = "X deactivates Y in this text"
-    test_stmt4 = "X deactivates Y"
+    test_stmt4 = "x deactivates Y"
+    test_synonyms4 = [("X", "x")]
 
     test_query_sentence = "a inhibits b in this text"
     test_query_stmt = "A inhibits B"
@@ -429,11 +429,11 @@ def check_prompt_generation():
 
     pos_examples = [
         (test_sentence1, test_stmt1, test_synonyms1),
-        (test_sentence2, test_stmt2, test_synonyms2),
+        (test_sentence2, test_stmt2, None),
     ]
     neg_examples = [
         (test_sentence3, test_stmt3, test_synonyms3),
-        (test_sentence4, test_stmt4, None),
+        (test_sentence4, test_stmt4, test_synonyms4),
     ]
 
     test_prompt = generate_prompt(
