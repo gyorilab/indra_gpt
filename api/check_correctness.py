@@ -624,9 +624,12 @@ def two_correct_sample(training_data_df: pd.DataFrame):
     )
 
 
-def run_stats_positive_examples(
-        training_data_df: pd.DataFrame, n=100, n_pos_examples=2,
-        # n_neg_examples=NotImplemented
+def run_stats(
+        training_data_df: pd.DataFrame,
+        n_iter=100,
+        n_pos_examples=2,
+        n_neg_examples=2,
+        neg_tag: str = None
 ) -> pd.DataFrame:
     """Run the chat completion on n positive examples
 
@@ -634,51 +637,130 @@ def run_stats_positive_examples(
     ----------
     training_data_df :
         The training data
-    n :
+    n_iter :
         The number of chat completions to run
     n_pos_examples :
-        The number of positive examples to use in the prompt per run
+        The number of positive examples to use in the prompt per run.
+        Default: 2.
+    n_neg_examples :
+        The number of negative examples to use in the prompt per run.
+        Default: 2.
+    neg_tag :
+        The tag to use for the negative examples. If None, all tags will be
+        used. Default: None.
 
     Returns
     -------
     :
-        A dataframe with the results of the chat completions
+        A dataframe containing the confusion matrix of the results of the
+        chat completions
     """
-    # Get n positive examples
-    if positive_examples_path.exists() and positive_examples_path.stat().st_size > 0:
-        pos_df = pd.read_csv(positive_examples_path, sep="\t")
-        if pos_df.shape[0] < n_pos_examples:
-            logger.info(f"Only {len(pos_df)} positive examples "
-                        "found. Creating more...")
+    def _get_examples_df(examples_path: Path, n_examples: int) -> pd.DataFrame:
+        if examples_path.exists() and examples_path.stat().st_size > 0:
+            df = pd.read_csv(examples_path, sep="\t")
+            if df.shape[0] < n_examples:
+                logger.info(f"Only {len(df)} positive examples "
+                            "found. Creating more...")
+                save_examples(training_data_df, correct=True)
+                df = pd.read_csv(examples_path, sep="\t")
+        else:
+            logger.info("No examples found. Creating...")
             save_examples(training_data_df, correct=True)
-            pos_df = pd.read_csv(positive_examples_path, sep="\t")
-    else:
-        logger.info("No positive examples found. Creating...")
-        save_examples(training_data_df, correct=True)
-        pos_df = pd.read_csv(positive_examples_path, sep="\t")
+            df = pd.read_csv(examples_path, sep="\t")
 
-    # Convert the agent json string to a list of agent jsons
-    pos_df["agent_json_list"] = pos_df["agent_json_list"].apply(
-        eval, args=({"OrderedDict": OrderedDict},))
+        # Convert the agent json string to a list of agent jsons
+        df["agent_json_list"] = df["agent_json_list"].apply(
+            eval, args=({"OrderedDict": OrderedDict},))
+
+        return df
+
+    def _parse_synonyms(text, english, agent_json_list, agent_synonyms_list):
+        relevant_sl = []
+        missing_synonyms = False
+        for ag_json, sl in zip(agent_json_list, agent_synonyms_list):
+            s_in_text, s_in_stmt = find_synonyms(
+                text, english, sl, False
+            )
+            # Only keep the synonyms that are in the text and the
+            # statement and also are not equal
+            # todo: do this up front when examples are selected instead
+            if s_in_text and s_in_stmt:
+                if s_in_text != s_in_stmt:
+                    relevant_sl.append((s_in_text, s_in_stmt))
+                else:
+                    # If the synonyms are equal, we don't need to
+                    # add them to the prompt
+                    pass
+            # If no synonyms are found, check that the names still are
+            # in the example
+            else:
+                name = ag_json["name"]
+                text_name = ag_json["db_refs"].get("TEXT", None)
+                names = {name, text_name} - {None}
+
+                # If the same name isn't in the example, skip it
+                if not any(n.lower() in text.lower() and
+                           n.lower() in english.lower()
+                           for n in names):
+                    missing_synonyms = True
+                    break
+        if missing_synonyms:
+            return None
+
+        return relevant_sl
+
+    def _get_examples(df, n_examples):
+        examples_base = list(map(tuple,
+                                 df[
+                                     ['text', 'english', 'agent_json_list']
+                                 ].sample(frac=1.0).values))
+
+        # Get the synonyms
+        synonyms_base = [
+            get_synonyms(ajl) for _, _, ajl in examples_base
+        ]
+
+        examples = []
+        for (text, english, agent_json_list), agent_synonyms_list in zip(
+                examples_base, synonyms_base
+        ):
+            relevant_sl = _parse_synonyms(
+                text, english, agent_json_list, agent_synonyms_list
+            )
+            # None means there are synonyms missing and the entity names are
+            # not the same in the example and the english statement
+            if relevant_sl is None:
+                continue
+
+            examples.append((text, english, relevant_sl or None))
+            if len(examples) == n_examples:
+                break
+        if len(examples) < n_examples:
+            logger.warning(f"Only {len(examples)} examples found. ")
+            inp = input("break? (y/n)")
+            if inp == "y":
+                sys.exit(1)
+        return examples
+
+    # Get n positive examples
+    if n_pos_examples > 0:
+        pos_df = _get_examples_df(positive_examples_path, n_pos_examples)
+    else:
+        pos_df = None
 
     # Get n negative examples
-    # if negative_examples_path.exists() and negative_examples_path.stat().st_size > 0:
-    #     example_list_neg = pd.read_csv(negative_examples_path, sep="\t").to_dict(
-    #         orient="records")
-    #     if len(example_list_neg) < n:
-    #         logger.info(f"Only {len(example_list_neg)} negative examples "
-    #                     "found. Creating more...")
-    #         save_examples(training_data_df, correct=False)
-    # else:
-    #     logger.info("No negative examples found. Creating...")
-    #     save_examples(training_data_df, correct=False)
-    #     example_list_neg = pd.read_csv(negative_examples_path, sep="\t").to_dict(
-    #         orient="records")
+    if n_neg_examples > 0:
+        neg_df = _get_examples_df(negative_examples_path, n_neg_examples)
+    else:
+        neg_df = None
 
-    # todo:
-    #  - get negative examples in the pipeline
-    #  - allow to set the number of positive and negative examples to use in
-    #    the prompt separately
+    if n_neg_examples and neg_tag:
+        neg_df = neg_df[neg_df["tag"] == neg_tag]
+        if neg_df.shape[0] < n_neg_examples:
+            logger.warning(f"Only {len(neg_df)} negative examples "
+                           f"with tag '{neg_tag}' found. Creating more...")
+            save_examples(training_data_df, correct=False)
+            neg_df = _get_examples_df(negative_examples_path, n_neg_examples)
 
     # Initialize 2x2 dataframe to store the results
     confusions = pd.DataFrame(
@@ -687,9 +769,9 @@ def run_stats_positive_examples(
         index=["gpt_correct", "gpt_incorrect"]
     )
     previous_checks = set()
-    for attempt in tqdm(range(n), desc="Running chat completions", total=n):
+    for _ in tqdm(range(n_iter), desc="Running chat completions", total=n_iter):
         # Get one example to check at random from the examples not matching
-        # the positive examples' source_hash
+        # the examples' source_hash or the ones already checked
         excluded_ids = set(pos_df["id"]) | previous_checks
         checker_dict = training_data_df[~training_data_df["id"].isin(
             excluded_ids)].sample(n=1).to_dict(orient="records")[0]
@@ -697,23 +779,33 @@ def run_stats_positive_examples(
         previous_checks.add(checker_dict["id"])
 
         # Get the positive examples from the dataframe
-        pos_examples = list(
-            map(tuple,
-                pos_df[['text', 'english', 'agent_json_list']].sample(
-                    n=n_pos_examples).values)
+        if pos_df is not None:
+            pos_examples = _get_examples(pos_df, n_pos_examples)
+        else:
+            pos_examples = None
+
+        # Get the negative examples from the dataframe
+        if neg_df is not None:
+            neg_examples = _get_examples(neg_df, n_neg_examples)
+        else:
+            neg_examples = None
+
+        query_synonyms_base = get_synonyms(checker_dict["agent_json_list"])
+        query_synonyms = _parse_synonyms(
+            text=checker_dict["text"], english=checker_dict["english"],
+            agent_json_list=checker_dict["agent_json_list"],
+            agent_synonyms_list=query_synonyms_base
         )
-
-        query_synonyms = get_synonyms(checker_dict["agent_json_list"])
-        synonyms = [get_synonyms(ajl) for _, _, ajl in pos_examples]
-
-        # Only keep the sentence and statement for the examples
-        text_examples = [ex[:2] for ex in pos_examples]
+        if query_synonyms is None:
+            logger.warning("No matching synonyms found in , skipping...")
+            continue
 
         # Generate the prompt
-        prompt = generate_prompt(check=checker,
-                                 check_synonyms=checker_synonyms,
-                                 ex_list=text_examples,
-                                 syn_list=synonyms)
+        prompt = generate_prompt(query_sentence=checker_dict["text"],
+                                 query_stmt=checker_dict["english"],
+                                 query_synonyms=query_synonyms,
+                                 pos_ex_list=pos_examples,
+                                 neg_ex_list=neg_examples)
 
         if not prompt:
             logger.warning("No prompt was generated, skipping...")
@@ -743,6 +835,25 @@ def run_stats_positive_examples(
     # Add sum row and column
     confusions.loc["sum"] = confusions.sum()
     confusions["sum"] = confusions.sum(axis=1)
+
+    # Calculate the precision, recall and accuracy
+    tp = confusions.loc["gpt_correct", "cur_correct"]
+    fp = confusions.loc["gpt_correct", "cur_incorrect"]
+    fn = confusions.loc["gpt_incorrect", "cur_correct"]
+    tn = confusions.loc["gpt_incorrect", "cur_incorrect"]
+    N = confusions.loc["sum", "sum"]
+    precision = tp / (tp + fp)
+    recall = tp / (tp + fn)
+    accuracy = (tp + tn) / N
+
+    # Print the results
+    print("Confusion matrix:")
+    print(confusions)
+    print(f"Precision: {precision}")
+    print(f"Recall: {recall}")
+    print(f"Accuracy: {accuracy}")
+    print(f"Total examples: {N}")
+    print("Returning confusion matrix...")
 
     return confusions
 
