@@ -562,6 +562,7 @@ def run_openai_chat(
 
     # Retry the request if it fails
     retry_count = max(retry_count, 1)
+    response = None
     for i in range(retry_count):
         try:
             response = api_class.create(
@@ -583,7 +584,12 @@ def run_openai_chat(
                 raise e
 
     if debug:
-        logger.info(f"Got response:\n'{str(response)}' to prompt:\n'{prompt}'")
+        logger.info(
+            f"Prompt:\n-------\n{prompt}\n-------\n"
+            f"Response:\n---------\n{response}\n---------\n\n"
+        )
+    if response is None:
+        raise RuntimeError("No response from OpenAI")
     return _get_response(response)
 
 
