@@ -421,7 +421,7 @@ def check_prompt_generation():
     test_synonyms3 = [("f", "F")]
 
     test_sentence4 = "X deactivates Y in this text"
-    test_stmt4 = "WW deactivates ZZ"
+    test_stmt4 = "X deactivates Y"
 
     test_query_sentence = "a inhibits b in this text"
     test_query_stmt = "A inhibits B"
