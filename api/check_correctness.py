@@ -100,18 +100,26 @@ def find_synonyms(ev_text: str, eng_stmt: str, synonym_list, case_sensitive=Fals
     return text_syn, eng_syn
 
 
-def get_synonyms(examples):
-    synonyms_per_example = []
-    # Loop over examples
-    for _, _, ag_json_list in examples:
-        all_ag_synonyms = []
-        # Loop over agents in the example
-        for ag_json in ag_json_list:
-            db_refs = ag_json.get("db_refs", {})
-            name = ag_json.get("name") or db_refs.get("TEXT")
-            all_ag_synonyms.append(get_names_gilda(db_refs=db_refs, name=name))
-        synonyms_per_example.append(all_ag_synonyms)
-    return synonyms_per_example
+def get_synonyms(ag_json_list):
+    """Get the synonyms for a given list of agent JSONs.
+
+    Parameters
+    ----------
+    ag_json_list : list
+        A list of agent JSONs corresponding to a single example.
+
+    Returns
+    -------
+    list
+        A list of lists of synonyms for each agent in the example.
+    """
+    all_ag_synonyms = []
+    # Loop over agents in the example
+    for ag_json in ag_json_list:
+        db_refs = ag_json.get("db_refs", {})
+        name = ag_json.get("name") or db_refs.get("TEXT")
+        all_ag_synonyms.append(get_names_gilda(db_refs=db_refs, name=name))
+    return all_ag_synonyms
 
 
 def generate_synonyms_string_example(syn_list,
@@ -580,9 +588,8 @@ def two_correct_sample(training_data_df: pd.DataFrame):
     # Get one example to check at random
     checker_dict = training_data_df.sample(1).to_dict(orient="records")[0]
     checker = (checker_dict["text"], checker_dict["english"])
-    checker_synonyms = get_synonyms([(*checker, checker_dict[
-        "agent_json_list"])])[0]
-    synonyms = get_synonyms(example_list)
+    checker_synonyms = get_synonyms(checker_dict["agent_json_list"])
+    synonyms = [get_synonyms(ajl) for _, _, ajl in example_list]
 
     # Only keep the sentence and statement for the examples
     text_examples = [ex[:2] for ex in example_list]
@@ -688,10 +695,8 @@ def run_stats_positive_examples(
                     n=n_pos_examples).values)
         )
 
-        checker = (checker_dict["text"], checker_dict["english"])
-        checker_synonyms = get_synonyms([(*checker, checker_dict[
-            "agent_json_list"])])[0]
-        synonyms = get_synonyms(pos_examples)
+        query_synonyms = get_synonyms(checker_dict["agent_json_list"])
+        synonyms = [get_synonyms(ajl) for _, _, ajl in pos_examples]
 
         # Only keep the sentence and statement for the examples
         text_examples = [ex[:2] for ex in pos_examples]
@@ -754,7 +759,7 @@ def save_examples(training_data_df, correct: bool = True):
         else:
             assert row.tag != "correct"
 
-        synonyms = get_synonyms([row.agent_json_list])[0]
+        synonyms = get_synonyms(row["agent_json_list"].values[0])
         syn_pairs = []
         for sl in synonyms:
             in_text, in_stmt = find_synonyms(row.text, row.english, sl, case_sensitive=False)
