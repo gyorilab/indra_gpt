@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 from collections import OrderedDict, Counter
+from datetime import datetime
 from itertools import count
 from pathlib import Path
 from time import sleep
@@ -636,7 +637,7 @@ def run_stats(
     n_neg_examples=2,
     neg_tag: str = None,
     debug_print: bool = False
-) -> pd.DataFrame:
+):
     """Run the chat completion on n positive examples
 
     Parameters
@@ -655,8 +656,8 @@ def run_stats(
         The tag to use for the negative examples. If None, all tags will be
         used. Default: None.
     debug_print :
-        If True, the function will print the prompt and the response from
-        OpenAI. The default is False.
+        If True, the function will print the prompt and the response from the
+        OpenAI API. The default is False.
 
     Returns
     -------
@@ -771,13 +772,15 @@ def run_stats(
             save_examples(training_data_df, correct=False)
             neg_df = _get_examples_df(negative_examples_path, n_neg_examples)
 
-    # Initialize 2x2 dataframe to store the results
-    confusions = pd.DataFrame(
-        data=[[0, 0], [0, 0]],
-        columns=["cur_correct", "cur_incorrect"],
-        index=["gpt_correct", "gpt_incorrect"]
-    )
     previous_checks = set()
+    start_dt = datetime.utcnow()
+    results_dict = {"start_time": start_dt.isoformat(),
+                    "error_count": 0,
+                    "prompts": [],
+                    "true_positive": 0,
+                    "false_positive": 0,
+                    "false_negative": 0,
+                    "true_negative": 0}
     for _ in tqdm(range(n_iter), desc="Running chat completions", total=n_iter):
         # Get one example to check at random from the examples not matching
         # the examples' source_hash or the ones already checked
@@ -806,7 +809,8 @@ def run_stats(
             agent_synonyms_list=query_synonyms_base
         )
         if query_synonyms is None:
-            logger.warning("No matching synonyms found in , skipping...")
+            logger.warning(f"No matching synonyms between text and "
+                           f"statement found in the {checker_dict['english']}")
             continue
 
         # Generate the prompt
@@ -827,46 +831,60 @@ def run_stats(
                                      debug=debug_print)
         except Exception as e:
             logger.warning(f"Error while running chat completion: {e}")
+            results_dict["error_count"] += 1
             continue
 
+        # Save the prompt
+        results_dict["prompts"].append(prompt)
+
         # Update the confusion matrix
+        # gpt correct - correct
         if choice.lower() == "yes" and checker_dict["tag"] == "correct":
-            confusions.loc["gpt_correct", "cur_correct"] += 1
+            results_dict["true_positive"] += 1
+        # gpt correct - incorrect
         elif choice.lower() == "yes" and checker_dict["tag"] != "correct":
-            confusions.loc["gpt_correct", "cur_incorrect"] += 1
+            results_dict["false_positive"] += 1
+        # gpt incorrect - correct
         elif choice.lower() == "no" and checker_dict["tag"] == "correct":
-            confusions.loc["gpt_incorrect", "cur_correct"] += 1
+            results_dict["false_negative"] += 1
+        # gpt incorrect - incorrect
         elif choice.lower() == "no" and checker_dict["tag"] != "correct":
-            confusions.loc["gpt_incorrect", "cur_incorrect"] += 1
+            results_dict["true_negative"] += 1
         else:
             logger.warning(f"Choice {choice} not recognized.")
 
         sleep(0.1)
 
-    # Add sum row and column
-    confusions.loc["sum"] = confusions.sum()
-    confusions["sum"] = confusions.sum(axis=1)
+    results_dict["end_time"] = datetime.utcnow().isoformat()
 
     # Calculate the precision, recall and accuracy
-    tp = confusions.loc["gpt_correct", "cur_correct"]
-    fp = confusions.loc["gpt_correct", "cur_incorrect"]
-    fn = confusions.loc["gpt_incorrect", "cur_correct"]
-    tn = confusions.loc["gpt_incorrect", "cur_incorrect"]
-    N = confusions.loc["sum", "sum"]
-    precision = tp / (tp + fp)
-    recall = tp / (tp + fn)
-    accuracy = (tp + tn) / N
+    tp = results_dict["true_positive"]
+    fp = results_dict["false_positive"]
+    fn = results_dict["false_negative"]
+    tn = results_dict["true_negative"]
+    results_dict["total_examples"] = N = tp + fp + fn + tn
+    results_dict["precision"] = tp / (tp + fp) if tp + fp > 0 else 0
+    results_dict["recall"] = tp / (tp + fn) if tp + fn > 0 else 0
+    results_dict["accuracy"] = (tp + tn) / N if N > 0 else 0
 
     # Print the results
     print("Confusion matrix:")
-    print(confusions)
-    print(f"Precision: {precision}")
-    print(f"Recall: {recall}")
-    print(f"Accuracy: {accuracy}")
+    print(pd.DataFrame(data=[[tp, fp], [fn, tn]],
+                       index=["gpt_correct", "gpt_incorrect"],
+                       columns=["correct", "incorrect"]))
+    print(f"Precision: {results_dict['precision']}")
+    print(f"Recall: {results_dict['recall']}")
+    print(f"Accuracy: {results_dict['accuracy']}")
     print(f"Total examples: {N}")
-    print("Returning confusion matrix...")
 
-    return confusions
+    # Save the results
+    logger.info("Saving results...")
+    fname = start_dt.strftime("%Y-%m-%d_%H-%M-%S") + ".json"
+    LOCAL_FILES.joinpath("results").mkdir(exist_ok=True)
+    with open(LOCAL_FILES.joinpath("results", fname), "w") as f:
+        json.dump(results_dict, f, indent=4)
+
+    return results_dict
 
 
 def save_examples(training_data_df, correct: bool = True):
