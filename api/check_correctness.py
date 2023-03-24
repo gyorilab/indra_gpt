@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 from collections import OrderedDict
+from itertools import count
 from pathlib import Path
 from time import sleep
 
@@ -34,15 +35,8 @@ curation_training_data = LOCAL_FILES.joinpath("training_data.tsv")
 positive_examples_path = LOCAL_FILES.joinpath("positive_examples.tsv")
 negative_examples_path = LOCAL_FILES.joinpath("negative_examples.tsv")
 
-default_prompt_template = """The following sentences are paired with statements that are implied from their sentence:
-
-{examples}
-
-Does the following sentence
-"{check_sentence}"
-imply the following statement
-"{check_eng_stmt}"?{check_synonyms}
-Please answer with just Yes or No."""
+default_prompt_template = """{examples}
+{query}Please answer with just Yes or No."""
 old_prompt = (
     "You need to help me verify if a sentence I give you implies "
     "a statement I give you. Provide a correct answer with a "
@@ -279,6 +273,169 @@ def generate_examples_by_tag(curation_df: pd.DataFrame, tag: str, n_examples: in
     cols = ["text", "english", "agent_json_list"]
     return list(map(tuple, curation_df[cols][curation_df["tag"] == tag]
                     .sample(**kwargs).values))
+
+
+def generate_synonym_str(syn_list, index: int = None) -> str:
+    """Generate a string with the list of synonyms
+
+    Parameters
+    ----------
+    syn_list :
+        A list of tuples with (synonym_in_sentence, synonym_in_statement)
+    index :
+        If provided, is the index of the sentence and statement. If None,
+        the index will not be included in the string.
+    """
+    ix = str(index) if index is not None else ""
+    sent_str = "Sentence" + ix if index is not None else "the sentence"
+    stmt_str = "Statement" + ix if index is not None else "the statement"
+    if len(syn_list) == 1:
+        syn_sent, syn_stmt = syn_list[0]
+        base_str = (
+            f'Assume "{syn_sent}" in {sent_str} and "{syn_stmt}" in '
+            f'{stmt_str} are synonyms.\n'
+
+        )
+    else:
+        base_str = (
+            f"Assume the following list of pairs are synonyms in {sent_str} "
+            f"and {stmt_str}, respectively:\n"
+        )
+
+        for syn_sent, syn_stmt in syn_list:
+            base_str += f'- "{syn_sent}" and "{syn_stmt}"\n'
+    return base_str
+
+
+def generate_example(
+    sentence,
+    statement,
+    synonyms=None,
+    index: int = None
+) -> str:
+    """Generate an example string
+
+    Parameters
+    ----------
+    sentence :
+        The example sentence.
+    statement :
+        The example english statement paired with the sentence.
+    synonyms :
+        A list of tuples with (synonym_in_sentence, synonym_in_statement).
+    index :
+        If provided, is the index of the sentence and statement. If None,
+        the index will not be included in the string.
+
+    Returns
+    -------
+    :
+        A string with the example, including synonyms if provided.
+    """
+    ix = str(index) if index is not None else ""
+    sent_str = "Sentence" + ix
+    stmt_str = "Statement" + ix
+
+    example_template = (
+        '{sent_str}: "{sentence}"\n{stmt_str}: "{english}"{synonyms}\n'
+    )
+    if synonyms:
+        syn_str = "\n" + generate_synonym_str(synonyms, index)
+    else:
+        syn_str = ""
+    return example_template.format(sent_str=sent_str, sentence=sentence,
+                                   stmt_str=stmt_str, english=statement,
+                                   synonyms=syn_str)
+
+
+def generate_example_list(examples, correct: bool, indexer) -> str:
+    """Generate a list of examples
+
+    Parameters
+    ----------
+    examples :
+        A list of tuples with (sentence, english_stmt, list_of_synonyms).
+        List of synonyms can be None if they are not needed. If provided,
+        it should be a list of tuples with (synonym_in_sentence,
+        synonym_in_statement).
+    correct :
+        If True, the statement in the examples are implied by their paired
+        sentences. If False, the statement in the examples are **not** implied
+        by their paired sentences.
+    indexer :
+        An iterator to get the index of the sentence and statement.
+    """
+    pos_str = "The following sentences are paired with statements that are " \
+              "implied from their sentence:\n\n"
+    neg_str = "The following sentences do not imply the statements they " \
+              "are paired with:\n\n"
+    template = pos_str if correct else neg_str
+    for sentence, statement, syn_list in examples:
+        # Synonyms is a list of tuples with (synonym_in_sentence,
+        # synonym_in_statement)
+        ix = next(indexer)
+        ex_str = generate_example(sentence, statement, syn_list, ix)
+        template += ex_str
+    return template
+
+
+def generate_query_str(query_sentence, query_stmt, query_synonyms=None) -> str:
+    """Generate the query string for the prompt
+
+    Parameters
+    ----------
+    query_sentence :
+        The sentence to query.
+    query_stmt :
+        The english statement to query.
+    query_synonyms :
+        A list of tuples with (synonym_in_sentence, synonym_in_statement).
+    """
+    query_str = "Is the following statement implied by the sentence " \
+                "assuming the sentence and the statement follow the same " \
+                "pattern as in the examples above?\n\n"
+    query_str += generate_example(query_sentence, query_stmt, query_synonyms)
+    return query_str
+
+
+def check_prompt_generation():
+    """Quickly test the prompt generation by calling this function"""
+    test_sentence1 = "a activates b in this text"
+    test_stmt1 = "A activates B"
+    test_synonyms1 = [("a", "A"), ("b", "B")]
+
+    test_sentence2 = "c phosphorylates D in this text"
+    test_stmt2 = "C phosphorylates D"
+    test_synonyms2 = [("c", "C")]
+
+    test_sentence3 = "E deactivates f in this text"
+    test_stmt3 = "E activates F"
+    test_synonyms3 = [("f", "F")]
+
+    test_sentence4 = "X deactivates Y in this text"
+    test_stmt4 = "WW deactivates ZZ"
+
+    test_query_sentence = "a inhibits b in this text"
+    test_query_stmt = "A inhibits B"
+    test_query_synonyms = [("a", "A"), ("b", "B")]
+
+    pos_examples = [
+        (test_sentence1, test_stmt1, test_synonyms1),
+        (test_sentence2, test_stmt2, test_synonyms2),
+    ]
+    neg_examples = [
+        (test_sentence3, test_stmt3, test_synonyms3),
+        (test_sentence4, test_stmt4, None),
+    ]
+
+    test_prompt = generate_prompt(
+        query_sentence=test_query_sentence,
+        query_stmt=test_query_stmt,
+        pos_ex_list=pos_examples,
+        neg_ex_list=neg_examples,
+        query_synonyms=test_query_synonyms,
+    )
+    print(test_prompt)
 
 
 def generate_prompt(
