@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import sys
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 from itertools import count
 from pathlib import Path
 from time import sleep
@@ -737,32 +737,47 @@ def run_stats_positive_examples(
 def save_examples(training_data_df, correct: bool = True):
     """Save the examples to a csv file"""
     saved = []
+    saved_tags = []
     if correct:
-        eq = "=="
+        row_iter = training_data_df.query('tag == "correct"')
         out_file = positive_examples_path
     else:
-        eq = "!="
+        row_iter = training_data_df.query('tag != "correct"')
         out_file = negative_examples_path
-    for row in training_data_df.query('tag @eq "correct"').sample(
-            frac=1.0).itertuples():
-        eval(f'assert row.tag {eq} "correct"')
-        synonyms = get_synonyms([(row.text, row.english,
-                                  row.agent_json_list)])[0]
+        if out_file.exists():
+            saved_df = pd.read_csv(out_file, sep="\t")
+            saved_tags = list(saved_df["tag"])
+
+    for row in row_iter.sample(frac=1.0).itertuples():
+        if correct:
+            assert row.tag == "correct"
+        else:
+            assert row.tag != "correct"
+
+        synonyms = get_synonyms([row.agent_json_list])[0]
         syn_pairs = []
         for sl in synonyms:
             in_text, in_stmt = find_synonyms(row.text, row.english, sl, case_sensitive=False)
             if in_text and in_stmt:
                 syn_pairs.append((in_text, in_stmt))
         if len(syn_pairs) != len(synonyms):
-            skip = "Not all synonyms were found in the sentence and " \
+            skip = "> > Not all synonyms were found in the sentence and " \
                    "statement, recommend skipping this one\n"
         else:
             skip = ""
         syn_pairs_str = "\n".join([f"{s[0]} - {s[1]}" for s in syn_pairs])
 
+        if not correct:
+            tag_distr = ', '.join(f'{t}: {c}' for t, c in Counter(saved_tags).most_common())
+            tag_str = (
+                f"Current Tag: {row.tag}\nSaved tags: {tag_distr}\n"
+            )
+        else:
+            tag_str = ""
         choice = input(
-            f"Sentence:\n---------\n {row.text}\nStatement:\n----------"
-            f"\n{row.english}\n\nSynonyms:\n---------\n{syn_pairs_str}\n\n"
+            f"\nSentence:\n---------\n{row.text}\n---------\n\n"
+            f"Statement:\n----------\n{row.english}\n----------\n\nSynonyms:"
+            f"\n---------\n{syn_pairs_str}\n\n{tag_str}"
             f"{skip}Got {len(saved)} examples so far\nSave? (y/n/b): "
         )
         if choice == "b":
@@ -771,6 +786,7 @@ def save_examples(training_data_df, correct: bool = True):
         elif choice == "y":
             print("Saving")
             saved.append(row.Index)
+            saved_tags.append(row.tag)
         else:
             print("Not saving")
 
