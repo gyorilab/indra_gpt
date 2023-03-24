@@ -36,7 +36,7 @@ positive_examples_path = LOCAL_FILES.joinpath("positive_examples.tsv")
 negative_examples_path = LOCAL_FILES.joinpath("negative_examples.tsv")
 
 default_prompt_template = """{examples}
-{query}Please answer with just Yes or No."""
+{query}Please answer with just 'Yes' or 'No'."""
 old_prompt = (
     "You need to help me verify if a sentence I give you implies "
     "a statement I give you. Provide a correct answer with a "
