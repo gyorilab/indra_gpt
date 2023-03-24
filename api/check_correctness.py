@@ -543,9 +543,13 @@ def run_openai_chat(
 
     def _get_response(resp):
         if model == "gpt-3.5-turbo":
-            return resp["choices"][0]["message"]["content"].strip()
+            choice = resp["choices"][0]["message"]["content"].strip()
         else:  # text-davinci-003
-            return resp["choices"][0]["text"].strip()
+            choice = resp["choices"][0]["text"].strip()
+
+        # Remove trailing punctuations
+        choice = choice.rstrip(".,!")
+        return choice
 
     options = {}
     # For gpt-3.5-turbo chat mode:
