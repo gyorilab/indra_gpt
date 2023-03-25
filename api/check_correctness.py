@@ -101,13 +101,16 @@ def find_synonyms(ev_text: str, eng_stmt: str, synonym_list, case_sensitive=Fals
     return text_syn, eng_syn
 
 
-def get_synonyms(ag_json_list):
+def get_synonyms(ag_json_list, retries=3):
     """Get the synonyms for a given list of agent JSONs.
 
     Parameters
     ----------
     ag_json_list : list
         A list of agent JSONs corresponding to a single example.
+    retries : int
+        The number of times to retry getting the synonyms in case of an
+        error with the Gilda Web API.
 
     Returns
     -------
@@ -119,7 +122,21 @@ def get_synonyms(ag_json_list):
     for ag_json in ag_json_list:
         db_refs = ag_json.get("db_refs", {})
         name = ag_json.get("name") or db_refs.get("TEXT")
-        all_ag_synonyms.append(get_names_gilda(db_refs=db_refs, name=name))
+
+        # Get the synonyms for the agent
+        for trie in range(retries):
+            try:
+                all_ag_synonyms.append(
+                    get_names_gilda(db_refs=db_refs, name=name)
+                )
+                break
+            except Exception as e:
+                if trie == retries - 1:
+                    logger.error(f"Failed to get synonyms for after "
+                                 f"{retries} tries.")
+                    raise e
+                sleep(1)
+
     return all_ag_synonyms
 
 
