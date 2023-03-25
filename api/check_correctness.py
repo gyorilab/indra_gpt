@@ -869,6 +869,7 @@ def run_stats(
             results_dict["true_negative"] += 1
         else:
             logger.warning(f"Choice {choice} not recognized.")
+            continue
 
         sleep(0.1)
 
