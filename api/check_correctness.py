@@ -330,7 +330,7 @@ def get_create_training_set(
 
 
 def generate_examples_by_tag(curation_df: pd.DataFrame, tag: str, n_examples: int = 5):
-    """Generate triples of sentence-english-agent json statement for a tag
+    """Generate triples of sentence-english-agent json list for a tag
 
     Parameters
     ----------
