@@ -953,15 +953,19 @@ def run_stats(
                 sys.exit(1)
         return examples
 
+    examples_ids = set()
+
     # Get n positive examples
     if n_pos_examples > 0:
         pos_df = _get_examples_df(positive_examples_path, n_pos_examples)
+        examples_ids.update(pos_df["id"].values)
     else:
         pos_df = None
 
     # Get n negative examples
     if n_neg_examples > 0:
         neg_df = _get_examples_df(negative_examples_path, n_neg_examples)
+        examples_ids.update(neg_df["id"].values)
     else:
         neg_df = None
 
@@ -973,19 +977,22 @@ def run_stats(
             save_examples(training_data_df, correct=False)
             neg_df = _get_examples_df(negative_examples_path, n_neg_examples)
 
+    n_iter = max(n_iter, training_data_df.shape[0] - len(examples_ids))
     previous_checks = set()
     start_dt = datetime.utcnow()
     results_dict = {"start_time": start_dt.isoformat(),
                     "error_count": 0,
-                    "prompts": [],
+                    "chat_qa": [],
                     "true_positive": 0,
                     "false_positive": 0,
                     "false_negative": 0,
                     "true_negative": 0}
-    for _ in tqdm(range(n_iter), desc="Running chat completions", total=n_iter):
+
+    t = tqdm(desc="Running chat completions", total=n_iter)
+    while True:
         # Get one example to check at random from the examples not matching
         # the examples' source_hash or the ones already checked
-        excluded_ids = set(pos_df["id"]) | previous_checks
+        excluded_ids = examples_ids | previous_checks
         checker_dict = training_data_df[~training_data_df["id"].isin(
             excluded_ids)].sample(n=1).to_dict(orient="records")[0]
 
@@ -1035,9 +1042,6 @@ def run_stats(
             results_dict["error_count"] += 1
             continue
 
-        # Save the prompt
-        results_dict["prompts"].append(prompt)
-
         # Update the confusion matrix
         # gpt correct - correct
         if choice.lower() == "yes" and checker_dict["tag"] == "correct":
@@ -1055,7 +1059,19 @@ def run_stats(
             logger.warning(f"Choice {choice} not recognized.")
             continue
 
+        # Save the prompt, response and the tag
+        results_dict["chat_qa"].append({
+            "prompt": prompt,
+            "response": choice.lower(),
+            "tag": checker_dict["tag"],
+        })
+        t.update(1)
+        if t.n >= n_iter:
+            break
+
         sleep(0.1)
+
+    t.close()
 
     results_dict["end_time"] = datetime.utcnow().isoformat()
 
