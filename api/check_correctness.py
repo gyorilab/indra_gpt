@@ -1064,7 +1064,7 @@ def run_stats(
 
     # Save the results
     logger.info("Saving results...")
-    fname = start_dt.strftime("%Y-%m-%d_%H-%M-%S") + ".json"
+    fname = start_dt.strftime("correct_vs_incorrect_%Y%m%d_%H%M%S") + ".json"
     LOCAL_FILES.joinpath("results").mkdir(exist_ok=True)
     with open(LOCAL_FILES.joinpath("results", fname), "w") as f:
         json.dump(results_dict, f, indent=4)
