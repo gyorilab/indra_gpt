@@ -759,9 +759,14 @@ def explain_negative_examples(
         "Is the statement implied by the {text_type}?\n"
         "If it isn't, please explain why.\n"
     )
-    synonym_template = (
-        "Synonyms in the {text_type} and statement, respectively:\n"
-        "{synonyms}\n\n"
+    synonym_template_multiple = (
+        "The following list of pairs are synonyms, with the first being the "
+        "synonym used in the {text_type} and the second being the synonym used "
+        "in the statement:\n{synonyms}\n\n"
+    )
+    synonym_template_single = (
+        '"{in_text}" in the {text_type} is a synonym for "{in_stmt}" in the '
+        "statement\n\n"
     )
     start_dt = datetime.utcnow()
     results_dict = {"start_time": start_dt.isoformat(),
@@ -792,13 +797,21 @@ def explain_negative_examples(
             continue
 
         if query_synonyms:
-            synonyms_str = synonym_template.format(
-                text_type=text_type,
-                synonyms="\n".join(
-                    f'"{in_text}" and "{in_stmt}"'
-                    for in_text, in_stmt in query_synonyms
+            if len(query_synonyms) > 1:
+                synonyms_str = synonym_template_multiple.format(
+                    text_type=text_type,
+                    synonyms="\n".join(
+                        f'"{in_text}" and "{in_stmt}"'
+                        for in_text, in_stmt in query_synonyms
+                    )
                 )
-            )
+            else:
+                in_text, in_stmt = query_synonyms[0]
+                synonyms_str = synonym_template_single.format(
+                    text_type=text_type,
+                    in_text=in_text,
+                    in_stmt=in_stmt,
+                )
         else:
             synonyms_str = ""
 
