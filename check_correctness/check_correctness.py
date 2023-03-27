@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 import sys
 from collections import OrderedDict, Counter
 from datetime import datetime
@@ -13,16 +12,19 @@ import pandas as pd
 import requests
 from tqdm import tqdm
 
+from indra.config import get_config, IndraConfigError
 from indra.assemblers.english import EnglishAssembler
 from indra.assemblers.indranet.assembler import NS_PRIORITY_LIST
 from indra.statements.io import stmts_from_json_file
 
 try:
-    openai.api_key = os.environ["OPENAI_API_KEY"]
-    openai.organization = os.environ["OPENAI_ORG"]
-except KeyError as err:
+    openai.api_key = get_config("OPENAI_API_KEY", failure_ok=False)
+    organization = get_config("OPENAI_ORG")
+    if organization:
+        openai.organization = organization
+except IndraConfigError as err:
     raise KeyError(
-        "Please set the OPENAI_API_KEY and OPENAPI_ORG environment variables."
+        "Please set OPENAI_API_KEY in the environment or in the indra config."
     ) from err
 
 
