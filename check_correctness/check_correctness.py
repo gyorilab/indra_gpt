@@ -977,7 +977,7 @@ def run_stats(
             save_examples(training_data_df, correct=False)
             neg_df = _get_examples_df(negative_examples_path, n_neg_examples)
 
-    n_iter = max(n_iter, training_data_df.shape[0] - len(examples_ids))
+    n_iter = min(n_iter, training_data_df.shape[0] - len(examples_ids))
     previous_checks = set()
     start_dt = datetime.utcnow()
     results_dict = {"start_time": start_dt.isoformat(),
