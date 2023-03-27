@@ -586,6 +586,7 @@ def run_openai_chat(
     model="gpt-3.5-turbo",
     max_tokens=1,
     retry_count=3,
+    strip=True,
     debug=False,
 ):
     """Run OpenAI to check if the check sentence implies the check statement
@@ -604,6 +605,9 @@ def run_openai_chat(
         The number of times to retry the request if it fails. The default is
         3. After the retry count is reached, the function will raise an
         exception.
+    strip :
+        If True, the function will strip the response of whitespace and
+        punctuations.
     debug :
         If True, the function will print the full response from
         openai.Completion/CharCompletion.create(). The default is False.
@@ -616,12 +620,20 @@ def run_openai_chat(
 
     def _get_response(resp):
         if model == "gpt-3.5-turbo":
-            choice = resp["choices"][0]["message"]["content"].strip()
+            choice = resp["choices"][0]["message"]["content"]
         else:  # text-davinci-003
-            choice = resp["choices"][0]["text"].strip()
+            choice = resp["choices"][0]["text"]
 
-        # Remove trailing punctuations
-        choice = choice.rstrip(".,!")
+        if resp["choices"][0]["finish_reason"] == "length":
+            logger.warning(
+                "OpenAI response was truncated. Likely due to token "
+                "constraints. Consider increasing the max_tokens parameter."
+            )
+
+        # Remove whitespace and trailing punctuations
+        if strip:
+            choice = choice.strip().rstrip(".,!")
+
         return choice
 
     options = {}
@@ -664,7 +676,14 @@ def run_openai_chat(
         )
     if response is None:
         raise RuntimeError("No response from OpenAI")
-    return _get_response(response)
+
+    resp_str = _get_response(response)
+    if resp_str == "":
+        logger.warning("OpenAI returned an empty response. See full response "
+                       "below for details.")
+        print(f"Response:\n---------\n{response}\n---------\n\n")
+
+    return resp_str
 
 
 def two_correct_sample(training_data_df: pd.DataFrame):
