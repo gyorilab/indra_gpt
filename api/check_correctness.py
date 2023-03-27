@@ -196,6 +196,62 @@ def generate_synonyms_string_example(syn_list,
         return len(equals) > 0
 
 
+def parse_synonyms(text, english, agent_json_list, agent_synonyms_list):
+    """Get relevant synonyms given text, statement, agent jsons, synonyms
+
+    Parameters
+    ----------
+    text : str
+        The text to parse.
+    english : str
+        The English statement associated with the evidence text.
+    agent_json_list : list
+        A list of agent JSONs associated with the statement.
+    agent_synonyms_list : list
+        A list of lists of synonyms for each agent in the statement.
+
+    Returns
+    -------
+    Optional[list]
+        A list of tuples of (synonym in text, synonym in statement). If any
+        list of synonyms can't be matched to both the statement and the
+        evidence text, None is returned.
+    """
+    relevant_sl = []
+    missing_synonyms = False
+    for ag_json, sl in zip(agent_json_list, agent_synonyms_list):
+        s_in_text, s_in_stmt = find_synonyms(
+            text, english, sl, False
+        )
+        # Only keep the synonyms that are in the text and the
+        # statement and also are not equal
+        # todo: do this up front when examples are selected instead
+        if s_in_text and s_in_stmt:
+            if s_in_text != s_in_stmt:
+                relevant_sl.append((s_in_text, s_in_stmt))
+            else:
+                # If the synonyms are equal, we don't need to
+                # add them to the prompt
+                pass
+        # If no synonyms are found, check that the names still are
+        # in the example
+        else:
+            name = ag_json["name"]
+            text_name = ag_json["db_refs"].get("TEXT", None)
+            names = {name, text_name} - {None}
+
+            # If the same name isn't in the example, this is a missing synonym
+            if not any(n.lower() in text.lower() and
+                       n.lower() in english.lower()
+                       for n in names):
+                missing_synonyms = True
+                break
+    if missing_synonyms:
+        return None
+
+    return relevant_sl
+
+
 def generate_synonyms_string_check(syn_list, check_sentence, check_eng_stmt):
     selected_synonyms = []
     equals = []
@@ -701,41 +757,6 @@ def run_stats(
 
         return df
 
-    def _parse_synonyms(text, english, agent_json_list, agent_synonyms_list):
-        relevant_sl = []
-        missing_synonyms = False
-        for ag_json, sl in zip(agent_json_list, agent_synonyms_list):
-            s_in_text, s_in_stmt = find_synonyms(
-                text, english, sl, False
-            )
-            # Only keep the synonyms that are in the text and the
-            # statement and also are not equal
-            # todo: do this up front when examples are selected instead
-            if s_in_text and s_in_stmt:
-                if s_in_text != s_in_stmt:
-                    relevant_sl.append((s_in_text, s_in_stmt))
-                else:
-                    # If the synonyms are equal, we don't need to
-                    # add them to the prompt
-                    pass
-            # If no synonyms are found, check that the names still are
-            # in the example
-            else:
-                name = ag_json["name"]
-                text_name = ag_json["db_refs"].get("TEXT", None)
-                names = {name, text_name} - {None}
-
-                # If the same name isn't in the example, skip it
-                if not any(n.lower() in text.lower() and
-                           n.lower() in english.lower()
-                           for n in names):
-                    missing_synonyms = True
-                    break
-        if missing_synonyms:
-            return None
-
-        return relevant_sl
-
     def _get_examples(df, n_examples):
         examples_base = list(map(tuple,
                                  df[
@@ -751,7 +772,7 @@ def run_stats(
         for (text, english, agent_json_list), agent_synonyms_list in zip(
                 examples_base, synonyms_base
         ):
-            relevant_sl = _parse_synonyms(
+            relevant_sl = parse_synonyms(
                 text, english, agent_json_list, agent_synonyms_list
             )
             # None means there are synonyms missing and the entity names are
@@ -820,7 +841,7 @@ def run_stats(
             neg_examples = None
 
         query_synonyms_base = get_synonyms(checker_dict["agent_json_list"])
-        query_synonyms = _parse_synonyms(
+        query_synonyms = parse_synonyms(
             text=checker_dict["text"], english=checker_dict["english"],
             agent_json_list=checker_dict["agent_json_list"],
             agent_synonyms_list=query_synonyms_base
