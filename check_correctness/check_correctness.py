@@ -725,7 +725,7 @@ def two_correct_sample(training_data_df: pd.DataFrame):
 
 
 def explain_negative_examples(
-    traing_data_df: pd.DataFrame,
+    training_data_df: pd.DataFrame,
     tag: str = None,
     n_iter: int = 10,
     max_tokens: int = 150,
@@ -734,7 +734,7 @@ def explain_negative_examples(
 
     Parameters
     ----------
-    traing_data_df :
+    training_data_df :
         The training data DataFrame
     tag :
         The tag to filter the training data by. If None, all examples will be
@@ -769,7 +769,7 @@ def explain_negative_examples(
                     "empty_response_count": 0,
                     "chat_qa": []}
     df_query_str = "tag != 'correct'" if tag is None else f"tag == '{tag}'"
-    example_iter = map(tuple, traing_data_df.query(df_query_str)[
+    example_iter = map(tuple, training_data_df.query(df_query_str)[
         ['text', 'english', 'agent_json_list', 'tag']
     ].sample(frac=1.0).values)
 
