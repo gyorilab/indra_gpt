@@ -722,6 +722,133 @@ def two_correct_sample(training_data_df: pd.DataFrame):
     )
 
 
+def explain_negative_examples(
+    traing_data_df: pd.DataFrame,
+    tag: str = None,
+    n_iter: int = 10,
+    max_tokens: int = 150,
+):
+    """Submit statements curated as incorrect that asks why they are incorrect
+
+    Parameters
+    ----------
+    traing_data_df :
+        The training data DataFrame
+    tag :
+        The tag to filter the training data by. If None, all examples will be
+        used. The default is None.
+    n_iter :
+        The number of iterations to run. The default is 10.
+    max_tokens :
+        The maximum number of tokens to generate for chat completion. One
+        token is roughly one word in plain text, however it can be more per
+        word in some cases. The default is 150.
+
+    Returns
+    -------
+    :
+        The results as a dictionary
+    """
+    prompt_template = (
+        "Here is a {text_type} and a statement:\n\n"
+        '{text_type}: "{evidence_text}"\n\n'
+        'statement: "{statement}"\n\n'
+        "{synonyms}"
+        "Is the statement implied by the {text_type}?\n"
+        "If it isn't, please explain why.\n"
+    )
+    synonym_template = (
+        "Synonyms in the {text_type} and statement, respectively:\n"
+        "{synonyms}\n\n"
+    )
+    start_dt = datetime.utcnow()
+    results_dict = {"start_time": start_dt.isoformat(),
+                    "error_count": 0,
+                    "empty_response_count": 0,
+                    "chat_qa": []}
+    df_query_str = "tag != 'correct'" if tag is None else f"tag == '{tag}'"
+    example_iter = map(tuple, traing_data_df.query(df_query_str)[
+        ['text', 'english', 'agent_json_list', 'tag']
+    ].sample(frac=1.0).values)
+
+    for _ in tqdm(range(n_iter),
+                  desc="Running explanation queries",
+                  total=n_iter):
+        query_text, query_english, ag_json_list, row_tag = next(example_iter)
+        text_type = "paragraph" if query_text.count(".") > 1 else "sentence"
+        query_synonyms_base = get_synonyms(ag_json_list)
+        query_synonyms = parse_synonyms(
+            text=query_text, english=query_english,
+            agent_json_list=ag_json_list,
+            agent_synonyms_list=query_synonyms_base
+        )
+
+        # Fill out the synonyms template
+        if query_synonyms is None:
+            logger.warning(f"Could not get synonyms for {query_text} even "
+                           f"though they were needed for the prompt.")
+            continue
+
+        if query_synonyms:
+            synonyms_str = synonym_template.format(
+                text_type=text_type,
+                synonyms="\n".join(
+                    f'"{in_text}" and "{in_stmt}"'
+                    for in_text, in_stmt in query_synonyms
+                )
+            )
+        else:
+            synonyms_str = ""
+
+        # Fill out the prompt template
+        prompt = prompt_template.format(
+            text_type=text_type,
+            evidence_text=query_text,
+            statement=query_english,
+            synonyms=synonyms_str,
+        )
+
+        # Run the chat completion
+        try:
+            response = run_openai_chat(prompt=prompt,
+                                       max_tokens=max_tokens,
+                                       strip=False)
+        except Exception as e:
+            logger.error(f"Error running OpenAI chat: {e}")
+            results_dict["error_count"] += 1
+            continue
+
+        # Empty string
+        if not response:
+            logger.warning("No response from OpenAI")
+            results_dict["empty_response_count"] += 1
+            continue
+
+        resp_dict = {
+            "prompt": prompt,
+            "response": response,
+            "curation_tag": row_tag,
+        }
+        results_dict["chat_qa"].append(resp_dict)
+
+        sleep(0.1)
+
+    end_dt = datetime.utcnow()
+    logger.info(f"Finished running {n_iter} queries in "
+                f"{(end_dt - start_dt).total_seconds():.2f} seconds.")
+    results_dict["end_time"] = end_dt.isoformat()
+
+    # Save the results
+    fname = f"explain_incorrect_{start_dt.strftime('%Y%m%d_%H%M%S')}.json"
+    (LOCAL_FILES / "results").mkdir(exist_ok=True)
+    fpath = LOCAL_FILES / "results" / fname
+    logger.info(f"Saving results to {fpath}")
+    with open(fpath, "w") as f:
+        json.dump(results_dict, f, indent=4)
+
+    return results_dict
+
+
 def run_stats(
     training_data_df: pd.DataFrame,
     n_iter=100,
