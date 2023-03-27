@@ -778,10 +778,9 @@ def explain_negative_examples(
         ['text', 'english', 'agent_json_list', 'tag']
     ].sample(frac=1.0).values)
 
-    for _ in tqdm(range(n_iter),
-                  desc="Running explanation queries",
-                  total=n_iter):
-        query_text, query_english, ag_json_list, row_tag = next(example_iter)
+    for query_text, query_english, ag_json_list, row_tag in tqdm(
+            example_iter, desc="Running explanation queries", total=n_iter
+    ):
         text_type = "paragraph" if query_text.count(".") > 1 else "sentence"
         query_synonyms_base = get_synonyms(ag_json_list)
         query_synonyms = parse_synonyms(
@@ -845,6 +844,9 @@ def explain_negative_examples(
             "curation_tag": row_tag,
         }
         results_dict["chat_qa"].append(resp_dict)
+
+        if len(results_dict["chat_qa"]) >= n_iter:
+            break
 
         sleep(0.1)
 
