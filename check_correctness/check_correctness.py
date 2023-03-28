@@ -70,7 +70,25 @@ def get_names_gilda(db_refs, name):
 
 
 def find_synonyms(ev_text: str, eng_stmt: str, synonym_list, case_sensitive=False):
-    """Find which synonym is in evidence text and which is in the English stmt."""
+    """Find which synonym is in the evidence text and in the English stmt
+
+    Parameters
+    ----------
+    ev_text : str
+        The evidence text.
+    eng_stmt : str
+        The English statement.
+    synonym_list : list
+        A list of synonyms for the agent.
+    case_sensitive : bool
+        Whether to match case when looking for synonyms.
+
+    Returns
+    -------
+    tuple
+        A tuple of the synonym in the evidence text and the synonym in the
+        English statement.
+    """
     # Remove possible punctuations and parentheses and the split the string
     # on space to match exact words instead of substrings.
     ev_text = ev_text.lower() if not case_sensitive else ev_text
@@ -201,6 +219,23 @@ def parse_synonyms(text, english, agent_json_list, agent_synonyms_list):
 def get_create_training_set(
     curations_file: str = None, statement_json_file: str = None, refresh: bool = False
 ) -> pd.DataFrame:
+    """Get the training set for curation.
+
+    Parameters
+    ----------
+    curations_file : str
+        The path to the curations file.
+    statement_json_file : str
+        The path to the statement json file.
+    refresh : bool
+        If True, the training set will be regenerated even if it already
+        exists.
+
+    Returns
+    -------
+    pd.DataFrame
+        A dataframe containing the training set.
+    """
     if curation_training_data.exists() and not refresh:
         df = pd.read_csv(curation_training_data, sep="\t")
         if isinstance(df["agent_json_list"][0], str):
