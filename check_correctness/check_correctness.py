@@ -249,11 +249,12 @@ def get_create_training_set(
         return df
 
     # Create the training set
-    assert curations_file is not None and statement_json_file is not None, (
-        f"Please provide the curations and statement json file if "
-        f"pre-generated training data is not available at "
-        f"{curation_training_data}"
-    )
+    if curations_file is None or statement_json_file is None:
+        raise FileNotFoundError(
+            f"Please provide the curations and statement json file if "
+            f"pre-generated training data is not available at "
+            f"{curation_training_data}"
+        )
     logger.info("Loading curations")
     curs = json.load(open(curations_file, "r"))
     logger.info("Loading statements")
