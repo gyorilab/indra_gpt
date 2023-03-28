@@ -142,62 +142,6 @@ def get_synonyms(ag_json_list, retries=3):
     return all_ag_synonyms
 
 
-def generate_synonyms_string_example(syn_list,
-                                     example_sentence,
-                                     example_eng_stmt,
-                                     index: int):
-    """Generate a string with the synonyms for a given example.
-
-    Parameters
-    ----------
-    syn_list : list
-        A list of lists of synonyms for each agent in the statement.
-    example_sentence : str
-        The example sentence.
-    example_eng_stmt : str
-        The example statement in English.
-    index : int
-        The index of the example.
-
-    Returns
-    -------
-    str
-        A string with the synonyms for the given example. If no synonyms
-        are found, an empty string is returned.
-    """
-    selected_synonyms = []
-    equals = []
-    for ag_synonyms in syn_list:
-        s_in_text, s_in_stmt = find_synonyms(
-            example_sentence, example_eng_stmt, ag_synonyms, False
-        )
-        # Both synonyms must be not-None and not be equal, if they are
-        # equal, there is no need to add them to the list.
-        if s_in_text and s_in_stmt and s_in_stmt != s_in_text:
-            selected_synonyms.append((s_in_text, s_in_stmt))
-        elif s_in_text and s_in_stmt and s_in_stmt == s_in_text:
-            equals.append(s_in_text)
-
-    if selected_synonyms:
-        if len(selected_synonyms) == 1:
-            s_in_text, s_in_stmt = selected_synonyms[0]
-            synonym_str = (
-                f'Assume "{s_in_text}" in Sentence{index} and "{s_in_stmt}" '
-                f'Statement{index} are synonyms.\n'
-            )
-        else:
-            synonym_str = ("Assume the following list of pairs are synonyms "
-                           f"in Sentence{index} and Statement{index}, "
-                           f"respectively, above:\n")
-            for s_in_text, s_in_stmt in selected_synonyms:
-                synonym_str += f'"{s_in_text}" and "{s_in_stmt}"\n'
-        return synonym_str
-    else:
-        # True if there is a match in entity name between the sentence and
-        # the statement, False otherwise.
-        return len(equals) > 0
-
-
 def parse_synonyms(text, english, agent_json_list, agent_synonyms_list):
     """Get relevant synonyms given text, statement, agent jsons, synonyms
 
@@ -254,37 +198,6 @@ def parse_synonyms(text, english, agent_json_list, agent_synonyms_list):
     return relevant_sl
 
 
-def generate_synonyms_string_check(syn_list, check_sentence, check_eng_stmt):
-    selected_synonyms = []
-    equals = []
-    for ag_synonyms in syn_list:
-        s_in_text, s_in_stmt = find_synonyms(
-            check_sentence, check_eng_stmt, ag_synonyms, False
-        )
-        # Both synonyms must be not-None and not be equal, if they are
-        # equal, there is no need to add them to the list.
-        if s_in_text and s_in_stmt and s_in_stmt != s_in_text:
-            selected_synonyms.append((s_in_text, s_in_stmt))
-        elif s_in_text and s_in_stmt and s_in_stmt == s_in_text:
-            equals.append(s_in_text)
-
-    if selected_synonyms:
-        if len(selected_synonyms) == 1:
-            s_in_text, s_in_stmt = selected_synonyms[0]
-            synonym_str = (
-                f'Assume "{s_in_text}" and "{s_in_stmt}" are synonyms.\n'
-            )
-        else:
-            synonym_str = "Assume the following list of pairs are synonyms:\n"
-            for s_in_text, s_in_stmt in selected_synonyms:
-                synonym_str += f'"{s_in_text}" and "{s_in_stmt}"\n'
-        return synonym_str
-    else:
-        # True if there is a match in entity name between the sentence and
-        # the statement, False otherwise.
-        return len(equals) > 0
-
-
 def get_create_training_set(
     curations_file: str = None, statement_json_file: str = None, refresh: bool = False
 ) -> pd.DataFrame:
@@ -329,34 +242,6 @@ def get_create_training_set(
     df = pd.DataFrame(curation_data)
     df.to_csv(curation_training_data, sep="\t", index=False)
     return df
-
-
-def generate_examples_by_tag(curation_df: pd.DataFrame, tag: str, n_examples: int = 5):
-    """Generate triples of sentence-english-agent json list for a tag
-
-    Parameters
-    ----------
-    curation_df :
-        The curation dataframe
-    tag :
-        The tag to use e.g. "correct", "no_relation", "grounding"
-    n_examples :
-        The number of examples to generate for the tag. The default is 5. If
-        -1 is given, all examples will be returned.
-
-    Returns
-    -------
-    examples :
-        A list of tuples with (sentence, english_stmt, agent_json_list)
-    """
-    if n_examples == -1:
-        kwargs = {"frac": 1.0}
-    else:
-        kwargs = {"n": max(abs(n_examples), 1)}
-
-    cols = ["text", "english", "agent_json_list"]
-    return list(map(tuple, curation_df[cols][curation_df["tag"] == tag]
-                    .sample(**kwargs).values))
 
 
 def generate_synonym_str(syn_list, index: int = None) -> str:
@@ -686,42 +571,6 @@ def run_openai_chat(
         print(f"Response:\n---------\n{response}\n---------\n\n")
 
     return resp_str
-
-
-def two_correct_sample(training_data_df: pd.DataFrame):
-    """Test function to run the chat completion with two correct examples."""
-    # Get two correct examples
-    example_list = generate_examples_by_tag(training_data_df, n_examples=2, tag="correct")
-
-    # Get one example to check at random
-    checker_dict = training_data_df.sample(1).to_dict(orient="records")[0]
-    checker = (checker_dict["text"], checker_dict["english"])
-    checker_synonyms = get_synonyms(checker_dict["agent_json_list"])
-    synonyms = [get_synonyms(ajl) for _, _, ajl in example_list]
-
-    # Only keep the sentence and statement for the examples
-    text_examples = [ex[:2] for ex in example_list]
-
-    # Generate the prompt
-    prompt = generate_prompt(check=checker,
-                             check_synonyms=checker_synonyms,
-                             ex_list=text_examples,
-                             syn_list=synonyms)
-
-    if not prompt:
-        logger.warning("No prompt was generated. Will not run OpenAI.")
-        return
-
-    # Run the chat completion
-    choice = run_openai_chat(prompt=prompt, max_tokens=2)
-
-    # Get the response and the tag and check if the response is correct
-    print(f'Text:\n"{checker[0]}"\n\nStatement:\n"{checker[1]}"\n\n')
-    print(
-        f"Output\n------\nChoice - Yes/No/(None):\n{choice or '(None)'}.\n"
-        f"Originally tagged as: "
-        f"{'correct' if checker_dict['tag'] == 'correct' else 'incorrect'}"
-    )
 
 
 def explain_negative_examples(
