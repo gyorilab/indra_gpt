@@ -955,7 +955,15 @@ def run_stats(
 
 
 def save_examples(training_data_df, correct: bool = True):
-    """Save the examples to a tsv file"""
+    """Save examples of correct or incorrect statements to a file.
+
+    Parameters
+    ----------
+    training_data_df : pd.DataFrame
+        The training data dataframe.
+    correct : bool, optional
+        Whether to save the correct or incorrect examples, by default True
+    """
     saved = []
     saved_tags = []
     if correct:
