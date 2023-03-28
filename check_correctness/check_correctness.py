@@ -7,6 +7,7 @@ from itertools import count
 from pathlib import Path
 from time import sleep
 
+import click
 import openai
 import pandas as pd
 import requests
@@ -1076,12 +1077,78 @@ def save_examples(training_data_df, correct: bool = True):
             training_data_df.loc[saved].to_csv(out_file, **dump_options)
 
 
-# todo: create cli with click
-if __name__ == "__main__":
-    args = sys.argv[1:]
-    if len(args) != 2:
-        logger.error("Please provide the curations file and the statement json file")
-        sys.exit(1)
+@click.group("indra-gpt")
+def main():
+    """Run the indra-gpt command line tool."""
 
-    curations = args[0]
-    statement_jsons_file = args[1]
+
+@main.command()
+@click.option(
+    "--curations-file",
+    type=str,
+    required=True,
+    help="The path to the curations file to use. This should be a json file "
+         "containing a list of curation dictionaries."
+)
+@click.option(
+    "--statements-file",
+    type=str,
+    required=True,
+    help="The path to the statements json file to use."
+)
+@click.option(
+    "--force",
+    is_flag=True,
+    help="Force the recreation of the training data frame even if it already "
+         "exists."
+)
+def create_training_data(curations_file: str, statements_file: str, force: bool):
+    """Create training data for the GPT-2 model."""
+    _ = get_create_training_set(refresh=force, curations_file=curations_file,
+                                statement_json_file=statements_file)
+
+
+@main.command()
+@click.option(
+    "--run-iter",
+    type=int,
+    default=100,
+    help="The number of queries to send to chat-gpt."
+)
+@click.option(
+    "--pos-examples",
+    type=int,
+    default=2,
+    help="The number of positive examples to use in the prompt."
+)
+@click.option(
+    "--neg-examples",
+    type=int,
+    default=2,
+    help="The number of negative examples to use in the prompt."
+)
+@click.option(
+    "--debug-print",
+    is_flag=True,
+    help="Print the prompt sent and the full response from chat-gpt API call."
+)
+def run_stats_cli(
+    run_iter: int,
+    pos_examples: int,
+    neg_examples: int,
+    debug_print: bool
+):
+    """Run the stats command line tool."""
+    df = get_create_training_set(refresh=False)
+
+    _ = run_stats(
+        training_data_df=df,
+        n_iter=run_iter,
+        n_pos_examples=pos_examples,
+        n_neg_examples=neg_examples,
+        debug_print=debug_print
+    )
+
+
+if __name__ == "__main__":
+    main()
