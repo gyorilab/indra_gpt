@@ -81,7 +81,13 @@ def get_names_gilda(db_refs, name):
     return synonyms
 
 
-def find_synonyms(ev_text: str, eng_stmt: str, synonym_list, case_sensitive=False):
+def find_synonyms(
+    ev_text: str,
+    eng_stmt: str,
+    synonym_list,
+    case_sensitive=False,
+    substring_match=False,
+):
     """Find which synonym is in the evidence text and in the English stmt
 
     Parameters
@@ -94,6 +100,11 @@ def find_synonyms(ev_text: str, eng_stmt: str, synonym_list, case_sensitive=Fals
         A list of synonyms for the agent.
     case_sensitive : bool
         Whether to match case when looking for synonyms.
+    substring_match : bool
+        Whether to allow substring match or not. If allowed, the synonym
+        must match in both the text and the statement at the same time, i.e.
+        the names are the same but embedded in text like "RIG-I" is embedded
+        in "RIG-I-induced".
 
     Returns
     -------
@@ -110,10 +121,12 @@ def find_synonyms(ev_text: str, eng_stmt: str, synonym_list, case_sensitive=Fals
     # Remove possible punctuations and parentheses and the split the string
     # on space to match exact words instead of substrings.
     ev_text = ev_text.lower() if not case_sensitive else ev_text
+    org_ev_text = ev_text
     ev_text = _clean(ev_text)
     ev_text_list = ev_text.split()
 
     eng_stmt = eng_stmt.lower() if not case_sensitive else eng_stmt
+    org_eng_stmt = eng_stmt
     eng_stmt = _clean(eng_stmt)
     eng_stmt_list = eng_stmt.split()
 
@@ -124,6 +137,11 @@ def find_synonyms(ev_text: str, eng_stmt: str, synonym_list, case_sensitive=Fals
         if text_syn is None and syn_lower in ev_text_list:
             text_syn = syn
         if eng_syn is None and syn_lower in eng_stmt_list:
+            eng_syn = syn
+
+        if substring_match and syn_lower in org_ev_text and \
+                syn_lower in org_eng_stmt:
+            text_syn = syn
             eng_syn = syn
 
         if text_syn and eng_syn:
