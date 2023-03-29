@@ -36,7 +36,7 @@ def main():
          "exists."
 )
 def create_training_data(curations_file: str, statements_file: str, force: bool):
-    """Create training data for the GPT-2 model."""
+    """Create training data"""
     _ = get_create_training_set(refresh=force, curations_file=curations_file,
                                 statement_json_file=statements_file)
 
