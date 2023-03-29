@@ -10,9 +10,9 @@ from time import sleep
 import click
 import openai
 import pandas as pd
-import requests
 from tqdm import tqdm
 
+import gilda
 from indra.config import get_config, IndraConfigError
 from indra.assemblers.english import EnglishAssembler
 from indra.assemblers.indranet.assembler import NS_PRIORITY_LIST
@@ -58,11 +58,22 @@ def get_ag_ns_id(db_refs, default):
 
 
 def get_names_gilda(db_refs, name):
-    """Get the names for a given db_refs dict using the Gilda API."""
+    """Get the names for a given db_refs dict using Gilda
+
+    Parameters
+    ----------
+    db_refs : dict
+        A dictionary of db_refs.
+    name : str
+        The name of the agent.
+
+    Returns
+    -------
+    list
+        A list of names for the agent.
+    """
     db, _id = get_ag_ns_id(db_refs, name)
-    res = requests.post("http://grounding.indra.bio/names", json={"db": db, "id": _id})
-    res.raise_for_status()
-    synonyms = res.json()
+    synonyms = gilda.get_names(db, _id)
     if name not in synonyms:
         synonyms.append(name)
     if "TEXT" in db_refs and db_refs["TEXT"] not in synonyms:
