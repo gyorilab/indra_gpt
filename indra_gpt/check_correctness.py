@@ -90,22 +90,19 @@ def find_synonyms(ev_text: str, eng_stmt: str, synonym_list, case_sensitive=Fals
         A tuple of the synonym in the evidence text and the synonym in the
         English statement.
     """
+    def _clean(s):
+        return s.replace("(", "").replace(")", "").replace(":", "").replace(
+            ";", "").replace("?", "").replace("!", "").replace(
+            ",", "").replace(".", "")
+
     # Remove possible punctuations and parentheses and the split the string
     # on space to match exact words instead of substrings.
     ev_text = ev_text.lower() if not case_sensitive else ev_text
-    ev_text = (
-        ev_text.replace("(", "").replace(")", "").replace(":", "").replace(
-            ";", "").replace("?", "").replace("!", "").replace(
-            ",", "").replace(".", "")
-    )
+    ev_text = _clean(ev_text)
     ev_text_list = ev_text.split()
 
     eng_stmt = eng_stmt.lower() if not case_sensitive else eng_stmt
-    eng_stmt = (
-        eng_stmt.replace("(", "").replace(")", "").replace(":", "").replace(
-            ";", "").replace("?", "").replace("!", "").replace(
-            ",", "").replace(".", "")
-    )
+    eng_stmt = _clean(eng_stmt)
     eng_stmt_list = eng_stmt.split()
 
     text_syn = None
