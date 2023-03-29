@@ -260,13 +260,14 @@ def get_create_training_set(
     curs = json.load(open(curations_file, "r"))
     logger.info("Loading statements")
     stmts = stmts_from_json_file(statement_json_file)
-    stmts_by_hash = {s.get_hash(): s for s in stmts}
+    stmts_by_hash = {s.get_hash(): s
+                     for s in tqdm(stmts, desc="Creating statement lookup")}
 
     # Loop the curations, get the corresponding statement with evidence and
     # extend the curation with the evidence text and english assembled
     # statement
     curation_data = []
-    for cur in curs:
+    for cur in tqdm(curs, desc="Matching curations to statements"):
         stmt = stmts_by_hash[cur["pa_hash"]]
         ev = [e for e in stmt.evidence if e.get_source_hash() == cur["source_hash"]][0]
         cur["text"] = ev.text
@@ -277,6 +278,7 @@ def get_create_training_set(
 
     # Save the training data
     df = pd.DataFrame(curation_data)
+    logger.info(f"Saving training data to {curation_training_data}")
     df.to_csv(curation_training_data, sep="\t", index=False)
     return df
 
