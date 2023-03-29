@@ -102,9 +102,10 @@ def find_synonyms(ev_text: str, eng_stmt: str, synonym_list, case_sensitive=Fals
         English statement.
     """
     def _clean(s):
-        return s.replace("(", "").replace(")", "").replace(":", "").replace(
-            ";", "").replace("?", "").replace("!", "").replace(
-            ",", "").replace(".", "")
+        return s.replace("(", " ").replace(")", " ").replace(
+            ":", " ").replace(";", " ").replace("?", " ").replace(
+            "!", " ").replace(",", " ").replace(".", " ").replace(
+            "/", " ").replace("  ", " ")
 
     # Remove possible punctuations and parentheses and the split the string
     # on space to match exact words instead of substrings.
