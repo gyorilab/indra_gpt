@@ -420,10 +420,11 @@ def generate_synonym_str(agents_info, index: int = None) -> str:
         in_text = agent_info["syn_in_text"]
         in_stmt = agent_info["syn_in_stmt"]
         synonyms = set(agent_info["synonyms"]) - {in_stmt}
-        # Skip if there are no synonyms or one or both of the synonyms is
-        # None (i.e. not found in the text or statement)
-        if len(synonyms) == 0 or in_text is None or in_stmt is None:
+        name = in_stmt or in_text
+        if len(synonyms) == 0 or name is None:
+            # No string to generate
             continue
+
         if agent_info["definition"]:
             definition = agent_info["definition"]
         else:
@@ -434,24 +435,48 @@ def generate_synonym_str(agents_info, index: int = None) -> str:
             name=in_stmt, definition=definition, ex_str=index_str
         ) if definition else ""
 
-        base_str += syn_str_fmt.format(
-            name=in_stmt, synonym=in_text, ex_str=index_str
-        )
-        # if len(synonyms) == 1:
-        #     base_str_fmt = base_str_fmt_singular
-        #     synonyms = list(synonyms)[0]
-        # else:
-        #     base_str_fmt = base_str_fmt_plural
-        #     synonyms = list(synonyms)
-        #     if len(synonyms) == 2:
-        #         synonyms = '"' + '" and "'.join(synonyms) + '"'
-        #     else:
-        #         synonyms = \
-        #             '"' + '", "'.join(synonyms[:-1]) + \
-        #             '", and "' + synonyms[-1] + '"'
-        # base_str += base_str_fmt.format(
-        #     name=name, synonyms=synonyms, ex_str=index_str
-        # )
+        if in_text and in_stmt:
+            # 1. 'real' synonyms
+            if in_text != in_stmt:
+                base_str += syn_str_fmt.format(
+                    name=in_stmt, synonym=in_text, ex_str=index_str
+                )
+            # 2. They are the same, no need to add a synonym
+            else:
+                continue
+        else:
+            # 3. In statement but not in text, continue
+            if in_text is None and in_stmt or in_text and in_stmt is None:
+                #  Use continue to test the assumption that chat-gpt gets
+                # more confused by listing synonyms that don't appear in the
+                # text
+                # continue
+
+                # List the synonyms to test the assumption that some of the
+                # synonyms are descriptive enough to clarify the meaning of
+                # the statement and text pair rather than confuse chat-gpt.
+                synonyms = list(synonyms)
+                if len(synonyms) == 1:
+                    synonyms = synonyms[0]
+                elif len(synonyms) == 2:
+                    synonyms = '"' + '" and "'.join(synonyms) + '"'
+                elif len(synonyms) > 2:
+                    synonyms = \
+                        '"' + '", "'.join(synonyms[:-1]) + \
+                        '", and "' + synonyms[-1] + '"'
+                else:
+                    #
+                    pass
+                base_str += syn_str_fmt.format(
+                    name=name, synonym=synonyms, ex_str=index_str
+                )
+            else:
+                # 4. neither in text nor in statement (should already be
+                #    handled above)
+                continue
+
+
+
 
     return base_str
 
