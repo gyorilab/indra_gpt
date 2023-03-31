@@ -1158,14 +1158,22 @@ def save_examples(training_data_df, correct: bool = True):
     saved = []
     saved_tags = []
     if correct:
-        row_iter = training_data_df.query('tag == "correct"')
         out_file = positive_examples_path
+        query_str = 'tag == "correct"'
+
     else:
-        row_iter = training_data_df.query('tag != "correct"')
         out_file = negative_examples_path
-        if out_file.exists():
-            saved_df = pd.read_csv(out_file, sep="\t")
-            saved_tags = list(saved_df["tag"])
+        query_str = 'tag != "correct"'
+
+    if out_file.exists():
+        saved_df = pd.read_csv(out_file, sep="\t")
+        saved_tags = list(saved_df["tag"])
+        saved_ids = set(saved_df["id"])
+        row_iter = training_data_df[
+            ~training_data_df["id"].isin(saved_ids)
+        ].query(query_str)
+    else:
+        row_iter = training_data_df.query(query_str)
 
     for row in row_iter.sample(frac=1.0).itertuples():
         if correct:
@@ -1173,13 +1181,17 @@ def save_examples(training_data_df, correct: bool = True):
         else:
             assert row.tag != "correct"
 
-        synonyms = get_synonyms(row["agent_json_list"].values[0])
+        ags_info_dict = row["agent_info"].values[0]
         syn_pairs = []
-        for sl in synonyms:
-            in_text, in_stmt = find_synonyms(row.text, row.english, sl, case_sensitive=False)
-            if in_text and in_stmt:
+        for curie, info in ags_info_dict.items():
+            in_text, in_stmt = find_synonyms(row.text,
+                                             row.english,
+                                             info["synonyms"],
+                                             case_sensitive=False,
+                                             substring_match=True)
+            if in_text or in_stmt:
                 syn_pairs.append((in_text, in_stmt))
-        if len(syn_pairs) != len(synonyms):
+        if len(syn_pairs) != len(ags_info_dict):
             skip = "> > Not all synonyms were found in the sentence and " \
                    "statement, recommend skipping this one\n"
         else:
