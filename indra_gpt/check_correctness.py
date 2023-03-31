@@ -677,9 +677,6 @@ def generate_prompt(
     prompt :
         The prompt string
     """
-    if pos_ex_list is None and neg_ex_list is None:
-        raise ValueError("Must provide at least one example list.")
-
     # Get positive and negative examples
     indexer = count(1)
     if pos_ex_list is not None:
@@ -696,7 +693,8 @@ def generate_prompt(
     else:
         neg_ex_str = ""
 
-    examples_str = pos_ex_str + neg_ex_str + "\n=======\n"
+    examples_str = pos_ex_str + neg_ex_str + "\n=======\n" if \
+        pos_ex_str or neg_ex_str else ""
 
     # Generate query string
     query_str = generate_query_str(query_sentence, query_stmt, query_agent_info)
