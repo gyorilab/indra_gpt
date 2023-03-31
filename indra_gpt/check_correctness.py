@@ -373,35 +373,56 @@ def get_create_training_set(
     return df
 
 
-def generate_synonym_str(syn_list, index: int = None) -> str:
+def generate_synonym_str(agents_info, index: int = None) -> str:
     """Generate a string with the list of synonyms
 
     Parameters
     ----------
-    syn_list :
-        A list of tuples with (synonym_in_sentence, synonym_in_statement)
+    agents_info :
+        A dictionary with agent information for each agent in the
+        statement keyed by curie. Each agent dictionary has the name,
+        synonyms, and definition of the agent.
     index :
         If provided, is the index of the sentence and statement. If None,
         the index will not be included in the string.
     """
-    ix = str(index) if index is not None else ""
-    sent_str = "Sentence" + ix if index is not None else "the sentence"
-    stmt_str = "Statement" + ix if index is not None else "the statement"
-    if len(syn_list) == 1:
-        syn_sent, syn_stmt = syn_list[0]
-        base_str = (
-            f'Assume "{syn_sent}" in {sent_str} and "{syn_stmt}" in '
-            f'{stmt_str} are synonyms.\n'
+    index_str = f" in example {index}" if index is not None else ""
+    def_fmt = "The definition of {name} is: {definition}.\n"
+    base_str_fmt_plural = 'These are synonyms for "{name}"{ex_str}: {synonyms}.\n'
+    base_str_fmt_singular = 'This is a synonym for "{name}"{ex_str}: {synonyms}.\n'
+    base_str = ""
+    for curie, agent_info in agents_info.items():
+        in_text = agent_info["syn_in_text"]
+        in_stmt = agent_info["syn_in_stmt"]
+        name = in_stmt or in_text
+        synonyms = set(agent_info["synonyms"]) - {name}
+        if len(synonyms) == 0:
+            continue
+        if agent_info["definition"]:
+            definition = agent_info["definition"]
+        else:
+            res = biolookup.lookup(curie)
+            definition = res.get("definition", "")
 
-        )
-    else:
-        base_str = (
-            f"Assume the following list of pairs are synonyms in {sent_str} "
-            f"and {stmt_str}, respectively:\n"
+        base_str += def_fmt.format(
+            name=name, definition=definition) if definition else ""
+
+        if len(synonyms) == 1:
+            base_str_fmt = base_str_fmt_singular
+            synonyms = list(synonyms)[0]
+        else:
+            base_str_fmt = base_str_fmt_plural
+            synonyms = list(synonyms)
+            if len(synonyms) == 2:
+                synonyms = '"' + '" and "'.join(synonyms) + '"'
+            else:
+                synonyms = \
+                    '"' + '", "'.join(synonyms[:-1]) + \
+                    '", and "' + synonyms[-1] + '"'
+        base_str += base_str_fmt.format(
+            name=name, synonyms=synonyms, ex_str=index_str
         )
 
-        for syn_sent, syn_stmt in syn_list:
-            base_str += f'- "{syn_sent}" and "{syn_stmt}"\n'
     return base_str
 
 
