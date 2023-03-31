@@ -878,35 +878,39 @@ def run_stats(
     n_iter=100,
     n_pos_examples=2,
     n_neg_examples=2,
+    max_tokens=2,
     neg_tag: str = None,
     debug_print: bool = False
 ):
-    """Run the chat completion on n positive examples
+    """Run chat completion with show-and-tell prompts.
 
     Parameters
     ----------
     training_data_df :
-        The training data
+        The training data.
     n_iter :
-        The number of chat completions to run
+        The number of chat completions to run.
     n_pos_examples :
         The number of positive examples to use in the prompt per run.
         Default: 2.
     n_neg_examples :
         The number of negative examples to use in the prompt per run.
         Default: 2.
+    max_tokens :
+        The maximum number of tokens openai can use for the response.
+        Default: 2.
     neg_tag :
         The tag to use for the negative examples. If None, all tags will be
         used. Default: None.
     debug_print :
-        If True, the function will print the prompt and the response from the
-        OpenAI API. The default is False.
+        If True, the function will print the prompt and the full response
+        from the OpenAI API. Default: False.
 
     Returns
     -------
     :
-        A dataframe containing the confusion matrix of the results of the
-        chat completions
+        A dictionary containing the data about the results of the chat
+        completions.
     """
     def _get_examples_df(examples_path: Path, n_examples: int) -> pd.DataFrame:
         if examples_path.exists() and examples_path.stat().st_size > 0:
@@ -924,41 +928,10 @@ def run_stats(
         # Convert the agent json string to a list of agent jsons
         df["agent_json_list"] = df["agent_json_list"].apply(
             eval, args=({"OrderedDict": OrderedDict},))
+        # Convert the agent_info column to a dict
+        df["agent_info"] = df["agent_info"].apply(eval)
 
         return df
-
-    def _get_examples(df, n_examples):
-        examples_base = list(map(tuple,
-                                 df[
-                                     ['text', 'english', 'agent_json_list']
-                                 ].sample(frac=1.0).values))
-
-        # Get the synonyms
-        synonyms_base = [
-            get_synonyms(ajl) for _, _, ajl in examples_base
-        ]
-
-        examples = []
-        for (text, english, agent_json_list), agent_synonyms_list in zip(
-                examples_base, synonyms_base
-        ):
-            relevant_sl = parse_synonyms(
-                text, english, agent_json_list, agent_synonyms_list
-            )
-            # None means there are synonyms missing and the entity names are
-            # not the same in the example and the english statement
-            if relevant_sl is None:
-                continue
-
-            examples.append((text, english, relevant_sl or None))
-            if len(examples) == n_examples:
-                break
-        if len(examples) < n_examples:
-            logger.warning(f"Only {len(examples)} examples found. ")
-            inp = input("break? (y/n)")
-            if inp == "y":
-                sys.exit(1)
-        return examples
 
     examples_ids = set()
 
@@ -1007,31 +980,34 @@ def run_stats(
 
         # Get the positive examples from the dataframe
         if pos_df is not None:
-            pos_examples = _get_examples(pos_df, n_pos_examples)
+            pos_examples = list(
+                map(
+                    tuple,
+                    pos_df[
+                        ['text', 'english', 'agent_info']
+                    ].sample(n=n_pos_examples).values
+                )
+            )
         else:
             pos_examples = None
 
         # Get the negative examples from the dataframe
         if neg_df is not None:
-            neg_examples = _get_examples(neg_df, n_neg_examples)
+            neg_examples = list(
+                map(
+                    tuple,
+                    neg_df[
+                        ['text', 'english', 'agent_info']
+                    ].sample(n=n_neg_examples).values
+                )
+            )
         else:
             neg_examples = None
-
-        query_synonyms_base = get_synonyms(checker_dict["agent_json_list"])
-        query_synonyms = parse_synonyms(
-            text=checker_dict["text"], english=checker_dict["english"],
-            agent_json_list=checker_dict["agent_json_list"],
-            agent_synonyms_list=query_synonyms_base
-        )
-        if query_synonyms is None:
-            logger.warning(f"No matching synonyms between text and "
-                           f"statement found in the {checker_dict['english']}")
-            continue
 
         # Generate the prompt
         prompt = generate_prompt(query_sentence=checker_dict["text"],
                                  query_stmt=checker_dict["english"],
-                                 query_synonyms=query_synonyms,
+                                 query_agent_info=checker_dict["agent_info"],
                                  pos_ex_list=pos_examples,
                                  neg_ex_list=neg_examples)
 
@@ -1040,14 +1016,21 @@ def run_stats(
             continue
 
         # Run the chat completion
+        chat_qa = {"prompt": prompt, "tag": checker_dict["tag"]}
         try:
             choice = run_openai_chat(prompt=prompt,
-                                     max_tokens=2,
+                                     max_tokens=max_tokens,
                                      debug=debug_print)
         except Exception as e:
             logger.warning(f"Error while running chat completion: {e}")
+            chat_qa["response"] = None
+            results_dict["chat_qa"].append(chat_qa)
             results_dict["error_count"] += 1
-            continue
+            if results_dict["error_count"] >= n_iter:
+                logger.error("Too many errors, stopping...")
+                break
+            else:
+                continue
 
         # Update the confusion matrix
         # gpt correct - correct
@@ -1067,11 +1050,8 @@ def run_stats(
             continue
 
         # Save the prompt, response and the tag
-        results_dict["chat_qa"].append({
-            "prompt": prompt,
-            "response": choice.lower(),
-            "tag": checker_dict["tag"],
-        })
+        chat_qa["response"] = choice.lower()
+        results_dict["chat_qa"].append(chat_qa)
         t.update(1)
         if t.n >= n_iter:
             break
