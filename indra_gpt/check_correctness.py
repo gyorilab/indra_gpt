@@ -937,7 +937,8 @@ def run_stats(
     n_neg_examples=2,
     max_tokens=2,
     neg_tag: str = None,
-    debug_print: bool = False
+    debug_print: bool = False,
+    file_title: str = None,
 ):
     """Run chat completion with show-and-tell prompts.
 
@@ -962,6 +963,9 @@ def run_stats(
     debug_print :
         If True, the function will print the prompt and the full response
         from the OpenAI API. Default: False.
+    file_title :
+        The title to use for the file name. If None, the current date and
+        time will be used. Default: None.
 
     Returns
     -------
@@ -1140,7 +1144,10 @@ def run_stats(
     print(f"Total examples: {N}")
 
     # Save the results
-    fname = start_dt.strftime("correct_vs_incorrect_%Y%m%d_%H%M%S") + ".json"
+    if file_title and not file_title.endswith("_"):
+        file_title += "_"
+    ftitle = (file_title or "") + "correct_vs_incorrect_%Y%m%d_%H%M%S"
+    fname = start_dt.strftime(ftitle) + ".json"
     LOCAL_FILES.joinpath("results").mkdir(exist_ok=True)
     out_path = LOCAL_FILES.joinpath("results", fname)
     logger.info(f"Saving results to {out_path}")
