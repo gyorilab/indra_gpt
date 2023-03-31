@@ -149,43 +149,72 @@ def find_synonyms(
     return text_syn, eng_syn
 
 
-def get_synonyms(ag_json_list, retries=3):
-    """Get the synonyms for a given list of agent JSONs.
+def get_agent_info(ev_text, english, ag_list, retry_count=3):
+    """Get the synonyms and definitions for each agent
 
     Parameters
     ----------
-    ag_json_list : list
-        A list of agent JSONs corresponding to a single example.
-    retries : int
-        The number of times to retry getting the synonyms in case of an
-        error with the Gilda Web API.
+    ev_text : str
+        The evidence text.
+    english : str
+        The English statement.
+    ag_list : list
+        A list of agents corresponding to a single example statement.
+    retry_count : int
+        The number of times to retry getting the definition for an agent.
+        Default: 3.
 
     Returns
     -------
-    list
-        A list of lists of synonyms for each agent in the example.
+    dict
+        A dict of dicts of synonyms and definitions for each agent keyed by
+        curie.
     """
-    all_ag_synonyms = []
+    ag_info = {}
+    retry_count = max(retry_count, 1)
+
     # Loop over agents in the example
-    for ag_json in ag_json_list:
-        db_refs = ag_json.get("db_refs", {})
-        name = ag_json.get("name") or db_refs.get("TEXT")
+    for ag in ag_list:
+        db_refs = ag.db_refs
+        name = ag.name or ag.db_refs.get("TEXT")
+        curie = ":".join(ag.get_grounding())
 
         # Get the synonyms for the agent
-        for trie in range(retries):
-            try:
-                all_ag_synonyms.append(
-                    get_names_gilda(db_refs=db_refs, name=name)
-                )
-                break
-            except Exception as e:
-                if trie == retries - 1:
-                    logger.error(f"Failed to get synonyms for after "
-                                 f"{retries} tries.")
-                    raise e
-                sleep(1)
+        synonyms = get_names_gilda(db_refs=db_refs, name=name)
 
-    return all_ag_synonyms
+        # Get the definition for the agent
+        # todo: Run local setup of biolookup when the errors are fixed
+        # for trie in range(retry_count):
+        #     try:
+        #         bl_info = biolookup.lookup(curie)
+        #         definition = bl_info.get("definition", "")
+        #         break
+        #     except Exception as e:
+        #         logger.warning(
+        #             f"Error getting definition for {curie} "
+        #             f"on try {trie+1}: {e}"
+        #         )
+        #         if trie < retry_count - 1:
+        #             sleep(1)
+        # else:
+        #     definition = ""
+
+        # Use None to indicate that the definition is missing and should be
+        # tried to be filled out at runtime
+        definition = None
+
+        in_text, in_stmt = find_synonyms(ev_text,
+                                         english,
+                                         synonyms,
+                                         case_sensitive=False,
+                                         substring_match=True)
+
+        ag_info[curie] = (
+            {"name": name, "synonyms": synonyms, "definition": definition,
+             "syn_in_text": in_text, "syn_in_stmt": in_stmt}
+        )
+
+    return ag_info
 
 
 def parse_synonyms(text, english, agent_json_list, agent_synonyms_list):
