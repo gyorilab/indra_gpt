@@ -110,7 +110,8 @@ def find_synonyms(
     -------
     tuple
         A tuple of the synonym in the evidence text and the synonym in the
-        English statement.
+        English statement. A synonym is None if it is not found in the text
+        or the statement.
     """
     def _clean(s):
         return s.replace("(", " ").replace(")", " ").replace(
@@ -412,16 +413,16 @@ def generate_synonym_str(agents_info, index: int = None) -> str:
         the index will not be included in the string.
     """
     index_str = f" in example {index}" if index is not None else ""
-    def_fmt = "The definition of {name} is: {definition}.\n"
-    base_str_fmt_plural = 'These are synonyms for "{name}"{ex_str}: {synonyms}.\n'
-    base_str_fmt_singular = 'This is a synonym for "{name}"{ex_str}: {synonyms}.\n'
+    def_fmt = 'The definition of {name}{ex_str} is: "{definition}".\n'
+    syn_str_fmt = '"{name}" is the same as "{synonym}"{ex_str}.\n'
     base_str = ""
     for curie, agent_info in agents_info.items():
         in_text = agent_info["syn_in_text"]
         in_stmt = agent_info["syn_in_stmt"]
-        name = in_stmt or in_text
-        synonyms = set(agent_info["synonyms"]) - {name}
-        if len(synonyms) == 0:
+        synonyms = set(agent_info["synonyms"]) - {in_stmt}
+        # Skip if there are no synonyms or one or both of the synonyms is
+        # None (i.e. not found in the text or statement)
+        if len(synonyms) == 0 or in_text is None or in_stmt is None:
             continue
         if agent_info["definition"]:
             definition = agent_info["definition"]
@@ -430,23 +431,27 @@ def generate_synonym_str(agents_info, index: int = None) -> str:
             definition = res.get("definition", "")
 
         base_str += def_fmt.format(
-            name=name, definition=definition) if definition else ""
+            name=in_stmt, definition=definition, ex_str=index_str
+        ) if definition else ""
 
-        if len(synonyms) == 1:
-            base_str_fmt = base_str_fmt_singular
-            synonyms = list(synonyms)[0]
-        else:
-            base_str_fmt = base_str_fmt_plural
-            synonyms = list(synonyms)
-            if len(synonyms) == 2:
-                synonyms = '"' + '" and "'.join(synonyms) + '"'
-            else:
-                synonyms = \
-                    '"' + '", "'.join(synonyms[:-1]) + \
-                    '", and "' + synonyms[-1] + '"'
-        base_str += base_str_fmt.format(
-            name=name, synonyms=synonyms, ex_str=index_str
+        base_str += syn_str_fmt.format(
+            name=in_stmt, synonym=in_text, ex_str=index_str
         )
+        # if len(synonyms) == 1:
+        #     base_str_fmt = base_str_fmt_singular
+        #     synonyms = list(synonyms)[0]
+        # else:
+        #     base_str_fmt = base_str_fmt_plural
+        #     synonyms = list(synonyms)
+        #     if len(synonyms) == 2:
+        #         synonyms = '"' + '" and "'.join(synonyms) + '"'
+        #     else:
+        #         synonyms = \
+        #             '"' + '", "'.join(synonyms[:-1]) + \
+        #             '", and "' + synonyms[-1] + '"'
+        # base_str += base_str_fmt.format(
+        #     name=name, synonyms=synonyms, ex_str=index_str
+        # )
 
     return base_str
 
