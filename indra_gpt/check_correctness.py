@@ -429,7 +429,7 @@ def generate_synonym_str(agents_info, index: int = None) -> str:
 def generate_example(
     sentence,
     statement,
-    synonyms=None,
+    agents_info=None,
     index: int = None
 ) -> str:
     """Generate an example string
@@ -440,8 +440,10 @@ def generate_example(
         The example sentence.
     statement :
         The example english statement paired with the sentence.
-    synonyms :
-        A list of tuples with (synonym_in_sentence, synonym_in_statement).
+    agents_info :
+        A dict with agent info keyed by curie for each agent. Contains the
+        name, synonyms, definition (if available), synonym used in text and
+        synonym used in statement for each agent.
     index :
         If provided, is the index of the sentence and statement. If None,
         the index will not be included in the string.
@@ -458,8 +460,8 @@ def generate_example(
     example_template = (
         '{sent_str}: "{sentence}"\n{stmt_str}: "{english}"{synonyms}\n'
     )
-    if synonyms:
-        syn_str = "\n" + generate_synonym_str(synonyms, index)
+    if agents_info:
+        syn_str = "\n" + generate_synonym_str(agents_info, index)
     else:
         syn_str = "\n"
     return example_template.format(sent_str=sent_str, sentence=sentence,
