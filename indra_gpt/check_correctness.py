@@ -499,7 +499,7 @@ def generate_example_list(examples, correct: bool, indexer) -> str:
     return template
 
 
-def generate_query_str(query_sentence, query_stmt, query_synonyms=None) -> str:
+def generate_query_str(query_sentence, query_stmt, agents_info=None) -> str:
     """Generate the query string for the prompt
 
     Parameters
@@ -508,13 +508,16 @@ def generate_query_str(query_sentence, query_stmt, query_synonyms=None) -> str:
         The sentence to query.
     query_stmt :
         The english statement to query.
-    query_synonyms :
-        A list of tuples with (synonym_in_sentence, synonym_in_statement).
+    agents_info :
+        A dictionary keyed by curie with agent information for each agent
+        in the statement. Each agent dictionary has the name, synonyms,
+        definition (if available), synonym used in the sentence, and synonym
+        used in the statement.
     """
     query_str = "Is the following statement implied by the sentence " \
                 "assuming the sentence and the statement follow the same " \
                 "pattern as in the examples above?\n\n"
-    query_str += generate_example(query_sentence, query_stmt, query_synonyms)
+    query_str += generate_example(query_sentence, query_stmt, agents_info)
     return query_str
 
 
