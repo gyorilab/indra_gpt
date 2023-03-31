@@ -62,7 +62,7 @@ def create_training_data(curations_file: str, statements_file: str, force: bool)
     help="The number of negative examples to use in the prompt. Default: 2."
 )
 @click.option(
-    "--mak-tokens",
+    "--max-tokens",
     type=int,
     default=2,
     help="The maximum number of tokens to use for the responses. Default: 2."
@@ -82,7 +82,7 @@ def run_stats(
     run_iter: int,
     pos_examples: int,
     neg_examples: int,
-    mak_tokens: int,
+    max_tokens: int,
     debug_print: bool,
     file_title: str,
 ):
@@ -94,7 +94,7 @@ def run_stats(
         n_iter=run_iter,
         n_pos_examples=pos_examples,
         n_neg_examples=neg_examples,
-        max_tokens=mak_tokens,
+        max_tokens=max_tokens,
         debug_print=debug_print,
         file_title=file_title or None,
     )
