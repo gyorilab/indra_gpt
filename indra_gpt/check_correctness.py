@@ -15,7 +15,7 @@ from tqdm import tqdm
 import gilda
 from indra.config import get_config, IndraConfigError
 from indra.assemblers.english import EnglishAssembler
-from indra.assemblers.indranet.assembler import NS_PRIORITY_LIST
+from indra.statements import default_ns_order
 from indra.statements.io import stmts_from_json_file
 
 try:
@@ -51,7 +51,7 @@ old_prompt = (
 
 def get_ag_ns_id(db_refs, default):
     """Return a tuple of name space, id from an Agent's db_refs."""
-    for ns in NS_PRIORITY_LIST:
+    for ns in default_ns_order:
         if ns in db_refs:
             return ns, db_refs[ns]
     return "TEXT", db_refs.get("TEXT", default)
