@@ -475,10 +475,10 @@ def generate_example_list(examples, correct: bool, indexer) -> str:
     Parameters
     ----------
     examples :
-        A list of tuples with (sentence, english_stmt, list_of_synonyms).
-        List of synonyms can be None if they are not needed. If provided,
-        it should be a list of tuples with (synonym_in_sentence,
-        synonym_in_statement).
+        A list of tuples with (sentence, english_stmt, agents_info_dict).
+        Agents info dict is keyed by curie and contains the name, synonyms,
+        definition (if available), synonym used in text and synonym used in
+        statement for each agent.
     correct :
         If True, the statement in the examples are implied by their paired
         sentences. If False, the statement in the examples are **not** implied
@@ -491,11 +491,10 @@ def generate_example_list(examples, correct: bool, indexer) -> str:
     neg_str = "The following sentences do not imply the statements they " \
               "are paired with:\n\n"
     template = pos_str if correct else neg_str
-    for sentence, statement, syn_list in examples:
-        # Synonyms is a list of tuples with (synonym_in_sentence,
-        # synonym_in_statement)
+    for sentence, statement, agents_info in examples:
+
         ix = next(indexer)
-        ex_str = generate_example(sentence, statement, syn_list, ix)
+        ex_str = generate_example(sentence, statement, agents_info, ix)
         template += ex_str
     return template
 
