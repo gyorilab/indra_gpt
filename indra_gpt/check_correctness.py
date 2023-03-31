@@ -7,7 +7,7 @@ from itertools import count
 from pathlib import Path
 from time import sleep
 
-import click
+import biolookup
 import openai
 import pandas as pd
 from tqdm import tqdm
