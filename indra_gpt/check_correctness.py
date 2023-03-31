@@ -103,8 +103,8 @@ def find_synonyms(
     substring_match : bool
         Whether to allow substring match or not. If allowed, the synonym
         must match in both the text and the statement at the same time, i.e.
-        the names are the same but embedded in text like "RIG-I" is embedded
-        in "RIG-I-induced".
+        the names are the same but could be embedded in text e.g.
+        "RIG-I" matches "... RIG-I-induced activation...".
 
     Returns
     -------
@@ -118,7 +118,7 @@ def find_synonyms(
             "!", " ").replace(",", " ").replace(".", " ").replace(
             "/", " ").replace("  ", " ")
 
-    # Remove possible punctuations and parentheses and the split the string
+    # Remove possible punctuations and parentheses and then split the string
     # on space to match exact words instead of substrings.
     ev_text = ev_text.lower() if not case_sensitive else ev_text
     org_ev_text = ev_text
@@ -139,13 +139,22 @@ def find_synonyms(
         if eng_syn is None and syn_lower in eng_stmt_list:
             eng_syn = syn
 
-        if substring_match and syn_lower in org_ev_text and \
-                syn_lower in org_eng_stmt:
-            text_syn = syn
-            eng_syn = syn
-
         if text_syn and eng_syn:
             break
+
+    # If by now one or both of the synonyms are not found, try substring
+    # match, if requested.
+    if substring_match and (text_syn is None or eng_syn is None):
+        for syn in synonym_list:
+            syn_lower = syn.lower() if not case_sensitive else syn
+            if text_syn is None and syn_lower in org_ev_text:
+                text_syn = syn
+            if eng_syn is None and syn_lower in org_eng_stmt:
+                eng_syn = syn
+
+            if text_syn and eng_syn:
+                break
+
     return text_syn, eng_syn
 
 
