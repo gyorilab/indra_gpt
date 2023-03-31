@@ -226,7 +226,14 @@ def get_agent_info(ev_text, english, ag_list, retry_count=3):
     return ag_info
 
 
-def parse_synonyms(text, english, agent_json_list, agent_synonyms_list):
+def parse_synonyms(
+    text,
+    english,
+    agent_json_list,
+    agent_synonyms_list,
+    case_sensitive=False,
+    substring_match=False
+):
     """Get relevant synonyms given text, statement, agent jsons, synonyms
 
     Parameters
@@ -239,45 +246,54 @@ def parse_synonyms(text, english, agent_json_list, agent_synonyms_list):
         A list of agent JSONs associated with the statement.
     agent_synonyms_list : list
         A list of lists of synonyms for each agent in the statement.
+    case_sensitive : bool
+        Whether to match case when looking for synonyms.
+    substring_match : bool
+        Whether to allow substring match or not. If allowed, the synonym
+        must match in both the text and the statement at the same time, i.e.
+        the names are the same but could be embedded in text e.g.
+        "RIG-I" matches "... RIG-I-induced activation..." in the text and
+        "RIG-I activates X" in the statement.
 
     Returns
     -------
-    Optional[list]
+    list
         A list of tuples of (synonym in text, synonym in statement). If any
         list of synonyms can't be matched to both the statement and the
-        evidence text, None is returned.
+        evidence text, the entry is None for both entities. If the synonym in
+        the text and the statement are the same, the entry is True for both
+        entities.
     """
     relevant_sl = []
-    missing_synonyms = False
     for ag_json, sl in zip(agent_json_list, agent_synonyms_list):
         s_in_text, s_in_stmt = find_synonyms(
-            text, english, sl, False
+            text, english, sl,
+            case_sensitive=case_sensitive,
+            substring_match=substring_match
         )
         # Only keep the synonyms that are in the text and the
         # statement and also are not equal
-        # todo: do this up front when examples are selected instead
         if s_in_text and s_in_stmt:
             if s_in_text != s_in_stmt:
                 relevant_sl.append((s_in_text, s_in_stmt))
             else:
-                # If the synonyms are equal, we don't need to
-                # add them to the prompt
-                pass
-        # If no synonyms are found, check that the names still are
-        # in the example
+                # If the synonyms are equal, add True to the list
+                relevant_sl.append((True, True))
+        # If no synonyms are found, do a last check if the names are equal to
+        # begin with
         else:
             name = ag_json["name"]
             text_name = ag_json["db_refs"].get("TEXT", None)
             names = {name, text_name} - {None}
 
-            # If the same name isn't in the example, this is a missing synonym
-            if not any(n.lower() in text.lower() and
-                       n.lower() in english.lower()
-                       for n in names):
-                missing_synonyms = True
-                break
-    if missing_synonyms:
-        return None
+            # Unless the same name is in the example and in the statement,
+            # this is a missing synonym -> Add None to the list
+            for n in names:
+                if n.lower() in text.lower() and n.lower() in english.lower():
+                    relevant_sl.append((True, True))
+                    break
+            else:
+                relevant_sl.append((None, None))
 
     return relevant_sl
 
