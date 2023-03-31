@@ -566,7 +566,7 @@ def generate_prompt(
     query_stmt,
     pos_ex_list=None,
     neg_ex_list=None,
-    query_synonyms=None,
+    query_agent_info=None,
 ):
     """Generate a prompt for the given examples.
 
@@ -586,10 +586,10 @@ def generate_prompt(
         for the examples to use in the prompt. The synonym list is assumed
         to be a list of tuples with (synonym_in_sentence,
         synonym_in_statement). Default: None.
-    query_synonyms :
-        A list of synonyms associated with the sentence - english statement
-        pair that is queries. Each item in the list of tuples with
-        (synonym in sentence, synonym in statement). The default is None.
+    query_agent_info :
+        A dict of agent info associated with the sentence - english statement
+        pair that is queried. Each entry is keyed by its curie and contains
+        name, synonym list and optionally a definition. Default: None.
 
     Returns
     -------
@@ -602,19 +602,23 @@ def generate_prompt(
     # Get positive and negative examples
     indexer = count(1)
     if pos_ex_list is not None:
-        pos_ex_str = generate_example_list(pos_ex_list, True, indexer)
+        pos_ex_str = generate_example_list(pos_ex_list,
+                                           correct=True,
+                                           indexer=indexer)
     else:
         pos_ex_str = ""
 
     if neg_ex_list is not None:
-        neg_ex_str = generate_example_list(neg_ex_list, False, indexer)
+        neg_ex_str = generate_example_list(neg_ex_list,
+                                           correct=False,
+                                           indexer=indexer)
     else:
         neg_ex_str = ""
 
     examples_str = pos_ex_str + neg_ex_str + "\n=======\n"
 
     # Generate query string
-    query_str = generate_query_str(query_sentence, query_stmt, query_synonyms)
+    query_str = generate_query_str(query_sentence, query_stmt, query_agent_info)
 
     # Generate positive and negative examples
     prmt = default_prompt_template.format(examples=examples_str,
