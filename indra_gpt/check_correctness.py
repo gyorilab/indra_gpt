@@ -245,7 +245,10 @@ def parse_synonyms(text, english, agent_json_list, agent_synonyms_list):
 
 
 def get_create_training_set(
-    curations_file: str = None, statement_json_file: str = None, refresh: bool = False
+    curations_file: str = None,
+    statement_json_file: str = None,
+    refresh: bool = False,
+    test: bool = False,
 ) -> pd.DataFrame:
     """Get the training set for curation.
 
@@ -257,14 +260,17 @@ def get_create_training_set(
         The path to the statement json file.
     refresh : bool
         If True, the training set will be regenerated even if it already
-        exists.
+        exists. Default: False.
+    test : bool
+        If True, run a quick test of the training set generation by only
+        looping 10 random examples and don't save the result. Default: False.
 
     Returns
     -------
     pd.DataFrame
         A dataframe containing the training set.
     """
-    if curation_training_data.exists() and not refresh:
+    if curation_training_data.exists() and not refresh and not test:
         df = pd.read_csv(curation_training_data, sep="\t")
         if isinstance(df["agent_json_list"][0], str):
             logger.info(
@@ -274,6 +280,12 @@ def get_create_training_set(
             # as an arg variable to be used in the eval call
             df["agent_json_list"] = df["agent_json_list"].apply(
                 eval, args=({"OrderedDict": OrderedDict},))
+        if isinstance(df["agent_info"][0], str):
+            logger.info(
+                "agent_info dtype is str, using eval to convert "
+                "to dict"
+            )
+            df["agent_info"] = df["agent_info"].apply(eval)
         return df
 
     # Create the training set
@@ -283,6 +295,8 @@ def get_create_training_set(
             f"pre-generated training data is not available at "
             f"{curation_training_data}"
         )
+    # Initialize Gilda so that tqdm is more accurate
+    _ = gilda.get_grounder()
     logger.info("Loading curations")
     curs = json.load(open(curations_file, "r"))
     logger.info("Loading statements")
@@ -294,19 +308,39 @@ def get_create_training_set(
     # extend the curation with the evidence text and english assembled
     # statement
     curation_data = []
+    skipped = 0
     for cur in tqdm(curs, desc="Matching curations to statements"):
         stmt = stmts_by_hash[cur["pa_hash"]]
         ev = [e for e in stmt.evidence if e.get_source_hash() == cur["source_hash"]][0]
+        if ev.text is None:
+            skipped += 1
+            continue
+
         cur["text"] = ev.text
         eng_stmt = EnglishAssembler([stmt]).make_model()
         cur["english"] = eng_stmt
-        cur["agent_json_list"] = [dict(a.to_json()) for a in stmt.agent_list()]
+        ag_list = stmt.agent_list()
+        cur["agent_json_list"] = [a.to_json() for a in ag_list]
+        cur["agent_info"] = get_agent_info(ev_text=ev.text,
+                                           english=eng_stmt,
+                                           ag_list=ag_list)
+
         curation_data.append(cur)
+        if test and len(curation_data) == 10:
+            logger.info(
+                "Test mode: Breaking after 10 examples - not saving data"
+            )
+            break
+
+    if skipped:
+        logger.info(f"Skipped {skipped} examples due to missing synonyms")
 
     # Save the training data
     df = pd.DataFrame(curation_data)
-    logger.info(f"Saving training data to {curation_training_data}")
-    df.to_csv(curation_training_data, sep="\t", index=False)
+    if not test:
+        logger.info(f"Saving training data to {curation_training_data}")
+        df.to_csv(curation_training_data, sep="\t", index=False)
+
     return df
 
 
