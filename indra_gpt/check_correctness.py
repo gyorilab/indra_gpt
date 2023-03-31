@@ -720,7 +720,8 @@ def run_openai_chat(
         else:  # text-davinci-003
             choice = resp["choices"][0]["text"]
 
-        if resp["choices"][0]["finish_reason"] == "length":
+        if resp["choices"][0]["finish_reason"] == "length" and \
+                not choice.lower().startswith(("yes", "no")):
             logger.warning(
                 "OpenAI response was truncated. Likely due to token "
                 "constraints. Consider increasing the max_tokens parameter."
