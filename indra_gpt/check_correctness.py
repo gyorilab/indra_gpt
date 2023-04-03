@@ -597,8 +597,8 @@ def generate_query_str(query_sentence, query_stmt, agents_info=None) -> str:
 
 def check_prompt_generation():
     """Quickly test the prompt generation by calling this function"""
-    test_sentence1 = "a activates b in this text"
-    test_stmt1 = "A activates B"
+    test_sentence1 = "a binds b and c in this text"
+    test_stmt1 = "A binds B and C"
     test_synonyms1 = {"A": {"name": "a",
                             "definition": "a is a protein",
                             "synonyms": ["a", "A", "aa", "A-A"],
@@ -608,7 +608,12 @@ def check_prompt_generation():
                             "definition": "b is a protein",
                             "synonyms": ["b", "B"],
                             "syn_in_text": "b",
-                            "syn_in_stmt": "B"}}
+                            "syn_in_stmt": "B"},
+                      "C": {"name": "c",
+                            "definition": "c is a protein",
+                            "synonyms": ["c", "C"],
+                            "syn_in_text": "c",
+                            "syn_in_stmt": "C"}}
 
     test_sentence2 = "C phosphorylates D in this text"
     test_stmt2 = "C phosphorylates D"
