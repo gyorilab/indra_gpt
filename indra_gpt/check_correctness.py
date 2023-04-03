@@ -844,6 +844,28 @@ def run_openai_chat(
     return resp_str
 
 
+def generate_negative_expl_prompt(
+        query_text: str, query_stmt: str, query_agent_info
+) -> str:
+    """Generate a prompt for negative examples"""
+    text_type = "paragraph" if query_text.count(".") > 1 else "text"
+    prompt_template = (
+        "Here is a {text_type} and a statement:\n\n"
+        '{text_type}: "{evidence_text}"\n\n'
+        'statement: "{statement}"\n\n'
+        "{synonyms}\n\n"
+        "Is the statement implied by the {text_type}?\n"
+        "If it isn't, please explain why.\n"
+    )
+    syn_str = generate_synonym_str(query_agent_info)
+    return prompt_template.format(
+        text_type=text_type,
+        evidence_text=query_text,
+        statement=query_stmt,
+        synonyms=syn_str,
+    )
+
+
 def explain_negative_examples(
     training_data_df: pd.DataFrame,
     tag: str = None,
