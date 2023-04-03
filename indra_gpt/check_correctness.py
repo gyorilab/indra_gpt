@@ -49,6 +49,15 @@ old_prompt = (
 )
 
 
+def get_git_revision_hash() -> str:
+    """Return the git revision hash."""
+    import subprocess
+
+    return subprocess.check_output(
+        ['git', 'rev-parse', 'HEAD'], cwd=HERE
+    ).decode("ascii").strip()
+
+
 def get_ag_ns_id(db_refs, default):
     """Return a tuple of name space, id from an Agent's db_refs."""
     for ns in default_ns_order:
@@ -881,6 +890,7 @@ def explain_negative_examples(
     )
     start_dt = datetime.utcnow()
     results_dict = {"start_time": start_dt.isoformat(),
+                    "git_revision": get_git_revision_hash(),
                     "error_count": 0,
                     "empty_response_count": 0,
                     "chat_qa": []}
@@ -1069,6 +1079,7 @@ def run_stats(
     previous_checks = set()
     start_dt = datetime.utcnow()
     results_dict = {"start_time": start_dt.isoformat(),
+                    "git_revision": get_git_revision_hash(),
                     "error_count": 0,
                     "chat_qa": [],
                     "true_positive": 0,
