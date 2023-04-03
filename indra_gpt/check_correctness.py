@@ -540,7 +540,7 @@ def generate_example(
         syn_str = "\n"
     return example_template.format(sent_str=sent_str, sentence=sentence,
                                    stmt_str=stmt_str, english=statement,
-                                   synonyms=syn_str)
+                                   synonyms=syn_str) + "\n"
 
 
 def generate_example_list(examples, correct: bool, indexer) -> str:
