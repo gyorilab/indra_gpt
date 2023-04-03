@@ -412,10 +412,18 @@ def generate_synonym_str(agents_info, index: int = None) -> str:
         If provided, is the index of the sentence and statement. If None,
         the index will not be included in the string.
     """
+    # Format the synonyms:
+    # """The definition of {name1}{ex_str} is: "{definition1}".
+    # The definition of {name2}{ex_str} is: "{definition2}".
+    # The statement{ex_str} assumes that "{name1}" is the same as "{synonym1}"
+    # and "{name2}" is the same as "{synonym2}"."""
     index_str = f" in example {index}" if index is not None else ""
-    def_fmt = 'The definition of {name}{ex_str} is: "{definition}".\n'
-    syn_str_fmt = '"{name}" is the same as "{synonym}"{ex_str}.\n'
-    base_str = ""
+    def_fmt = 'The definition of {name}%s is: "{definition}".\n' % index_str
+    syn_str_intro = 'The statement%s assumes that "{name}" is the same ' \
+                    'as "{synonym}"' % index_str
+    syn_str_contd = '{comma}{and_} "{name}" is the same as "{synonym}"'
+    def_str = ""
+    syn_strs = []
     for curie, agent_info in agents_info.items():
         in_text = agent_info["syn_in_text"]
         in_stmt = agent_info["syn_in_stmt"]
@@ -431,16 +439,13 @@ def generate_synonym_str(agents_info, index: int = None) -> str:
             res = biolookup.lookup(curie)
             definition = res.get("definition", "")
 
-        base_str += def_fmt.format(
-            name=in_stmt, definition=definition, ex_str=index_str
-        ) if definition else ""
+        def_str += def_fmt.format(name=in_stmt,
+                                  definition=definition) if definition else ""
 
         if in_text and in_stmt:
             # 1. 'real' synonyms
             if in_text != in_stmt:
-                base_str += syn_str_fmt.format(
-                    name=in_stmt, synonym=in_text, ex_str=index_str
-                )
+                syn_strs.append((in_stmt, in_text))
             # 2. They are the same, no need to add a synonym
             else:
                 continue
@@ -467,18 +472,32 @@ def generate_synonym_str(agents_info, index: int = None) -> str:
                 else:
                     #
                     pass
-                base_str += syn_str_fmt.format(
-                    name=name, synonym=synonyms, ex_str=index_str
-                )
+                syn_strs.append((name, synonyms))
             else:
                 # 4. neither in text nor in statement (should already be
                 #    handled above)
                 continue
 
+    if len(syn_strs) == 1:
+        _and = ""
+        comma = ""
+    elif len(syn_strs) == 2:
+        _and = " and"
+        comma = ""
+    else:
+        _and = " and"
+        comma = ","
+    syn_str = ""
+    for ix, (name, synonym) in enumerate(syn_strs):
+        syn_str_fmt = syn_str_intro if ix == 0 else syn_str_contd
+        and_ = "" if ix < len(syn_strs) - 1 else _and
+        fmt_dict = {"name": name, "synonym": synonym}
+        if ix > 0:
+            fmt_dict["and_"] = and_
+            fmt_dict["comma"] = comma
+        syn_str += syn_str_fmt.format(**fmt_dict)
 
-
-
-    return base_str
+    return def_str + syn_str
 
 
 def generate_example(
