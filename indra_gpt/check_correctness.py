@@ -1147,7 +1147,7 @@ def save_examples(training_data_df, correct: bool = True):
         else:
             assert row.tag != "correct"
 
-        ags_info_dict = row["agent_info"].values[0]
+        ags_info_dict = row.agent_info
         syn_pairs = []
         for curie, info in ags_info_dict.items():
             in_text, in_stmt = find_synonyms(row.text,
