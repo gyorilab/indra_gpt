@@ -1202,10 +1202,12 @@ def generate_classifier_prompt(
         [f"{tag}: {description}" for tag, description in curation_tags.items()
          if tag not in ignore_tags]
     )
+    synonyms = generate_synonym_str(agents_info=agent_info)
     prompt = prompt_templ.format(
         tag_descriptions=tag_desc,
         sentence=ev_text,
-        statement=eng_stmt
+        statement=eng_stmt,
+        synonyms=synonyms
     )
     return prompt
 
