@@ -1,6 +1,5 @@
 import json
 import logging
-import sys
 from collections import OrderedDict, Counter
 from datetime import datetime
 from itertools import count
