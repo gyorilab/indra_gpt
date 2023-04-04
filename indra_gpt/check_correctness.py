@@ -1119,7 +1119,28 @@ def run_stats(
     return results_dict
 
 
-def generate_classifier_prompt(ev_text: str, eng_stmt: str) -> str:
+def generate_classifier_prompt(
+        ev_text: str, eng_stmt: str, agent_info, ignore_tags=None,
+) -> str:
+    """Generate a prompt for the classifier.
+
+    Parameters
+    ----------
+    ev_text :
+        The evidence text.
+    eng_stmt :
+        The English statement.
+    agent_info :
+        The agent info.
+    ignore_tags :
+        The tags to ignore. Default: None.
+
+    Returns
+    -------
+    :
+        The prompt as a string.
+
+    """
     # Follows the tags available in the training data
     curation_tags = {
         "other": "When no other tag is applicable, use this tag.",
