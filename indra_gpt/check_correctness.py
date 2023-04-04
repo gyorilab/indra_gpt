@@ -1212,7 +1212,8 @@ def classify_statements(
     n_iter: int = 10,
     debug_print: bool = False,
     file_title: str = None,
-    max_tokens: int = 100
+    max_tokens: int = 100,
+    ignore_tags=None,
 ):
     """Classify statements according to the valid curation tags"""
     start_dt = datetime.utcnow()
@@ -1229,8 +1230,13 @@ def classify_statements(
     for text, english, agent_info, curation_tag in tqdm(
             row_iter, desc="Classifying", total=n_iter
     ):
+        if curation_tag in ignore_tags:
+            continue
+
         # Generate the prompt
-        prompt = generate_classifier_prompt(ev_text=text, eng_stmt=english)
+        prompt = generate_classifier_prompt(
+            ev_text=text, eng_stmt=english, agent_info=agent_info, ignore_tags=ignore_tags
+        )
 
         # Run the chat completion
         try:
