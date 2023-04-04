@@ -1100,8 +1100,8 @@ def run_stats(
     # Save the results
     if file_title and not file_title.endswith("_"):
         file_title += "_"
-    ftitle = (file_title or "") + "correct_vs_incorrect_%Y%m%d_%H%M%S"
-    fname = start_dt.strftime(ftitle) + ".json"
+    ftitle = (file_title or "") + "correct_vs_incorrect_%Y%m%d_%H%M%S.json"
+    fname = start_dt.strftime(ftitle)
     LOCAL_FILES.joinpath("results").mkdir(exist_ok=True)
     out_path = LOCAL_FILES.joinpath("results", fname)
     logger.info(f"Saving results to {out_path}")
