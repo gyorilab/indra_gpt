@@ -336,7 +336,9 @@ def get_create_training_set(
     return df
 
 
-def generate_synonym_str(agents_info, index: int = None) -> str:
+def generate_synonym_str(
+        agents_info, include_def: bool = True, index: int = None
+) -> str:
     """Generate a string with the list of synonyms
 
     Parameters
@@ -345,11 +347,14 @@ def generate_synonym_str(agents_info, index: int = None) -> str:
         A dictionary with agent information for each agent in the
         statement keyed by curie. Each agent dictionary has the name,
         synonyms, and definition of the agent.
+    include_def :
+        If True, include the definition of the agent in the string.
+        Default: True.
     index :
         If provided, is the index of the sentence and statement. If None,
         the index will not be included in the string.
     """
-    # Format the synonyms:
+    # Format the synonyms to something like:
     # """The definition of {name1}{ex_str} is: "{definition1}".
     # The definition of {name2}{ex_str} is: "{definition2}".
     # The statement{ex_str} assumes that "{name1}" is the same as "{synonym1}"
@@ -370,14 +375,16 @@ def generate_synonym_str(agents_info, index: int = None) -> str:
             # No string to generate
             continue
 
-        if agent_info["definition"]:
-            definition = agent_info["definition"]
-        else:
-            res = biolookup.lookup(curie)
-            definition = res.get("definition", "")
+        if include_def:
+            if agent_info["definition"]:
+                definition = agent_info["definition"]
+            else:
+                res = biolookup.lookup(curie)
+                definition = res.get("definition", "")
 
-        def_str += def_fmt.format(name=in_stmt,
-                                  definition=definition) if definition else ""
+            def_str += def_fmt.format(
+                name=in_stmt, definition=definition
+            ) if definition else ""
 
         if in_text and in_stmt:
             # 1. 'real' synonyms
