@@ -1181,7 +1181,7 @@ def generate_classifier_prompt(ev_text: str, eng_stmt: str) -> str:
 
 def classify_statements(
     training_data_df: pd.DataFrame,
-    n_iter: int = 100,
+    n_iter: int = 10,
     debug_print: bool = False,
     file_title: str = None,
     max_tokens: int = 100
