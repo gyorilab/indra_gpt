@@ -4,6 +4,7 @@ from collections import OrderedDict, Counter
 from datetime import datetime
 from itertools import count
 from pathlib import Path
+from textwrap import dedent
 from time import sleep
 
 import biolookup
@@ -1106,6 +1107,143 @@ def run_stats(
     out_path = LOCAL_FILES.joinpath("results", fname)
     logger.info(f"Saving results to {out_path}")
     with open(out_path, "w") as f:
+        json.dump(results_dict, f, indent=4)
+
+    return results_dict
+
+
+def generate_classifier_prompt(ev_text: str, eng_stmt: str) -> str:
+    # Follows the tags available in the training data
+    curation_tags = {
+        "other": "When no other tag is applicable, use this tag.",
+        "correct": "The statement is correct and is implied by the sentence.",
+        "no_relation": "This tag is applicable if the sentence does not "
+                       "imply a relationship between the agents appearing in "
+                       "the Statement.",
+        "wrong_relation": "This tag is applicable if the sentence implies a "
+                          "relationship between the entities appearing in "
+                          "the statement but the type of statement is "
+                          "inconsistent with the sentence.",
+        "mod_site": "This tag is applicable if an amino-acid site is missing "
+                    "or is incorrect in a statement implying a modification, "
+                    "but the statement is otherwise correct. Example: "
+                    'sentence: "MAP2K1 phosphorylates MAPK1 at T185."; '
+                    'statement: Statement: "Phosphorylation(MAP2K1(), '
+                    'MAPK1())"',
+        "hypothesis": "This tag is applicable if the sentence describes a "
+                      "hypothesis or an experiment or is otherwise "
+                      "speculative, rather than a result or mechanism.",
+        "negative_result": "This tag is applicable if the sentence implies "
+                           "the lack of or opposite of a relationship.",
+        "grounding": "This tag is applicable when one of the named entities "
+                     "in the statement is assigned an incorrect database "
+                     "identifier and therefore refers to the wrong entity.",
+        "entity_boundaries": "This tag is applicable when one of the named "
+                             "entities in the statement is misidentified "
+                             'from a too greedy match, e.g. "gap" vs "gap '
+                             'junction", an ambiguous acronym, e.g. "IR" for '
+                             'infrared radiation vs insulin receptor", or '
+                             'similar.',
+        "act_vs_amt": "This tag is applicable when the sentence implies a "
+                      "regulation of amount but the corresponding statement "
+                      "implies regulation of activity or vice versa.",
+        "polarity": "This tag is applicable if a statement was correctly "
+                    "extracted but for polarity of the statement, "
+                    "e.g. Activation instead of Inhibition, "
+                    "or Phosphorylation instead of Dephosphorylation.",
+        "agent_conditions": "This tag is applicable if one of the "
+                            "named entities (i.e. agents) in the statement is "
+                            "missing relevant conditions that are mentioned "
+                            "in the sentence, or has incorrect conditions "
+                            "attached to it, but the statement is otherwise "
+                            'correct. Example: sentence "Mutant BRAF '
+                            'activates MEK"; statement: "BRAF activates MEK".',
+    }
+    prompt_templ = dedent("""
+    Here is a list of tags and descriptions describing how a sentence - statement pair can be classified:
+    
+    {tag_descriptions}
+    
+    Please help me put the right tag to the following sentence - statement pair:
+    
+    Sentence: {sentence}
+    Statement: {statement}""")
+    tag_desc = "\n".join(
+        [f"{tag}: {description}" for tag, description in curation_tags.items()]
+    )
+    prompt = prompt_templ.format(
+        tag_descriptions=tag_desc,
+        sentence=ev_text,
+        statement=eng_stmt
+    )
+    return prompt
+
+
+def classify_statements(
+    training_data_df: pd.DataFrame,
+    n_iter: int = 100,
+    debug_print: bool = False,
+    file_title: str = None,
+    max_tokens: int = 100
+):
+    """Classify statements according to the valid curation tags"""
+    start_dt = datetime.utcnow()
+    results_dict = {"start_time": start_dt.isoformat(),
+                    "git_revision": get_git_revision_hash(),
+                    "error_count": 0,
+                    "empty_response_count": 0,
+                    "chat_qa": []}
+
+    row_iter = map(tuple, training_data_df[
+        ['text', 'english', 'agent_info', 'tag']
+    ].sample(frac=1.0).values)
+
+    for text, english, agent_info, curation_tag in tqdm(
+            row_iter, desc="Classifying", total=n_iter
+    ):
+        # Generate the prompt
+        prompt = generate_classifier_prompt(ev_text=text, eng_stmt=english)
+
+        # Run the chat completion
+        try:
+            response = run_openai_chat(prompt=prompt,
+                                       max_tokens=max_tokens,
+                                       debug=debug_print)
+        except Exception as e:
+            logger.warning(f"Error while running chat completion: {e}")
+            results_dict["error_count"] += 1
+            continue
+
+        # Empty string in response
+        if not response:
+            results_dict["empty_response_count"] += 1
+            continue
+
+        resp_dict = {"prompt": prompt,
+                     "response": response,
+                     "curation_tag": curation_tag}
+        results_dict["chat_qa"].append(resp_dict)
+
+        if len(results_dict["chat_qa"]) >= n_iter:
+            break
+
+        sleep(0.1)
+
+    end_dt = datetime.utcnow()
+    logger.info(f"Finished running {n_iter} classification queries in "
+                f"{(end_dt - start_dt).total_seconds():.2f} seconds.")
+    results_dict["end_time"] = end_dt.isoformat()
+
+    # Save the results
+    if file_title and not file_title.endswith("_"):
+        file_title += "_"
+
+    fname = (file_title or "") + \
+        f"classification_{start_dt.strftime('%Y%m%d_%H%M%S')}.json"
+    (LOCAL_FILES / "results").mkdir(exist_ok=True)
+    fpath = LOCAL_FILES / "results" / fname
+    logger.info(f"Saving results to {fpath}")
+    with open(fpath, "w") as f:
         json.dump(results_dict, f, indent=4)
 
     return results_dict
