@@ -893,23 +893,6 @@ def explain_negative_examples(
     :
         The results as a dictionary
     """
-    prompt_template = (
-        "Here is a {text_type} and a statement:\n\n"
-        '{text_type}: "{evidence_text}"\n\n'
-        'statement: "{statement}"\n\n'
-        "{synonyms}"
-        "Is the statement implied by the {text_type}?\n"
-        "If it isn't, please explain why.\n"
-    )
-    synonym_template_multiple = (
-        "The following list of pairs are synonyms, with the first being the "
-        "synonym used in the {text_type} and the second being the synonym used "
-        "in the statement:\n{synonyms}\n\n"
-    )
-    synonym_template_single = (
-        '"{in_text}" in the {text_type} is a synonym for "{in_stmt}" in the '
-        "statement\n\n"
-    )
     start_dt = datetime.utcnow()
     results_dict = {"start_time": start_dt.isoformat(),
                     "git_revision": get_git_revision_hash(),
@@ -918,52 +901,16 @@ def explain_negative_examples(
                     "chat_qa": []}
     df_query_str = "tag != 'correct'" if tag is None else f"tag == '{tag}'"
     example_iter = map(tuple, training_data_df.query(df_query_str)[
-        ['text', 'english', 'agent_json_list', 'tag']
+        ['text', 'english', 'agent_info', 'tag']
     ].sample(frac=1.0).values)
 
-    for query_text, query_english, ag_json_list, row_tag in tqdm(
+    for query_text, query_english, ag_info, row_tag in tqdm(
             example_iter, desc="Running explanation queries", total=n_iter
     ):
-        text_type = "paragraph" if query_text.count(".") > 1 else "sentence"
-        query_synonyms_base = get_synonyms(ag_json_list)
-        query_synonyms = parse_synonyms(
-            text=query_text, english=query_english,
-            agent_json_list=ag_json_list,
-            agent_synonyms_list=query_synonyms_base
-        )
-
-        # Fill out the synonyms template
-        if query_synonyms is None:
-            logger.warning(f"Could not get synonyms for {query_text} even "
-                           f"though they were needed for the prompt.")
-            continue
-
-        if query_synonyms:
-            if len(query_synonyms) > 1:
-                synonyms_str = synonym_template_multiple.format(
-                    text_type=text_type,
-                    synonyms="\n".join(
-                        f'"{in_text}" and "{in_stmt}"'
-                        for in_text, in_stmt in query_synonyms
-                    )
-                )
-            else:
-                in_text, in_stmt = query_synonyms[0]
-                synonyms_str = synonym_template_single.format(
-                    text_type=text_type,
-                    in_text=in_text,
-                    in_stmt=in_stmt,
-                )
-        else:
-            synonyms_str = ""
-
-        # Fill out the prompt template
-        prompt = prompt_template.format(
-            text_type=text_type,
-            evidence_text=query_text,
-            statement=query_english,
-            synonyms=synonyms_str,
-        )
+        # Get the prompt
+        prompt = generate_negative_expl_prompt(query_text=query_text,
+                                               query_stmt=query_english,
+                                               query_agent_info=ag_info)
 
         # Run the chat completion
         try:
