@@ -1195,9 +1195,12 @@ def generate_classifier_prompt(
     Please help me put the right tag to the following sentence - statement pair:
     
     Sentence: {sentence}
-    Statement: {statement}""")
+    Statement: {statement}
+    {synonyms}""")
+    ignore_tags = ignore_tags or []
     tag_desc = "\n".join(
-        [f"{tag}: {description}" for tag, description in curation_tags.items()]
+        [f"{tag}: {description}" for tag, description in curation_tags.items()
+         if tag not in ignore_tags]
     )
     prompt = prompt_templ.format(
         tag_descriptions=tag_desc,
