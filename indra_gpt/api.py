@@ -3,7 +3,20 @@ from time import sleep
 
 import openai
 
+from indra.config import IndraConfigError, get_config
+
 logger = logging.getLogger(__name__)
+
+
+try:
+    openai.api_key = get_config("OPENAI_API_KEY", failure_ok=False)
+    organization = get_config("OPENAI_ORG")
+    if organization:
+        openai.organization = organization
+except IndraConfigError as err:
+    raise KeyError(
+        "Please set OPENAI_API_KEY in the environment or in the indra config."
+    ) from err
 
 
 def run_openai_chat(

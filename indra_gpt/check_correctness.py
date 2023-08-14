@@ -8,26 +8,14 @@ from textwrap import dedent
 from time import sleep
 
 import biolookup
-import openai
 import pandas as pd
 from tqdm import tqdm
 
 import gilda
-from indra.config import get_config, IndraConfigError
 from indra.assemblers.english import EnglishAssembler
 from indra.statements import default_ns_order
 from indra.statements.io import stmts_from_json_file
 from indra_gpt.api import run_openai_chat
-
-try:
-    openai.api_key = get_config("OPENAI_API_KEY", failure_ok=False)
-    organization = get_config("OPENAI_ORG")
-    if organization:
-        openai.organization = organization
-except IndraConfigError as err:
-    raise KeyError(
-        "Please set OPENAI_API_KEY in the environment or in the indra config."
-    ) from err
 
 
 logger = logging.getLogger(__name__)
