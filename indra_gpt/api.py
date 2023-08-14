@@ -13,6 +13,7 @@ def run_openai_chat(
     retry_count=3,
     strip=True,
     debug=False,
+    chat_history=None
 ):
     """Run OpenAI to check if the check sentence implies the check statement
 
@@ -35,17 +36,23 @@ def run_openai_chat(
     debug : bool
         If True, the function will print the full response from
         openai.Completion/CharCompletion.create(). The default is False.
+    chat_history : list
+        A list of chat history to send to the chat. The default is None.
+        This can be used to send example prompts and responses to the chat
+        to improve the quality of the response.
 
     Returns
     -------
     :
         The response from OpenAI as a string
     """
-    # For chat mode documentation:
+    # chat mode documentation:
     # https://platform.openai.com/docs/api-reference/chat/create
-    messages = [
-        {"role": "user", "content": prompt}
-    ]
+    if chat_history is not None:
+        messages = chat_history
+    else:
+        messages = []
+    messages.append({"role": "user", "content": prompt})
 
     retry_count = max(retry_count, 1)
     response = None
