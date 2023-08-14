@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 def run_openai_chat(
     prompt: str,
-    model="gpt-3.5-turbo",
+    model="gpt-4-0613",
     max_tokens=1,
     retry_count=3,
     strip=True,
@@ -18,22 +18,21 @@ def run_openai_chat(
 
     Parameters
     ----------
-    prompt :
+    prompt : str
         The prompt to send to the chat
-    model :
-        The model to use. The default is the gpt-3.5-turbo model.
-    max_tokens :
+    model : str
+        The model to use. The default is the gpt-4-0613 model.
+    max_tokens : int
         The maximum number of tokens to generate for chat completion. One
         token is roughly one word in plain text, however it can be more per
         word in some cases.
-    retry_count :
+    retry_count : int
         The number of times to retry the request if it fails. The default is
-        3. After the retry count is reached, the function will raise an
-        exception.
-    strip :
+        3. After the retry count is reached, an exception will be raised.
+    strip : bool
         If True, the function will strip the response of whitespace and
         punctuations.
-    debug :
+    debug : bool
         If True, the function will print the full response from
         openai.Completion/CharCompletion.create(). The default is False.
 
@@ -42,52 +41,28 @@ def run_openai_chat(
     :
         The response from OpenAI as a string
     """
-
-    def _get_response(resp) -> str:
-        if model == "gpt-3.5-turbo":
-            choice = resp["choices"][0]["message"]["content"]
-        else:  # text-davinci-003
-            choice = resp["choices"][0]["text"]
-
-        if resp["choices"][0]["finish_reason"] == "length" and \
-                not choice.lower().startswith(("yes", "no")):
-            logger.warning(
-                "OpenAI response was truncated. Likely due to token "
-                "constraints. Consider increasing the max_tokens parameter."
-            )
-
-        # Remove whitespace and trailing punctuations
-        if strip:
-            choice = choice.strip().rstrip(".,!")
-
-        return choice
-
-    options = {}
-    # For gpt-3.5-turbo chat mode:
+    # For chat mode documentation:
     # https://platform.openai.com/docs/api-reference/chat/create
-    if model == "gpt-3.5-turbo":
-        options["messages"] = [{"role": "user", "content": prompt}]
-        api_class = openai.ChatCompletion
-    else:  # text-davinci-003
-        options["prompt"] = prompt
-        api_class = openai.Completion
+    messages = [
+        {"role": "user", "content": prompt}
+    ]
 
-    # Retry the request if it fails
     retry_count = max(retry_count, 1)
     response = None
     for i in range(retry_count):
         try:
-            response = api_class.create(
+            response = openai.ChatCompletion.create(
                 model=model,
                 temperature=0,
                 max_tokens=max_tokens,
                 top_p=1.0,
                 frequency_penalty=0.0,
                 presence_penalty=0.0,
-                **options,
+                messages=messages,
             )
             break
         except Exception as e:
+            # Retry the request if it fails
             if i < retry_count - 1:
                 logger.warning(f"Request failed with error: {e}. Retrying "
                                f"after 5 seconds.")
@@ -103,10 +78,20 @@ def run_openai_chat(
     if response is None:
         raise RuntimeError("No response from OpenAI")
 
-    resp_str = _get_response(response)
-    if resp_str == "":
+    reply = response["choices"][0]["message"]["content"]
+
+    if response["choices"][0]["finish_reason"] == "length":
+        logger.warning(
+            "OpenAI response was truncated. Likely due to token "
+            "constraints. Consider increasing the max_tokens parameter."
+        )
+
+    # Remove whitespace and trailing punctuations
+    if strip:
+        reply = reply.strip().rstrip(".,!")
+    if reply == "":
         logger.warning("OpenAI returned an empty response. See full response "
                        "below for details.")
         print(f"Response:\n---------\n{response}\n---------\n\n")
 
-    return resp_str
+    return reply
