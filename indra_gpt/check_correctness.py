@@ -4,28 +4,18 @@ from collections import OrderedDict, Counter
 from datetime import datetime
 from itertools import count
 from pathlib import Path
+from textwrap import dedent
 from time import sleep
 
 import biolookup
-import openai
 import pandas as pd
 from tqdm import tqdm
 
 import gilda
-from indra.config import get_config, IndraConfigError
 from indra.assemblers.english import EnglishAssembler
 from indra.statements import default_ns_order
 from indra.statements.io import stmts_from_json_file
-
-try:
-    openai.api_key = get_config("OPENAI_API_KEY", failure_ok=False)
-    organization = get_config("OPENAI_ORG")
-    if organization:
-        openai.organization = organization
-except IndraConfigError as err:
-    raise KeyError(
-        "Please set OPENAI_API_KEY in the environment or in the indra config."
-    ) from err
+from indra_gpt.api import run_openai_chat
 
 
 logger = logging.getLogger(__name__)
@@ -335,7 +325,9 @@ def get_create_training_set(
     return df
 
 
-def generate_synonym_str(agents_info, index: int = None) -> str:
+def generate_synonym_str(
+        agents_info, include_def: bool = True, index: int = None
+) -> str:
     """Generate a string with the list of synonyms
 
     Parameters
@@ -344,11 +336,14 @@ def generate_synonym_str(agents_info, index: int = None) -> str:
         A dictionary with agent information for each agent in the
         statement keyed by curie. Each agent dictionary has the name,
         synonyms, and definition of the agent.
+    include_def :
+        If True, include the definition of the agent in the string.
+        Default: True.
     index :
         If provided, is the index of the sentence and statement. If None,
         the index will not be included in the string.
     """
-    # Format the synonyms:
+    # Format the synonyms to something like:
     # """The definition of {name1}{ex_str} is: "{definition1}".
     # The definition of {name2}{ex_str} is: "{definition2}".
     # The statement{ex_str} assumes that "{name1}" is the same as "{synonym1}"
@@ -369,14 +364,16 @@ def generate_synonym_str(agents_info, index: int = None) -> str:
             # No string to generate
             continue
 
-        if agent_info["definition"]:
-            definition = agent_info["definition"]
-        else:
-            res = biolookup.lookup(curie)
-            definition = res.get("definition", "")
+        if include_def:
+            if agent_info["definition"]:
+                definition = agent_info["definition"]
+            else:
+                res = biolookup.lookup(curie)
+                definition = res.get("definition", "")
 
-        def_str += def_fmt.format(name=in_stmt,
-                                  definition=definition) if definition else ""
+            def_str += def_fmt.format(
+                name=in_stmt, definition=definition
+            ) if definition else ""
 
         if in_text and in_stmt:
             # 1. 'real' synonyms
@@ -663,112 +660,6 @@ def generate_prompt(
     prmt = default_prompt_template.format(examples=examples_str,
                                           query=query_str)
     return prmt
-
-
-def run_openai_chat(
-    prompt: str,
-    model="gpt-3.5-turbo",
-    max_tokens=1,
-    retry_count=3,
-    strip=True,
-    debug=False,
-):
-    """Run OpenAI to check if the check sentence implies the check statement
-
-    Parameters
-    ----------
-    prompt :
-        The prompt to send to the chat
-    model :
-        The model to use. The default is the gpt-3.5-turbo model.
-    max_tokens :
-        The maximum number of tokens to generate for chat completion. One
-        token is roughly one word in plain text, however it can be more per
-        word in some cases.
-    retry_count :
-        The number of times to retry the request if it fails. The default is
-        3. After the retry count is reached, the function will raise an
-        exception.
-    strip :
-        If True, the function will strip the response of whitespace and
-        punctuations.
-    debug :
-        If True, the function will print the full response from
-        openai.Completion/CharCompletion.create(). The default is False.
-
-    Returns
-    -------
-    :
-        The response from OpenAI as a string
-    """
-
-    def _get_response(resp):
-        if model == "gpt-3.5-turbo":
-            choice = resp["choices"][0]["message"]["content"]
-        else:  # text-davinci-003
-            choice = resp["choices"][0]["text"]
-
-        if resp["choices"][0]["finish_reason"] == "length" and \
-                not choice.lower().startswith(("yes", "no")):
-            logger.warning(
-                "OpenAI response was truncated. Likely due to token "
-                "constraints. Consider increasing the max_tokens parameter."
-            )
-
-        # Remove whitespace and trailing punctuations
-        if strip:
-            choice = choice.strip().rstrip(".,!")
-
-        return choice
-
-    options = {}
-    # For gpt-3.5-turbo chat mode:
-    # https://platform.openai.com/docs/api-reference/chat/create
-    if model == "gpt-3.5-turbo":
-        options["messages"] = [{"role": "user", "content": prompt}]
-        api_class = openai.ChatCompletion
-    else:  # text-davinci-003
-        options["prompt"] = prompt
-        api_class = openai.Completion
-
-    # Retry the request if it fails
-    retry_count = max(retry_count, 1)
-    response = None
-    for i in range(retry_count):
-        try:
-            response = api_class.create(
-                model=model,
-                temperature=0,
-                max_tokens=max_tokens,
-                top_p=1.0,
-                frequency_penalty=0.0,
-                presence_penalty=0.0,
-                **options,
-            )
-            break
-        except Exception as e:
-            if i < retry_count - 1:
-                logger.warning(f"Request failed with error: {e}. Retrying "
-                               f"after 5 seconds.")
-                sleep(5)
-            else:
-                raise e
-
-    if debug:
-        logger.info(
-            f"Prompt:\n-------\n{prompt}\n-------\n"
-            f"Response:\n---------\n{response}\n---------\n\n"
-        )
-    if response is None:
-        raise RuntimeError("No response from OpenAI")
-
-    resp_str = _get_response(response)
-    if resp_str == "":
-        logger.warning("OpenAI returned an empty response. See full response "
-                       "below for details.")
-        print(f"Response:\n---------\n{response}\n---------\n\n")
-
-    return resp_str
 
 
 def generate_negative_expl_prompt(
@@ -1106,6 +997,175 @@ def run_stats(
     out_path = LOCAL_FILES.joinpath("results", fname)
     logger.info(f"Saving results to {out_path}")
     with open(out_path, "w") as f:
+        json.dump(results_dict, f, indent=4)
+
+    return results_dict
+
+
+def generate_classifier_prompt(
+        ev_text: str, eng_stmt: str, agent_info, ignore_tags=None,
+) -> str:
+    """Generate a prompt for the classifier.
+
+    Parameters
+    ----------
+    ev_text :
+        The evidence text.
+    eng_stmt :
+        The English statement.
+    agent_info :
+        The agent info.
+    ignore_tags :
+        The tags to ignore. Default: None.
+
+    Returns
+    -------
+    :
+        The prompt as a string.
+
+    """
+    # Follows the tags available in the training data
+    curation_tags = {
+        "other": "When no other tag is applicable, use this tag.",
+        "correct": "The statement is correct and is implied by the sentence.",
+        "no_relation": "This tag is applicable if the sentence does not "
+                       "imply a relationship between the agents appearing in "
+                       "the Statement.",
+        "wrong_relation": "This tag is applicable if the sentence implies a "
+                          "relationship between the entities appearing in "
+                          "the statement but the type of statement is "
+                          "inconsistent with the sentence.",
+        "mod_site": "This tag is applicable if an amino-acid site is missing "
+                    "or is incorrect in a statement implying a modification, "
+                    "but the statement is otherwise correct. Example: "
+                    'sentence: "MAP2K1 phosphorylates MAPK1 at T185."; '
+                    'statement: Statement: "Phosphorylation(MAP2K1(), '
+                    'MAPK1())"',
+        "hypothesis": "This tag is applicable if the sentence describes a "
+                      "hypothesis or an experiment or is otherwise "
+                      "speculative, rather than a result or mechanism.",
+        "negative_result": "This tag is applicable if the sentence implies "
+                           "the lack of or opposite of a relationship.",
+        "grounding": "This tag is applicable when one of the named entities "
+                     "in the statement is assigned an incorrect database "
+                     "identifier and therefore refers to the wrong entity.",
+        "entity_boundaries": "This tag is applicable when one of the named "
+                             "entities in the statement is misidentified "
+                             'from a too greedy match, e.g. "gap" vs "gap '
+                             'junction", an ambiguous acronym, e.g. "IR" for '
+                             'infrared radiation vs insulin receptor", or '
+                             'similar.',
+        "act_vs_amt": "This tag is applicable when the sentence implies a "
+                      "regulation of amount but the corresponding statement "
+                      "implies regulation of activity or vice versa.",
+        "polarity": "This tag is applicable if a statement was correctly "
+                    "extracted but for polarity of the statement, "
+                    "e.g. Activation instead of Inhibition, "
+                    "or Phosphorylation instead of Dephosphorylation.",
+        "agent_conditions": "This tag is applicable if one of the "
+                            "named entities (i.e. agents) in the statement is "
+                            "missing relevant conditions that are mentioned "
+                            "in the sentence, or has incorrect conditions "
+                            "attached to it, but the statement is otherwise "
+                            'correct. Example: sentence "Mutant BRAF '
+                            'activates MEK"; statement: "BRAF activates MEK".',
+    }
+    prompt_templ = dedent("""
+    Here is a list of tags and descriptions describing how a sentence - statement pair can be classified:
+    
+    {tag_descriptions}
+    
+    Please help me put the right tag to the following sentence - statement pair:
+    
+    Sentence: {sentence}
+    Statement: {statement}
+    {synonyms}""")
+    ignore_tags = ignore_tags or []
+    tag_desc = "\n".join(
+        [f"{tag}: {description}" for tag, description in curation_tags.items()
+         if tag not in ignore_tags]
+    )
+    synonyms = generate_synonym_str(agents_info=agent_info)
+    prompt = prompt_templ.format(
+        tag_descriptions=tag_desc,
+        sentence=ev_text,
+        statement=eng_stmt,
+        synonyms=synonyms
+    )
+    return prompt
+
+
+def classify_statements(
+    training_data_df: pd.DataFrame,
+    n_iter: int = 10,
+    debug_print: bool = False,
+    file_title: str = None,
+    max_tokens: int = 100,
+    ignore_tags=None,
+):
+    """Classify statements according to the valid curation tags"""
+    start_dt = datetime.utcnow()
+    results_dict = {"start_time": start_dt.isoformat(),
+                    "git_revision": get_git_revision_hash(),
+                    "error_count": 0,
+                    "empty_response_count": 0,
+                    "chat_qa": []}
+
+    row_iter = map(tuple, training_data_df[
+        ['text', 'english', 'agent_info', 'tag']
+    ].sample(frac=1.0).values)
+
+    for text, english, agent_info, curation_tag in tqdm(
+            row_iter, desc="Classifying", total=n_iter
+    ):
+        if curation_tag in ignore_tags:
+            continue
+
+        # Generate the prompt
+        prompt = generate_classifier_prompt(
+            ev_text=text, eng_stmt=english, agent_info=agent_info, ignore_tags=ignore_tags
+        )
+
+        # Run the chat completion
+        try:
+            response = run_openai_chat(prompt=prompt,
+                                       max_tokens=max_tokens,
+                                       debug=debug_print)
+        except Exception as e:
+            logger.warning(f"Error while running chat completion: {e}")
+            results_dict["error_count"] += 1
+            continue
+
+        # Empty string in response
+        if not response:
+            results_dict["empty_response_count"] += 1
+            continue
+
+        resp_dict = {"prompt": prompt,
+                     "response": response,
+                     "curation_tag": curation_tag}
+        results_dict["chat_qa"].append(resp_dict)
+
+        if len(results_dict["chat_qa"]) >= n_iter:
+            break
+
+        sleep(0.1)
+
+    end_dt = datetime.utcnow()
+    logger.info(f"Finished running {n_iter} classification queries in "
+                f"{(end_dt - start_dt).total_seconds():.2f} seconds.")
+    results_dict["end_time"] = end_dt.isoformat()
+
+    # Save the results
+    if file_title and not file_title.endswith("_"):
+        file_title += "_"
+
+    fname = (file_title or "") + \
+        f"classification_{start_dt.strftime('%Y%m%d_%H%M%S')}.json"
+    (LOCAL_FILES / "results").mkdir(exist_ok=True)
+    fpath = LOCAL_FILES / "results" / fname
+    logger.info(f"Saving results to {fpath}")
+    with open(fpath, "w") as f:
         json.dump(results_dict, f, indent=4)
 
     return results_dict
