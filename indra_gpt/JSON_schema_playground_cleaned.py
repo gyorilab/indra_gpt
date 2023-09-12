@@ -3,16 +3,14 @@ feeding the full json schema using ChatGPT."""
 
 # import libaries
 
-import argparse
-
 import pandas as pd
 
 from indra_gpt.api import run_openai_chat
-from indra.sources import reach
 
-from indra.statements.io import stmts_to_json_file
-
+from indra.statements.io import stmt_from_json
 import json
+
+import random
 
 # function to feed chatGPT a prompt including the full json schema and
 # ask it to generate a json object for a sentence using information in
@@ -723,11 +721,11 @@ def gpt_stmt_json(stmt_json_examples, evidence_text):
     ############################## HISTORY ############################
 
     # variables to feed the chat history:
-    stmt_json_1 = json_object_list[0] # first example json in the training
+    stmt_json_1 = stmt_json_examples[0] # first example json in the training
     # dataframe
     ev_text_1 = stmt_json_1['evidence'][0]['text'] # first example sentence
     # extracted from the example json
-    stmt_json_2 = json_object_list[1] # second example json in the
+    stmt_json_2 = stmt_json_examples[1] # second example json in the
     # training dataframe
     ev_text_2 = stmt_json_2['evidence'][0]['text'] # second example sentence
     # extracted from the example json
@@ -749,7 +747,7 @@ def gpt_stmt_json(stmt_json_examples, evidence_text):
 
     ################### RUN PROMPT TO ASK CHATGPT #####################
 
-    prompt = (PROMPT_reduced + evidence_text).format(prompt=evidence_text)
+    prompt = (PROMPT_reduced + evidence_text['evidence'][0]['text']).format(prompt=evidence_text['evidence'][0]['text'])
     # format the main prompt to ask chatGPT without being fed sample
     # data to only include the reduced prompt without the json schema +
     # the main sentence inputted into the gpt_stmt_json function
@@ -757,15 +755,16 @@ def gpt_stmt_json(stmt_json_examples, evidence_text):
     chat_gpt_english = run_openai_chat(prompt, model='gpt-3.5-turbo-16k',
                                        chat_history=history,
                                        max_tokens=16000, strip=False,
-                                       debug=debug) # use run_openai_chat
+                                       debug=False) # use run_openai_chat
     # function on prompt, specifying model and max_tokens parameters as
     # needed
     return chat_gpt_english # return chatGPT's response
 
 
 # main function to run on the inputted traing dataframe of json objects
-def main(training_df):
+def main(json_file):
     json_object_list = [] # list of json objects (every item in the file)
+
     outputs = [] # list of every output by chatGPT
     sentences = [] # list of the sentences fed to the prompt
 
@@ -773,28 +772,22 @@ def main(training_df):
     # object by chatGPT (when applicable to a sentence and its outputted json
     # object)
 
-    with open(training_df,
-              'r') as f:
-        contents = f.read # read file
-        json_object_list.append(contents) # append entire file of sample json
-        # object to contents
+    with open(json_file, 'r') as f:
+        json_content = json.load(f)
+        json_object_list = json_content # append entire file of sample
+        # json
+        # objects to the list json_object_list
 
     for json_object in json_object_list:
-        stmt_json_n = json_object # assign the json object
-        # for the
-        # current item in json_object_list to variable stmt_json_n
-        ev_text_n = stmt_json_n['evidence'][json_object]['text'] # get the
-        # sentence for the current item in json_object_list
+        sample_list = random.sample(json_object_list, 2)
 
-        output_n = gpt_stmt_json(stmt_json_n,ev_text_n)  # run gpt_stmt_json
-        # function on the current object and sentence to output a response
-        # from chatGPT
-        sliced_output_n = output_n['choices'][0]['message']['content'] # get
-        # only the generated json object from chatGPT's outputted response
+        sentence = json_object['evidence'][0]['text']
+        sentences.append(sentence)
 
-        outputs.append[sliced_output_n] # append to list of every output by
-        # chatGPT for each fed sentence
-        sentences.append[ev_text_n] # append to list of every sentence
+        response = gpt_stmt_json(sample_list, json_object)
+        sliced_response = response['choices'][0]['message']['content']
+        outputs.append(sliced_response)
+
 
         # Some generated json objects are able to take in the
         # json.loads and stmt_from_json functions to return a statement
@@ -804,27 +797,30 @@ def main(training_df):
         # work on a generated json object, just append that there was an
         # error loading the statement.
         try:
-            json_str_n = json.loads(sliced_output_n) #
-            stmt_n = stmt_from_json(json_str_n)
-            statements.append[stmt_n]
+            json_str = json.loads(sliced_response) #
+            stmt_n = stmt_from_json(json_str)
+            statements.append(stmt_n)
         except:
-            statements.append["***error loading statement from generated " \
-                              "json object***"]
+            statements.append("***error loading statement from generated " \
+                              "json object***")
 
-    df = pd.DataFrame({ 'sentence'
-                    ': ': [sentences],
+    df = pd.DataFrame({'sentence: ':[sentences], 'actual_json_object'
+                    ': ': [json_object_list],
                     'generated_json_object: ': [outputs],
                         'extracted_statement: ' : [statements]}) # put
     # sentences, outputs, and statements list into a pd dataframe
 
-    df.columns = ['sentence: ', 'generated_json_object: ',
-                  'extracted_statemenet: '] # headers
+    df.columns = ['sentence: ', 'actual_json_object: ',
+                  'generated_json_object: ',
+                  'extracted_statement: '] # headers
 
-    df.to_csv('/Users/bihan/Work/indra_gpt/indra_gpt'
-              '/JSON_schema_playground_cleaned.csv') # save file as csv (
+    df.to_tsv('/Users/bihan/Work/indra_gpt/indra_gpt'
+              '/JSON_schema_playground_cleaned.tsv') # save file as csv (
     # change path as needed)
 
-    print(outputs[:5]) # only print the first 5 results
+    print("First five json objects generated by chatGPT: \n\n" + outputs[
+                                                                 :5]) # only print the first 5 results
+    print("\n\nThe actual json objects: \n\n" + json_object_list[:5])
     print("Done.") # print done to know when main function has finished
 
 main('/Users/bihan/Downloads/indra_benchmark_corpus_sample_50.json') # run

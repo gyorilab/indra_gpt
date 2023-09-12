@@ -1,9 +1,6 @@
 import os
 import openai
-from indra.statements.io import stmt_from_json
 from indra.statements.io import stmt_from_json_str
-
-
 from indra.config import IndraConfigError, get_config
 
 try:
