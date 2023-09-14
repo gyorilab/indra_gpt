@@ -1,0 +1,6 @@
+
+.DS_Store
+indra_gpt/.idea
+target
+.ipynb_checkpoints
+*.pyc
