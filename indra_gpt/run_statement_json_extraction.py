@@ -96,6 +96,11 @@ def gpt_stmt_json(stmt_json_examples, evidence_text):
     return chat_gpt_json  # return chatGPT's response
 
 
+def process_statement_json(statement):
+    # TODO Bihan
+    return statement
+
+
 # main function to run on the inputted traing dataframe of json objects
 def main(json_file):
     # main function on
@@ -112,6 +117,7 @@ def main(json_file):
         json_content = json.load(f)
 
     json_object_list = json_content[:50]  # append entire file of sample
+    json_object_list = [process_statement_json(stmt) for stmt in json_object_list]
     # json
     # objects to the list json_object_list
 
