@@ -1,5 +1,4 @@
-from .check_correctness import generate_synonym_str, generate_example, \
-    get_synonyms
+from .check_correctness import generate_example, generate_synonym_str, get_synonyms
 
 
 def test_generate_synonym_str():

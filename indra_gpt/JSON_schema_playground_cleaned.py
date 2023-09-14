@@ -1,18 +1,16 @@
 """This module contains functions for extracting statements from text
 feeding the full json schema using ChatGPT."""
 
-import pandas as pd
-
-from indra_gpt.api import run_openai_chat
-
-from indra_gpt.constants import JSON_SCHEMA
-
-from indra.statements.io import stmt_from_json
 import json
-
 import random
 
+import pandas as pd
+from indra.statements.io import stmt_from_json
 from tqdm import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
+
+from api import run_openai_chat
+from constants import JSON_SCHEMA
 
 
 def gpt_stmt_json(stmt_json_examples, evidence_text):
@@ -103,8 +101,6 @@ def main(json_file):
     # main function on
     # path to training dataset of sample json objects (change
     # path as needed)
-    json_object_list = []  # list of json objects (every item in the file)
-
     outputs = []  # list of every output by chatGPT
     sentences = []  # list of the sentences fed to the prompt
 
@@ -114,44 +110,48 @@ def main(json_file):
 
     with open(json_file, "r") as f:
         json_content = json.load(f)
-        json_object_list = json_content[:50]  # append entire file of sample
+
+    json_object_list = json_content[:50]  # append entire file of sample
         # json
         # objects to the list json_object_list
 
-    for json_object in tqdm(json_object_list):
+    for json_object in tqdm(
+        json_object_list, desc="Extracting", unit="statement", unit_scale=True
+    ):
         sample_list = random.sample(json_object_list, 2)
 
         sentence = json_object["evidence"][0]["text"]
         sentences.append(sentence)
 
         try:
-            response = gpt_stmt_json(sample_list, json_object)
-            outputs.append(response)
+            with logging_redirect_tqdm():
+                response = gpt_stmt_json(sample_list, json_object)
+        except Exception as e:
+            error_text = f"OpenAI error: {e}"
+            outputs.append(error_text)
+            statements.append(error_text)
+            continue
 
-            # Some generated json objects are able to take in the
-            # json.loads and stmt_from_json functions to return a statement
-            # json. Some are not. Use the try/except method to extract statement
-            # jsons from the generated json objects for the ones that work.
-            # Append them to the list of all statements extracted. If it doesn't
-            # work on a generated json object, just append that there was an
-            # error loading the statement.
-            try:
-                json_str = json.loads(response)
-                stmt_n = stmt_from_json(json_str)
-                statements.append(stmt_n)
-            except:
-                statements.append(
-                    "***error loading statement from generated " "json object***"
-                )
+        outputs.append(response)
 
-        except:
-            outputs.append("##error due to too many tokens##")
-            statements.append("##error due to too many tokens##")
+        # Some generated json objects are able to take in the
+        # json.loads and stmt_from_json functions to return a statement
+        # json. Some are not. Use the try/except method to extract statement
+        # jsons from the generated json objects for the ones that work.
+        # Append them to the list of all statements extracted. If it doesn't
+        # work on a generated json object, just append that there was an
+        # error loading the statement.
+        try:
+            json_str = json.loads(response)
+            stmt_n = stmt_from_json(json_str)  # INDRA statement object
+            statements.append(stmt_n)
+        except Exception as e:
+            statements.append(f"Error: {e}")
 
     df = pd.DataFrame(
         {
             "sentence": sentences,
-            "actual_json_object": json_object_list,
+            "input": json_object_list,
             "generated_json_object": outputs,
             "extracted_statement": statements,
         }

@@ -2,7 +2,6 @@ import logging
 from time import sleep
 
 import openai
-
 from indra.config import IndraConfigError, get_config
 
 logger = logging.getLogger(__name__)

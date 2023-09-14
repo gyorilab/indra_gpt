@@ -3,5 +3,6 @@
 If you want to run Bihan's pipeline, do the following:
 
 ```shell
-python indra_gpt/JSON_schema_playground_cleaned.py
+cd indra_gpt
+python JSON_schema_playground_cleaned.py
 ```

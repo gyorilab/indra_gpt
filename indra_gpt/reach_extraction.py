@@ -1,15 +1,13 @@
 """This module contains functions for extracting statements from text using
 first ChatGPT and then REACH."""
 import argparse
+import json
 
 import pandas as pd
-
-from indra_gpt.api import run_openai_chat
 from indra.sources import reach
-
 from indra.statements.io import stmts_to_json_file
 
-import json
+from indra_gpt.api import run_openai_chat
 
 
 def run_chat_gpt_on_ev_text(ev_text: str, examples, debug=False) -> str:

@@ -5,12 +5,10 @@ You need to help me verify if a sentence I give you implies "
     '"{check_eng_stmt}"
 '''
 import os
-import openai
-from indra.statements.io import stmt_from_json
-from indra.statements.io import stmt_from_json_str
-from indra.config import IndraConfigError, get_config
 
-from indra.statements.io import stmts_to_json_file
+import openai
+from indra.config import IndraConfigError, get_config
+from indra.statements.io import stmt_from_json, stmt_from_json_str, stmts_to_json_file
 
 try:
     openai.api_key = get_config("OPENAI_API_KEY", failure_ok=False)

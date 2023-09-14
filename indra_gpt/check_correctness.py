@@ -1,6 +1,6 @@
 import json
 import logging
-from collections import OrderedDict, Counter
+from collections import Counter, OrderedDict
 from datetime import datetime
 from itertools import count
 from pathlib import Path
@@ -8,15 +8,14 @@ from textwrap import dedent
 from time import sleep
 
 import biolookup
-import pandas as pd
-from tqdm import tqdm
-
 import gilda
+import pandas as pd
 from indra.assemblers.english import EnglishAssembler
 from indra.statements import default_ns_order
 from indra.statements.io import stmts_from_json_file
-from indra_gpt.api import run_openai_chat
+from tqdm import tqdm
 
+from indra_gpt.api import run_openai_chat
 
 logger = logging.getLogger(__name__)
 
