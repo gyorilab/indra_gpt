@@ -15,12 +15,6 @@ from constants import JSON_SCHEMA
 import openai.error
 
 
-def process_statement_json_examples(example):
-    invalid_parts = []
-    for invalid_part in invalid_parts:
-        trimmed_json = example.replace(invalid_parts, "")
-    return example
-
 
 def gpt_stmt_json(stmt_json_examples, evidence_text):
     """
@@ -58,12 +52,12 @@ def gpt_stmt_json(stmt_json_examples, evidence_text):
     ############################## HISTORY ############################
 
     # variables to feed the chat history:
-    stmt_json_1 = process_statement_json_examples(stmt_json_examples[0])  #
+    stmt_json_1 = stmt_json_examples[0]  #
     # first example json in the training
     # dataframe
     ev_text_1 = stmt_json_1["evidence"][0]["text"]  # first example sentence
     # extracted from the example json
-    stmt_json_2 = process_statement_json_examples(stmt_json_examples[1])  #
+    stmt_json_2 = stmt_json_examples[1]  #
     # second example json in the
     # training dataframe
     ev_text_2 = stmt_json_2["evidence"][0]["text"]  # second example sentence
@@ -74,13 +68,13 @@ def gpt_stmt_json(stmt_json_examples, evidence_text):
     # without schema, the second example json to feed chatGPT as a sample
     history = [
         {"role": "user", "content": PROMPT + ev_text_1},  # Prompt with schema
-        {"role": "assistant", "content": str(stmt_json_1)},
+        {"role": "assistant", "content": json.dumps(stmt_json_1)},
         # first stmt json example
         {
             "role": "user",
             "content": PROMPT_reduced + ev_text_2,
         },  # prompt without schema
-        {"role": "assistant", "content": str(stmt_json_2)},
+        {"role": "assistant", "content": json.dumps(stmt_json_2)},
         # second stmt json example
     ]
 
@@ -103,35 +97,6 @@ def gpt_stmt_json(stmt_json_examples, evidence_text):
     # needed
     return chat_gpt_json  # return chatGPT's response
 
-
-def process_statement_json(json_str):
-    if json_str.startswith(("[", "{")):
-        try:
-            gpt_stmt_json = json.loads(json_str)
-        except json.JSONDecodeError as err:
-            # Try to replace some strings that cause json loading issues
-            json_str = (
-                json_str.replace("'", '"')
-                .replace("True", "true")
-                .replace("False", "false")
-                .replace("None", "null")
-            )
-            # Try again
-            gpt_stmt_json = json.loads(json_str)
-
-        # Do something with the loaded json
-    # Probably it's a message
-    else:
-        # Do something with the error message
-        return "error loading json"
-
-    invalid_parts = []
-    for invalid_part in invalid_parts:
-        trimmed_json = json_str.replace(invalid_parts, "")
-
-    return json_str
-
-
 def process_indra_object(stmt):
     """get rid of irrelevant parts of the indra statement dictionary"""
     evidence = stmt["evidence"]
@@ -143,8 +108,41 @@ def process_indra_object(stmt):
     del stmt["id"]
     del stmt["matches_hash"]
 
+    if 'supports' in stmt:
+        del stmt['supports']
+    if 'supported_by' in stmt:
+        del stmt['supported_by']
+
+    #del stmt["supports"]
+    #del stmt["supported_by"]
+
     return stmt
 
+def process_statement_json(json_str,list):
+    if json_str.startswith(("[", "{")):
+        try:
+            gpt_stmt_json = json.loads(json_str)
+        except json.IndexError as err:
+            # Try to replace some strings that cause json loading issues
+            json_str = (
+                json_str.replace("'", '"')
+                .replace("True", "true")
+                .replace("False", "false")
+                .replace("None", "null")
+            )
+            # Try again
+            gpt_stmt_json = json.loads(json_str)
+            stmt_n = stmt_from_json(json_str)
+            stmt_n = stmt_from_json(stmt_n)  # INDRA statement object
+            list.append(stmt_n)
+
+        # Do something with the loaded json
+    # Probably it's a message
+    else:
+        # Do something with the error message
+        list.append(f"Error: {IndexError}")
+
+    return json_str
 
 # main function to run on the inputted training dataframe of json objects
 def main(json_file):
@@ -162,14 +160,16 @@ def main(json_file):
         json_content = json.load(f)
 
     json_object_list = json_content[:50]  # append entire file of sample
-    json_object_list = [process_indra_object(stmt) for stmt in json_object_list]
+    json_object_list = [process_indra_object(stmt) for stmt in
+    json_object_list]
     # json
     # objects to the list json_object_list
 
     for json_object in tqdm(
         json_object_list, desc="Extracting", unit="statement", unit_scale=True
     ):
-        sample_list = random.sample(json_object_list, 2) # make it
+        sample_list = [json_object_list[0],json_object_list[1]]
+        #sample_list = random.sample(json_object_list, 2) # make it
         # deterministic
         # just take the elements until testing is done then make it random
         # this is important because we want to understand the input while
@@ -188,6 +188,7 @@ def main(json_file):
             continue
 
         outputs.append(response)
+        print(response)
 
         # Some generated json objects are able to take in the
         # json.loads and stmt_from_json functions to return a statement
@@ -196,6 +197,10 @@ def main(json_file):
         # Append them to the list of all statements extracted. If it doesn't
         # work on a generated json object, just append that there was an
         # error loading the statement.
+
+        process_statement_json(response, statements)
+
+        '''
         try:
             json_str = json.loads(response)
             stmt_n = stmt_from_json(json_str)
@@ -203,6 +208,7 @@ def main(json_file):
             statements.append(stmt_n)
         except ValueError as e:
             statements.append(f"Error: {e}")
+        '''
 
     df = pd.DataFrame(
         {
