@@ -12,6 +12,8 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 from api import run_openai_chat
 from constants import JSON_SCHEMA
 
+import openai.error
+
 
 def process_statement_json_examples(example):
     invalid_parts = []
@@ -35,26 +37,21 @@ def gpt_stmt_json(stmt_json_examples, evidence_text):
     json_schema_string = json.dumps(JSON_SCHEMA)  # converting json schema to a string
     # print(len(json))
 
-    invalid_pieces = '"$ref": "#/definitions/Agent"'  # store any invalid
-    # syntax in the json schema in the variable invalid_pieces to ask
-    # chatGPT to remove them from its generated json object
+
+
 
     # full prompt including schema
     PROMPT = (
         "Read the following JSON schema for a statement "
         "object:\n\n```json\n"
-        + json_schema_string.replace("{", "{{").replace("}", "}}")
-        + "\n```\n\nExtract the relation from the following sentence and put it in a JSON object matching the schema above. The JSON object needs to be able to pass a validation against the provided schema. Remove "
-        + invalid_pieces
-        + ". Only respond with "
+        + json_schema_string
+        + "\n```\n\nExtract the relation from the following sentence and put it in a JSON object matching the schema above. The JSON object needs to be able to pass a validation against the provided schema.Only respond with "
         "the JSON object.\n\nSentence: "
     )
 
     # reduced prompt not including schema
     PROMPT_reduced = (
-        "Extract the relation from the following sentence and put it in a JSON object matching the schema above. The JSON object needs to be able to pass a validation against the provided schema. Remove "
-        + invalid_pieces
-        + ". Only respond with "
+        "Extract the relation from the following sentence and put it in a JSON object matching the schema above. The JSON object needs to be able to pass a validation against the provided schema.Only respond with "
         "the JSON object.\n\nSentence: "
     )
 
@@ -172,7 +169,11 @@ def main(json_file):
     for json_object in tqdm(
         json_object_list, desc="Extracting", unit="statement", unit_scale=True
     ):
-        sample_list = random.sample(json_object_list, 2)
+        sample_list = random.sample(json_object_list, 2) # make it
+        # deterministic
+        # just take the elements until testing is done then make it random
+        # this is important because we want to understand the input while
+        # we're testing.
 
         sentence = json_object["evidence"][0]["text"]
         sentences.append(sentence)
@@ -180,7 +181,7 @@ def main(json_file):
         try:
             with logging_redirect_tqdm():
                 response = gpt_stmt_json(sample_list, json_object)
-        except Exception as e:
+        except openai.error.InvalidRequestError as e:
             error_text = f"OpenAI error: {e}"
             outputs.append(error_text)
             statements.append(error_text)
@@ -196,11 +197,11 @@ def main(json_file):
         # work on a generated json object, just append that there was an
         # error loading the statement.
         try:
-            # json_str = json.loads(response)
-            # stmt_n = stmt_from_json(json_str)
-            stmt_n = stmt_from_json(response)  # INDRA statement object
+            json_str = json.loads(response)
+            stmt_n = stmt_from_json(json_str)
+            stmt_n = stmt_from_json(stmt_n)  # INDRA statement object
             statements.append(stmt_n)
-        except Exception as e:
+        except ValueError as e:
             statements.append(f"Error: {e}")
 
     df = pd.DataFrame(
