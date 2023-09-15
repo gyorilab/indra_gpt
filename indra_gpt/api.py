@@ -25,7 +25,7 @@ def run_openai_chat(
     retry_count=3,
     strip=True,
     debug=False,
-    chat_history=None
+    chat_history=None,
 ):
     """Run OpenAI to check if the check sentence implies the check statement
 
@@ -83,8 +83,9 @@ def run_openai_chat(
         except Exception as e:
             # Retry the request if it fails
             if i < retry_count - 1:
-                logger.warning(f"Request failed with error: {e}. Retrying "
-                               f"after 5 seconds.")
+                logger.warning(
+                    f"Request failed with error: {e}. Retrying " f"after 5 seconds."
+                )
                 sleep(5)
             else:
                 raise e
@@ -109,8 +110,9 @@ def run_openai_chat(
     if strip:
         reply = reply.strip().rstrip(".,!")
     if reply == "":
-        logger.warning("OpenAI returned an empty response. See full response "
-                       "below for details.")
+        logger.warning(
+            "OpenAI returned an empty response. See full response " "below for details."
+        )
         print(f"Response:\n---------\n{response}\n---------\n\n")
 
     return reply

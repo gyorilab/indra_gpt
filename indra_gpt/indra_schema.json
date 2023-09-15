@@ -619,70 +619,6 @@
         }
       ]
     },
-    "Influence": {
-      "description": "A causal influence between two events.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Statement"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "type": {
-              "type": "string",
-              "pattern": "^Influence$"
-            },
-            "subj": {
-              "$ref": "#/definitions/Event",
-              "description": "The event which acts as the influencer."
-            },
-            "obj": {
-              "$ref": "#/definitions/Event",
-              "description": "The event which acts as the influencee"
-            }
-          },
-          "required": [
-            "type"
-          ]
-        }
-      ]
-    },
-    "Event": {
-      "description": "An event over a concept of interest.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Statement"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "type": {
-              "type": "string",
-              "pattern": "^Event$"
-            },
-            "concept": {
-              "$ref": "#/definitions/Concept",
-              "description": "The concept which the event happens to."
-            },
-            "delta": {
-              "type": [
-                "object",
-                "null"
-              ],
-              "description": "A dictionary specifying the polarity and adjactives of change in concept."
-            },
-            "context": {
-              "$ref": "#/definitions/Context",
-              "description": "The context associated with the event"
-            }
-          },
-          "required": [
-            "type",
-            "concept"
-          ]
-        }
-      ]
-    },
     "Conversion": {
       "description": "Conversion of molecular species mediated by a controller protein.",
       "allOf": [
@@ -754,15 +690,6 @@
       },
       {
         "$ref": "#/definitions/RegulateAmount"
-      },
-      {
-        "$ref": "#/definitions/Influence"
-      },
-      {
-        "$ref": "#/definitions/Conversion"
-      },
-      {
-        "$ref": "#/definitions/Event"
       }
     ]
   }

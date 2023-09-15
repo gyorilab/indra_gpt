@@ -22,24 +22,27 @@ def main():
     type=str,
     required=True,
     help="The path to the curations file to use. This should be a json file "
-         "containing a list of curation dictionaries."
+    "containing a list of curation dictionaries.",
 )
 @click.option(
     "--statements-file",
     type=str,
     required=True,
-    help="The path to the statements json file to use."
+    help="The path to the statements json file to use.",
 )
 @click.option(
     "--force",
     is_flag=True,
     help="Force the recreation of the training data frame even if it already "
-         "exists."
+    "exists.",
 )
 def create_training_data(curations_file: str, statements_file: str, force: bool):
     """Create training data"""
-    _ = get_create_training_set(refresh=force, curations_file=curations_file,
-                                statement_json_file=statements_file)
+    _ = get_create_training_set(
+        refresh=force,
+        curations_file=curations_file,
+        statement_json_file=statements_file,
+    )
 
 
 @main.command()
@@ -47,36 +50,33 @@ def create_training_data(curations_file: str, statements_file: str, force: bool)
     "--run-iter",
     type=int,
     default=100,
-    help="The number of queries to send to chat-gpt. Default: 100."
+    help="The number of queries to send to chat-gpt. Default: 100.",
 )
 @click.option(
     "--pos-examples",
     type=int,
     default=2,
-    help="The number of positive examples to use in the prompt. Default: 2."
+    help="The number of positive examples to use in the prompt. Default: 2.",
 )
 @click.option(
     "--neg-examples",
     type=int,
     default=2,
-    help="The number of negative examples to use in the prompt. Default: 2."
+    help="The number of negative examples to use in the prompt. Default: 2.",
 )
 @click.option(
     "--max-tokens",
     type=int,
     default=2,
-    help="The maximum number of tokens to use for the responses. Default: 2."
+    help="The maximum number of tokens to use for the responses. Default: 2.",
 )
 @click.option(
     "--debug-print",
     is_flag=True,
-    help="Print the prompt sent and the full response from chat-gpt API call."
+    help="Print the prompt sent and the full response from chat-gpt API call.",
 )
 @click.option(
-    "--file-title",
-    type=str,
-    default="",
-    help="The title to use for the output file."
+    "--file-title", type=str, default="", help="The title to use for the output file."
 )
 def run_stats(
     run_iter: int,
