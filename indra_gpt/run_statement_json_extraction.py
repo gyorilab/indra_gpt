@@ -118,32 +118,6 @@ def process_indra_object(stmt):
 
     return stmt
 
-def process_statement_json(json_str):
-    if json_str.startswith(("[", "{")):
-        try:
-            gpt_stmt_json = json.loads(json_str)
-        except IndexError as err:
-            # Try to replace some strings that cause json loading issues
-            json_str = (
-                json_str.replace("'", '"')
-                .replace("True", "true")
-                .replace("False", "false")
-                .replace("None", "null")
-            )
-            # Try again
-            gpt_stmt_json = json.loads(json_str)
-
-        except IndexError as err:
-            return "Error: IndexError"
-
-        # Do something with the loaded json
-    # Probably it's a message
-    else:
-        # Do something with the error message
-        return "Error: IndexError"
-
-    return json_str
-
 # main function to run on the inputted training dataframe of json objects
 def main(json_file):
     # main function on
@@ -168,9 +142,9 @@ def main(json_file):
     for json_object in tqdm(
         json_object_list, desc="Extracting", unit="statement", unit_scale=True
     ):
-        sample_list = [json_object_list[0],json_object_list[1]] # unhash
+        #sample_list = [json_object_list[0],json_object_list[1]] # unhash
         # when debugging
-        #sample_list = random.sample(json_object_list, 2) # make it
+        sample_list = random.sample(json_object_list, 2) # make it
         # deterministic
         # just take the elements until testing is done then make it random
         # this is important because we want to understand the input while
@@ -199,29 +173,12 @@ def main(json_file):
         # work on a generated json object, just append that there was an
         # error loading the statement.
 
-        process_statement_json(response)
-
         try:
             json_str = json.loads(response)
-            stmt_n = stmt_from_json(json_str)
-            stmt_n = stmt_from_json(stmt_n)  # INDRA statement object
+            stmt_n = stmt_from_json(json_str)  # INDRA statement object
             statements.append(stmt_n)
         except IndexError as e:
             statements.append(f"Error: {e}")
-
-        '''
-        try:
-            json_str = json.loads(response)
-            stmt_n = stmt_from_json(json_str)
-            stmt_n = stmt_from_json(stmt_n)  # INDRA statement object
-            statements.append(stmt_n)
-        except ValueError as e:
-            statements.append(f"Error: {e}")
-        '''
-    #print(len(sentences))
-    #print(len(json_object_list))
-    #print(len(outputs))
-    #print(len(statements))
 
     df = pd.DataFrame(
         {
