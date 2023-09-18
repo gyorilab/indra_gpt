@@ -138,7 +138,7 @@ def main(json_file):
     with open(json_file, "r") as f:
         json_content = json.load(f) # load json file
 
-    json_object_list = json_content[:50]  # append first 50 json objects to
+    json_object_list = json_content[:50]  # assign first 50 json objects to
     # json_object_list
     json_object_list = [process_indra_object(stmt) for stmt in
     json_object_list] # run processing function on each json object to trim
