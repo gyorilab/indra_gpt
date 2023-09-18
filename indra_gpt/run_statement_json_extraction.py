@@ -8,8 +8,8 @@ import pandas as pd
 from indra.statements.io import stmt_from_json
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
-from api import run_openai_chat
-from constants import JSON_SCHEMA
+from indra_gpt.api import run_openai_chat
+from indra_gpt.constants import JSON_SCHEMA
 import openai.error
 
 def gpt_stmt_json(stmt_json_examples, evidence_text):
