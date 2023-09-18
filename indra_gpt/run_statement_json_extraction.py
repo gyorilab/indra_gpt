@@ -39,13 +39,19 @@ def gpt_stmt_json(stmt_json_examples, evidence_text):
         "Read the following JSON schema for a statement "
         "object:\n\n```json\n"
         + json_schema_string
-        + "\n```\n\nExtract the relation from the following sentence and put it in a JSON object matching the schema above. The JSON object needs to be able to pass a validation against the provided schema.Only respond with "
+        + "\n```\n\nExtract the relation from the following sentence and put it in a JSON object matching the schema above. The JSON object needs to be able to pass a validation against the provided schema. If the statement type is 'RegulateActivity', list it instead as either 'Activation' or 'Inhibition'. If the statement type is 'RegulateAmount', list it instead as either 'IncreaseAmount' or 'DecreaseAmount'. Only respond with "
         "the JSON object.\n\nSentence: "
     )
 
     # reduced prompt not including schema
     PROMPT_reduced = (
-        "Extract the relation from the following sentence and put it in a JSON object matching the schema above. The JSON object needs to be able to pass a validation against the provided schema.Only respond with "
+        "Extract the relation from the following sentence and put it in a "
+        "JSON object matching the schema above. The JSON object needs to be "
+        "able to pass a validation against the provided schema. If the "
+        "statement type is 'RegulateActivity', list it instead as either "
+        "'Activation' or 'Inhibition'. If the statement type is "
+        "'RegulateAmount', list it instead as either 'IncreaseAmount' or 'DecreaseAmount'. Only "
+        "respond with "
         "the JSON object.\n\nSentence: "
     )
 
