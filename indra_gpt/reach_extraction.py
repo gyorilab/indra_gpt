@@ -48,7 +48,6 @@ def main(training_df, n_statements=10, debug=False):
     training_df = training_df[training_df["tag"] == "correct"]
 
     # Loop over the training data and extract english statements from the
-
     # chatGPT output and save to a list
     gpt_english_statements = []
     statistics = []
@@ -71,9 +70,6 @@ def main(training_df, n_statements=10, debug=False):
         gpt_englsh_statements_str, url=reach.local_text_url
     )
 
-    # Compare with original statements and check if ChatGPT+REACH
-    # extracted the same statements as the original statements
-
     return reach_processor, statistics
 
 
@@ -89,22 +85,14 @@ if __name__ == "__main__":
     reach_processor, statistics = main(
         training_data_df, args.n_statements, debug=args.debug
     )
-    # save statements in reach_processor in json or pickle into a file
-    # save the statistics
-    # change the prompt so ChatGPT writes something like the statement we want
 
-    # 'reach_processor'+'_('+prompt+')_'+'.json'
-
-    # with open('reach_processor.json', 'w') as f:
-    # json.dump(reach_processor, f)
-
+    # save statements in reach_processor in json into a file
     stmts_to_json_file(
         stmts=reach_processor.statements, fname="reach_statements_9.json"
     )
-    # stmts_to_json_file(stmts=statistics,
-    # fname='statistics.json')
 
-    with open("statistics_9.json", "w") as f:
+    # save the statistics
+    with open("statistics.json", "w") as f:
         json.dump(statistics, f)
 
     print("Done.")
