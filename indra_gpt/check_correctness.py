@@ -1,6 +1,6 @@
 import json
 import logging
-from collections import OrderedDict, Counter
+from collections import Counter, OrderedDict
 from datetime import datetime
 from itertools import count
 from pathlib import Path
@@ -8,15 +8,14 @@ from textwrap import dedent
 from time import sleep
 
 import biolookup
-import pandas as pd
-from tqdm import tqdm
-
 import gilda
+import pandas as pd
 from indra.assemblers.english import EnglishAssembler
 from indra.statements import default_ns_order
 from indra.statements.io import stmts_from_json_file
-from indra_gpt.api import run_openai_chat
+from tqdm import tqdm
 
+from indra_gpt.api import run_openai_chat
 
 logger = logging.getLogger(__name__)
 
@@ -42,9 +41,11 @@ def get_git_revision_hash() -> str:
     """Return the git revision hash."""
     import subprocess
 
-    return subprocess.check_output(
-        ['git', 'rev-parse', 'HEAD'], cwd=HERE
-    ).decode("ascii").strip()
+    return (
+        subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=HERE)
+        .decode("ascii")
+        .strip()
+    )
 
 
 def get_ag_ns_id(db_refs, default):
@@ -111,11 +112,20 @@ def find_synonyms(
         English statement. A synonym is None if it is not found in the text
         or the statement.
     """
+
     def _clean(s):
-        return s.replace("(", " ").replace(")", " ").replace(
-            ":", " ").replace(";", " ").replace("?", " ").replace(
-            "!", " ").replace(",", " ").replace(".", " ").replace(
-            "/", " ").replace("  ", " ")
+        return (
+            s.replace("(", " ")
+            .replace(")", " ")
+            .replace(":", " ")
+            .replace(";", " ")
+            .replace("?", " ")
+            .replace("!", " ")
+            .replace(",", " ")
+            .replace(".", " ")
+            .replace("/", " ")
+            .replace("  ", " ")
+        )
 
     # Remove possible punctuations and parentheses and then split the string
     # on space to match exact words instead of substrings.
@@ -211,16 +221,17 @@ def get_agent_info(ev_text, english, ag_list, retry_count=3):
         # tried to be filled out at runtime
         definition = None
 
-        in_text, in_stmt = find_synonyms(ev_text,
-                                         english,
-                                         synonyms,
-                                         case_sensitive=False,
-                                         substring_match=True)
-
-        ag_info[curie] = (
-            {"name": name, "synonyms": synonyms, "definition": definition,
-             "syn_in_text": in_text, "syn_in_stmt": in_stmt}
+        in_text, in_stmt = find_synonyms(
+            ev_text, english, synonyms, case_sensitive=False, substring_match=True
         )
+
+        ag_info[curie] = {
+            "name": name,
+            "synonyms": synonyms,
+            "definition": definition,
+            "syn_in_text": in_text,
+            "syn_in_stmt": in_stmt,
+        }
 
     return ag_info
 
@@ -256,16 +267,15 @@ def get_create_training_set(
         if isinstance(df["agent_json_list"][0], str):
             logger.info(
                 "agent_json_list dtype is str, using eval to convert "
-                "to list of OrderedDicts")
+                "to list of OrderedDicts"
+            )
             # Apply 'eval' to the column and provide the OrderedDict class
             # as an arg variable to be used in the eval call
             df["agent_json_list"] = df["agent_json_list"].apply(
-                eval, args=({"OrderedDict": OrderedDict},))
-        if isinstance(df["agent_info"][0], str):
-            logger.info(
-                "agent_info dtype is str, using eval to convert "
-                "to dict"
+                eval, args=({"OrderedDict": OrderedDict},)
             )
+        if isinstance(df["agent_info"][0], str):
+            logger.info("agent_info dtype is str, using eval to convert " "to dict")
             df["agent_info"] = df["agent_info"].apply(eval)
         return df
 
@@ -282,8 +292,9 @@ def get_create_training_set(
     curs = json.load(open(curations_file, "r"))
     logger.info("Loading statements")
     stmts = stmts_from_json_file(statement_json_file)
-    stmts_by_hash = {s.get_hash(): s
-                     for s in tqdm(stmts, desc="Creating statement lookup")}
+    stmts_by_hash = {
+        s.get_hash(): s for s in tqdm(stmts, desc="Creating statement lookup")
+    }
 
     # Loop the curations, get the corresponding statement with evidence and
     # extend the curation with the evidence text and english assembled
@@ -302,15 +313,13 @@ def get_create_training_set(
         cur["english"] = eng_stmt
         ag_list = stmt.agent_list()
         cur["agent_json_list"] = [a.to_json() for a in ag_list]
-        cur["agent_info"] = get_agent_info(ev_text=ev.text,
-                                           english=eng_stmt,
-                                           ag_list=ag_list)
+        cur["agent_info"] = get_agent_info(
+            ev_text=ev.text, english=eng_stmt, ag_list=ag_list
+        )
 
         curation_data.append(cur)
         if test and len(curation_data) == 10:
-            logger.info(
-                "Test mode: Breaking after 10 examples - not saving data"
-            )
+            logger.info("Test mode: Breaking after 10 examples - not saving data")
             break
 
     if skipped:
@@ -326,7 +335,7 @@ def get_create_training_set(
 
 
 def generate_synonym_str(
-        agents_info, include_def: bool = True, index: int = None
+    agents_info, include_def: bool = True, index: int = None
 ) -> str:
     """Generate a string with the list of synonyms
 
@@ -350,8 +359,10 @@ def generate_synonym_str(
     # and "{name2}" is the same as "{synonym2}"."""
     index_str = f" in example {index}" if index is not None else ""
     def_fmt = 'The definition of {name}%s is: "{definition}".\n' % index_str
-    syn_str_intro = 'The statement%s assumes that "{name}" is the same ' \
-                    'as "{synonym}"' % index_str
+    syn_str_intro = (
+        'The statement%s assumes that "{name}" is the same '
+        'as "{synonym}"' % index_str
+    )
     syn_str_contd = '{comma}{and_} "{name}" is the same as "{synonym}"'
     def_str = ""
     syn_strs = []
@@ -371,9 +382,11 @@ def generate_synonym_str(
                 res = biolookup.lookup(curie)
                 definition = res.get("definition", "")
 
-            def_str += def_fmt.format(
-                name=in_stmt, definition=definition
-            ) if definition else ""
+            def_str += (
+                def_fmt.format(name=in_stmt, definition=definition)
+                if definition
+                else ""
+            )
 
         if in_text and in_stmt:
             # 1. 'real' synonyms
@@ -399,9 +412,13 @@ def generate_synonym_str(
                 elif len(synonyms) == 2:
                     synonyms = '"' + '" and "'.join(synonyms) + '"'
                 elif len(synonyms) > 2:
-                    synonyms = \
-                        '"' + '", "'.join(synonyms[:-1]) + \
-                        '", and "' + synonyms[-1] + '"'
+                    synonyms = (
+                        '"'
+                        + '", "'.join(synonyms[:-1])
+                        + '", and "'
+                        + synonyms[-1]
+                        + '"'
+                    )
                 else:
                     #
                     pass
@@ -433,12 +450,7 @@ def generate_synonym_str(
     return def_str + syn_str
 
 
-def generate_example(
-    sentence,
-    statement,
-    agents_info=None,
-    index: int = None
-) -> str:
+def generate_example(sentence, statement, agents_info=None, index: int = None) -> str:
     """Generate an example string
 
     Parameters
@@ -464,16 +476,21 @@ def generate_example(
     sent_str = "Sentence" + ix
     stmt_str = "Statement" + ix
 
-    example_template = (
-        '{sent_str}: "{sentence}"\n{stmt_str}: "{english}"{synonyms}\n'
-    )
+    example_template = '{sent_str}: "{sentence}"\n{stmt_str}: "{english}"{synonyms}\n'
     if agents_info:
         syn_str = "\n" + generate_synonym_str(agents_info, index)
     else:
         syn_str = "\n"
-    return example_template.format(sent_str=sent_str, sentence=sentence,
-                                   stmt_str=stmt_str, english=statement,
-                                   synonyms=syn_str) + "\n"
+    return (
+        example_template.format(
+            sent_str=sent_str,
+            sentence=sentence,
+            stmt_str=stmt_str,
+            english=statement,
+            synonyms=syn_str,
+        )
+        + "\n"
+    )
 
 
 def generate_example_list(examples, correct: bool, indexer) -> str:
@@ -493,13 +510,16 @@ def generate_example_list(examples, correct: bool, indexer) -> str:
     indexer :
         An iterator to get the index of the sentence and statement.
     """
-    pos_str = "The following sentences are paired with statements that are " \
-              "implied from their sentence:\n\n"
-    neg_str = "The following sentences do not imply the statements they " \
-              "are paired with:\n\n"
+    pos_str = (
+        "The following sentences are paired with statements that are "
+        "implied from their sentence:\n\n"
+    )
+    neg_str = (
+        "The following sentences do not imply the statements they "
+        "are paired with:\n\n"
+    )
     template = pos_str if correct else neg_str
     for sentence, statement, agents_info in examples:
-
         ix = next(indexer)
         ex_str = generate_example(sentence, statement, agents_info, ix)
         template += ex_str
@@ -521,9 +541,11 @@ def generate_query_str(query_sentence, query_stmt, agents_info=None) -> str:
         definition (if available), synonym used in the sentence, and synonym
         used in the statement.
     """
-    query_str = "Is the following statement implied by the sentence " \
-                "assuming the sentence and the statement follow the same " \
-                "pattern as in the examples above?\n\n"
+    query_str = (
+        "Is the following statement implied by the sentence "
+        "assuming the sentence and the statement follow the same "
+        "pattern as in the examples above?\n\n"
+    )
     query_str += generate_example(query_sentence, query_stmt, agents_info)
     return query_str
 
@@ -532,53 +554,75 @@ def check_prompt_generation():
     """Quickly test the prompt generation by calling this function"""
     test_sentence1 = "a binds b and c in this text"
     test_stmt1 = "A binds B and C"
-    test_synonyms1 = {"A": {"name": "a",
-                            "definition": "a is a protein",
-                            "synonyms": ["a", "A", "aa", "A-A"],
-                            "syn_in_text": "a",
-                            "syn_in_stmt": "A"},
-                      "B": {"name": "b",
-                            "definition": "b is a protein",
-                            "synonyms": ["b", "B"],
-                            "syn_in_text": "b",
-                            "syn_in_stmt": "B"},
-                      "C": {"name": "c",
-                            "definition": "c is a protein",
-                            "synonyms": ["c", "C"],
-                            "syn_in_text": "c",
-                            "syn_in_stmt": "C"}}
+    test_synonyms1 = {
+        "A": {
+            "name": "a",
+            "definition": "a is a protein",
+            "synonyms": ["a", "A", "aa", "A-A"],
+            "syn_in_text": "a",
+            "syn_in_stmt": "A",
+        },
+        "B": {
+            "name": "b",
+            "definition": "b is a protein",
+            "synonyms": ["b", "B"],
+            "syn_in_text": "b",
+            "syn_in_stmt": "B",
+        },
+        "C": {
+            "name": "c",
+            "definition": "c is a protein",
+            "synonyms": ["c", "C"],
+            "syn_in_text": "c",
+            "syn_in_stmt": "C",
+        },
+    }
 
     test_sentence2 = "C phosphorylates D in this text"
     test_stmt2 = "C phosphorylates D"
 
     test_sentence3 = "E deactivates f in this text"
     test_stmt3 = "E activates F"
-    test_synonyms3 = {"F": {"name": "F",
-                            "definition": "F is a small molecule",
-                            "synonyms": ["f", "F", "ff", "F3"],
-                            "syn_in_text": "f",
-                            "syn_in_stmt": "F"},}
+    test_synonyms3 = {
+        "F": {
+            "name": "F",
+            "definition": "F is a small molecule",
+            "synonyms": ["f", "F", "ff", "F3"],
+            "syn_in_text": "f",
+            "syn_in_stmt": "F",
+        },
+    }
 
     test_sentence4 = "X deactivates Y in this text"
     test_stmt4 = "x deactivates Y"
-    test_synonyms4 = {"x": {"name": "X",
-                            "definition": "X is a protein",
-                            "synonyms": ["X", "x", "XX", "X1"],
-                            "syn_in_text": "X",
-                            "syn_in_stmt": "x"},}
+    test_synonyms4 = {
+        "x": {
+            "name": "X",
+            "definition": "X is a protein",
+            "synonyms": ["X", "x", "XX", "X1"],
+            "syn_in_text": "X",
+            "syn_in_stmt": "x",
+        },
+    }
 
     test_query_sentence = "a inhibits b in this text"
     test_query_stmt = "A inhibits B"
-    test_query_synonyms = {"A": {"name": "A",
-                                 "definition": "A is a protein",
-                                 "synonyms": ["a", "A", "a1"],
-                                 "syn_in_text": "a",
-                                 "syn_in_stmt": "A"},
-                           "B": {"name": "B",
-                                 "definition": "B is a protein",
-                                 "synonyms": ["b", "B", "b1", "B1", "bb"],
-                                 "syn_in_text": "b",
-                                 "syn_in_stmt": "B"}}
+    test_query_synonyms = {
+        "A": {
+            "name": "A",
+            "definition": "A is a protein",
+            "synonyms": ["a", "A", "a1"],
+            "syn_in_text": "a",
+            "syn_in_stmt": "A",
+        },
+        "B": {
+            "name": "B",
+            "definition": "B is a protein",
+            "synonyms": ["b", "B", "b1", "B1", "bb"],
+            "syn_in_text": "b",
+            "syn_in_stmt": "B",
+        },
+    }
 
     pos_examples = [
         (test_sentence1, test_stmt1, test_synonyms1),
@@ -637,33 +681,29 @@ def generate_prompt(
     # Get positive and negative examples
     indexer = count(1)
     if pos_ex_list is not None:
-        pos_ex_str = generate_example_list(pos_ex_list,
-                                           correct=True,
-                                           indexer=indexer)
+        pos_ex_str = generate_example_list(pos_ex_list, correct=True, indexer=indexer)
     else:
         pos_ex_str = ""
 
     if neg_ex_list is not None:
-        neg_ex_str = generate_example_list(neg_ex_list,
-                                           correct=False,
-                                           indexer=indexer)
+        neg_ex_str = generate_example_list(neg_ex_list, correct=False, indexer=indexer)
     else:
         neg_ex_str = ""
 
-    examples_str = pos_ex_str + neg_ex_str + "\n=======\n" if \
-        pos_ex_str or neg_ex_str else ""
+    examples_str = (
+        pos_ex_str + neg_ex_str + "\n=======\n" if pos_ex_str or neg_ex_str else ""
+    )
 
     # Generate query string
     query_str = generate_query_str(query_sentence, query_stmt, query_agent_info)
 
     # Generate positive and negative examples
-    prmt = default_prompt_template.format(examples=examples_str,
-                                          query=query_str)
+    prmt = default_prompt_template.format(examples=examples_str, query=query_str)
     return prmt
 
 
 def generate_negative_expl_prompt(
-        query_text: str, query_stmt: str, query_agent_info
+    query_text: str, query_stmt: str, query_agent_info
 ) -> str:
     """Generate a prompt for negative examples"""
     text_type = "paragraph" if query_text.count(".") > 1 else "text"
@@ -712,29 +752,34 @@ def explain_negative_examples(
         The results as a dictionary
     """
     start_dt = datetime.utcnow()
-    results_dict = {"start_time": start_dt.isoformat(),
-                    "git_revision": get_git_revision_hash(),
-                    "error_count": 0,
-                    "empty_response_count": 0,
-                    "chat_qa": []}
+    results_dict = {
+        "start_time": start_dt.isoformat(),
+        "git_revision": get_git_revision_hash(),
+        "error_count": 0,
+        "empty_response_count": 0,
+        "chat_qa": [],
+    }
     df_query_str = "tag != 'correct'" if tag is None else f"tag == '{tag}'"
-    example_iter = map(tuple, training_data_df.query(df_query_str)[
-        ['text', 'english', 'agent_info', 'tag']
-    ].sample(frac=1.0).values)
+    example_iter = map(
+        tuple,
+        training_data_df.query(df_query_str)[["text", "english", "agent_info", "tag"]]
+        .sample(frac=1.0)
+        .values,
+    )
 
     for query_text, query_english, ag_info, row_tag in tqdm(
-            example_iter, desc="Running explanation queries", total=n_iter
+        example_iter, desc="Running explanation queries", total=n_iter
     ):
         # Get the prompt
-        prompt = generate_negative_expl_prompt(query_text=query_text,
-                                               query_stmt=query_english,
-                                               query_agent_info=ag_info)
+        prompt = generate_negative_expl_prompt(
+            query_text=query_text, query_stmt=query_english, query_agent_info=ag_info
+        )
 
         # Run the chat completion
         try:
-            response = run_openai_chat(prompt=prompt,
-                                       max_tokens=max_tokens,
-                                       strip=False)
+            response = run_openai_chat(
+                prompt=prompt, max_tokens=max_tokens, strip=False
+            )
         except Exception as e:
             logger.error(f"Error running OpenAI chat: {e}")
             results_dict["error_count"] += 1
@@ -759,8 +804,10 @@ def explain_negative_examples(
         sleep(0.1)
 
     end_dt = datetime.utcnow()
-    logger.info(f"Finished running {n_iter} queries in "
-                f"{(end_dt - start_dt).total_seconds():.2f} seconds.")
+    logger.info(
+        f"Finished running {n_iter} queries in "
+        f"{(end_dt - start_dt).total_seconds():.2f} seconds."
+    )
     results_dict["end_time"] = end_dt.isoformat()
 
     # Save the results
@@ -817,12 +864,14 @@ def run_stats(
         A dictionary containing the data about the results of the chat
         completions.
     """
+
     def _get_examples_df(examples_path: Path, n_examples: int) -> pd.DataFrame:
         if examples_path.exists() and examples_path.stat().st_size > 0:
             df = pd.read_csv(examples_path, sep="\t")
             if df.shape[0] < n_examples:
-                logger.info(f"Only {len(df)} positive examples "
-                            "found. Creating more...")
+                logger.info(
+                    f"Only {len(df)} positive examples " "found. Creating more..."
+                )
                 save_examples(training_data_df, correct=True)
                 df = pd.read_csv(examples_path, sep="\t")
         else:
@@ -832,7 +881,8 @@ def run_stats(
 
         # Convert the agent json string to a list of agent jsons
         df["agent_json_list"] = df["agent_json_list"].apply(
-            eval, args=({"OrderedDict": OrderedDict},))
+            eval, args=({"OrderedDict": OrderedDict},)
+        )
         # Convert the agent_info column to a dict
         df["agent_info"] = df["agent_info"].apply(eval)
 
@@ -857,30 +907,37 @@ def run_stats(
     if n_neg_examples and neg_tag:
         neg_df = neg_df[neg_df["tag"] == neg_tag]
         if neg_df.shape[0] < n_neg_examples:
-            logger.warning(f"Only {len(neg_df)} negative examples "
-                           f"with tag '{neg_tag}' found. Creating more...")
+            logger.warning(
+                f"Only {len(neg_df)} negative examples "
+                f"with tag '{neg_tag}' found. Creating more..."
+            )
             save_examples(training_data_df, correct=False)
             neg_df = _get_examples_df(negative_examples_path, n_neg_examples)
 
     n_iter = min(n_iter, training_data_df.shape[0] - len(examples_ids))
     previous_checks = set()
     start_dt = datetime.utcnow()
-    results_dict = {"start_time": start_dt.isoformat(),
-                    "git_revision": get_git_revision_hash(),
-                    "error_count": 0,
-                    "chat_qa": [],
-                    "true_positive": 0,
-                    "false_positive": 0,
-                    "false_negative": 0,
-                    "true_negative": 0}
+    results_dict = {
+        "start_time": start_dt.isoformat(),
+        "git_revision": get_git_revision_hash(),
+        "error_count": 0,
+        "chat_qa": [],
+        "true_positive": 0,
+        "false_positive": 0,
+        "false_negative": 0,
+        "true_negative": 0,
+    }
 
     t = tqdm(desc="Running chat completions", total=n_iter)
     while True:
         # Get one example to check at random from the examples not matching
         # the examples' source_hash or the ones already checked
         excluded_ids = examples_ids | previous_checks
-        checker_dict = training_data_df[~training_data_df["id"].isin(
-            excluded_ids)].sample(n=1).to_dict(orient="records")[0]
+        checker_dict = (
+            training_data_df[~training_data_df["id"].isin(excluded_ids)]
+            .sample(n=1)
+            .to_dict(orient="records")[0]
+        )
 
         previous_checks.add(checker_dict["id"])
 
@@ -889,9 +946,9 @@ def run_stats(
             pos_examples = list(
                 map(
                     tuple,
-                    pos_df[
-                        ['text', 'english', 'agent_info']
-                    ].sample(n=n_pos_examples).values
+                    pos_df[["text", "english", "agent_info"]]
+                    .sample(n=n_pos_examples)
+                    .values,
                 )
             )
         else:
@@ -902,20 +959,22 @@ def run_stats(
             neg_examples = list(
                 map(
                     tuple,
-                    neg_df[
-                        ['text', 'english', 'agent_info']
-                    ].sample(n=n_neg_examples).values
+                    neg_df[["text", "english", "agent_info"]]
+                    .sample(n=n_neg_examples)
+                    .values,
                 )
             )
         else:
             neg_examples = None
 
         # Generate the prompt
-        prompt = generate_prompt(query_sentence=checker_dict["text"],
-                                 query_stmt=checker_dict["english"],
-                                 query_agent_info=checker_dict["agent_info"],
-                                 pos_ex_list=pos_examples,
-                                 neg_ex_list=neg_examples)
+        prompt = generate_prompt(
+            query_sentence=checker_dict["text"],
+            query_stmt=checker_dict["english"],
+            query_agent_info=checker_dict["agent_info"],
+            pos_ex_list=pos_examples,
+            neg_ex_list=neg_examples,
+        )
 
         if not prompt:
             logger.warning("No prompt was generated, skipping...")
@@ -924,9 +983,9 @@ def run_stats(
         # Run the chat completion
         chat_qa = {"prompt": prompt, "tag": checker_dict["tag"]}
         try:
-            choice = run_openai_chat(prompt=prompt,
-                                     max_tokens=max_tokens,
-                                     debug=debug_print)
+            choice = run_openai_chat(
+                prompt=prompt, max_tokens=max_tokens, debug=debug_print
+            )
         except Exception as e:
             logger.warning(f"Error while running chat completion: {e}")
             chat_qa["response"] = None
@@ -980,9 +1039,13 @@ def run_stats(
 
     # Print the results
     print("Confusion matrix:")
-    print(pd.DataFrame(data=[[tp, fp], [fn, tn]],
-                       index=["gpt_correct", "gpt_incorrect"],
-                       columns=["correct", "incorrect"]))
+    print(
+        pd.DataFrame(
+            data=[[tp, fp], [fn, tn]],
+            index=["gpt_correct", "gpt_incorrect"],
+            columns=["correct", "incorrect"],
+        )
+    )
     print(f"Precision: {results_dict['precision']}")
     print(f"Recall: {results_dict['recall']}")
     print(f"Accuracy: {results_dict['accuracy']}")
@@ -1003,7 +1066,10 @@ def run_stats(
 
 
 def generate_classifier_prompt(
-        ev_text: str, eng_stmt: str, agent_info, ignore_tags=None,
+    ev_text: str,
+    eng_stmt: str,
+    agent_info,
+    ignore_tags=None,
 ) -> str:
     """Generate a prompt for the classifier.
 
@@ -1029,48 +1095,49 @@ def generate_classifier_prompt(
         "other": "When no other tag is applicable, use this tag.",
         "correct": "The statement is correct and is implied by the sentence.",
         "no_relation": "This tag is applicable if the sentence does not "
-                       "imply a relationship between the agents appearing in "
-                       "the Statement.",
+        "imply a relationship between the agents appearing in "
+        "the Statement.",
         "wrong_relation": "This tag is applicable if the sentence implies a "
-                          "relationship between the entities appearing in "
-                          "the statement but the type of statement is "
-                          "inconsistent with the sentence.",
+        "relationship between the entities appearing in "
+        "the statement but the type of statement is "
+        "inconsistent with the sentence.",
         "mod_site": "This tag is applicable if an amino-acid site is missing "
-                    "or is incorrect in a statement implying a modification, "
-                    "but the statement is otherwise correct. Example: "
-                    'sentence: "MAP2K1 phosphorylates MAPK1 at T185."; '
-                    'statement: Statement: "Phosphorylation(MAP2K1(), '
-                    'MAPK1())"',
+        "or is incorrect in a statement implying a modification, "
+        "but the statement is otherwise correct. Example: "
+        'sentence: "MAP2K1 phosphorylates MAPK1 at T185."; '
+        'statement: Statement: "Phosphorylation(MAP2K1(), '
+        'MAPK1())"',
         "hypothesis": "This tag is applicable if the sentence describes a "
-                      "hypothesis or an experiment or is otherwise "
-                      "speculative, rather than a result or mechanism.",
+        "hypothesis or an experiment or is otherwise "
+        "speculative, rather than a result or mechanism.",
         "negative_result": "This tag is applicable if the sentence implies "
-                           "the lack of or opposite of a relationship.",
+        "the lack of or opposite of a relationship.",
         "grounding": "This tag is applicable when one of the named entities "
-                     "in the statement is assigned an incorrect database "
-                     "identifier and therefore refers to the wrong entity.",
+        "in the statement is assigned an incorrect database "
+        "identifier and therefore refers to the wrong entity.",
         "entity_boundaries": "This tag is applicable when one of the named "
-                             "entities in the statement is misidentified "
-                             'from a too greedy match, e.g. "gap" vs "gap '
-                             'junction", an ambiguous acronym, e.g. "IR" for '
-                             'infrared radiation vs insulin receptor", or '
-                             'similar.',
+        "entities in the statement is misidentified "
+        'from a too greedy match, e.g. "gap" vs "gap '
+        'junction", an ambiguous acronym, e.g. "IR" for '
+        'infrared radiation vs insulin receptor", or '
+        "similar.",
         "act_vs_amt": "This tag is applicable when the sentence implies a "
-                      "regulation of amount but the corresponding statement "
-                      "implies regulation of activity or vice versa.",
+        "regulation of amount but the corresponding statement "
+        "implies regulation of activity or vice versa.",
         "polarity": "This tag is applicable if a statement was correctly "
-                    "extracted but for polarity of the statement, "
-                    "e.g. Activation instead of Inhibition, "
-                    "or Phosphorylation instead of Dephosphorylation.",
+        "extracted but for polarity of the statement, "
+        "e.g. Activation instead of Inhibition, "
+        "or Phosphorylation instead of Dephosphorylation.",
         "agent_conditions": "This tag is applicable if one of the "
-                            "named entities (i.e. agents) in the statement is "
-                            "missing relevant conditions that are mentioned "
-                            "in the sentence, or has incorrect conditions "
-                            "attached to it, but the statement is otherwise "
-                            'correct. Example: sentence "Mutant BRAF '
-                            'activates MEK"; statement: "BRAF activates MEK".',
+        "named entities (i.e. agents) in the statement is "
+        "missing relevant conditions that are mentioned "
+        "in the sentence, or has incorrect conditions "
+        "attached to it, but the statement is otherwise "
+        'correct. Example: sentence "Mutant BRAF '
+        'activates MEK"; statement: "BRAF activates MEK".',
     }
-    prompt_templ = dedent("""
+    prompt_templ = dedent(
+        """
     Here is a list of tags and descriptions describing how a sentence - statement pair can be classified:
     
     {tag_descriptions}
@@ -1079,18 +1146,22 @@ def generate_classifier_prompt(
     
     Sentence: {sentence}
     Statement: {statement}
-    {synonyms}""")
+    {synonyms}"""
+    )
     ignore_tags = ignore_tags or []
     tag_desc = "\n".join(
-        [f"{tag}: {description}" for tag, description in curation_tags.items()
-         if tag not in ignore_tags]
+        [
+            f"{tag}: {description}"
+            for tag, description in curation_tags.items()
+            if tag not in ignore_tags
+        ]
     )
     synonyms = generate_synonym_str(agents_info=agent_info)
     prompt = prompt_templ.format(
         tag_descriptions=tag_desc,
         sentence=ev_text,
         statement=eng_stmt,
-        synonyms=synonyms
+        synonyms=synonyms,
     )
     return prompt
 
@@ -1105,32 +1176,40 @@ def classify_statements(
 ):
     """Classify statements according to the valid curation tags"""
     start_dt = datetime.utcnow()
-    results_dict = {"start_time": start_dt.isoformat(),
-                    "git_revision": get_git_revision_hash(),
-                    "error_count": 0,
-                    "empty_response_count": 0,
-                    "chat_qa": []}
+    results_dict = {
+        "start_time": start_dt.isoformat(),
+        "git_revision": get_git_revision_hash(),
+        "error_count": 0,
+        "empty_response_count": 0,
+        "chat_qa": [],
+    }
 
-    row_iter = map(tuple, training_data_df[
-        ['text', 'english', 'agent_info', 'tag']
-    ].sample(frac=1.0).values)
+    row_iter = map(
+        tuple,
+        training_data_df[["text", "english", "agent_info", "tag"]]
+        .sample(frac=1.0)
+        .values,
+    )
 
     for text, english, agent_info, curation_tag in tqdm(
-            row_iter, desc="Classifying", total=n_iter
+        row_iter, desc="Classifying", total=n_iter
     ):
         if curation_tag in ignore_tags:
             continue
 
         # Generate the prompt
         prompt = generate_classifier_prompt(
-            ev_text=text, eng_stmt=english, agent_info=agent_info, ignore_tags=ignore_tags
+            ev_text=text,
+            eng_stmt=english,
+            agent_info=agent_info,
+            ignore_tags=ignore_tags,
         )
 
         # Run the chat completion
         try:
-            response = run_openai_chat(prompt=prompt,
-                                       max_tokens=max_tokens,
-                                       debug=debug_print)
+            response = run_openai_chat(
+                prompt=prompt, max_tokens=max_tokens, debug=debug_print
+            )
         except Exception as e:
             logger.warning(f"Error while running chat completion: {e}")
             results_dict["error_count"] += 1
@@ -1141,9 +1220,11 @@ def classify_statements(
             results_dict["empty_response_count"] += 1
             continue
 
-        resp_dict = {"prompt": prompt,
-                     "response": response,
-                     "curation_tag": curation_tag}
+        resp_dict = {
+            "prompt": prompt,
+            "response": response,
+            "curation_tag": curation_tag,
+        }
         results_dict["chat_qa"].append(resp_dict)
 
         if len(results_dict["chat_qa"]) >= n_iter:
@@ -1152,16 +1233,19 @@ def classify_statements(
         sleep(0.1)
 
     end_dt = datetime.utcnow()
-    logger.info(f"Finished running {n_iter} classification queries in "
-                f"{(end_dt - start_dt).total_seconds():.2f} seconds.")
+    logger.info(
+        f"Finished running {n_iter} classification queries in "
+        f"{(end_dt - start_dt).total_seconds():.2f} seconds."
+    )
     results_dict["end_time"] = end_dt.isoformat()
 
     # Save the results
     if file_title and not file_title.endswith("_"):
         file_title += "_"
 
-    fname = (file_title or "") + \
-        f"classification_{start_dt.strftime('%Y%m%d_%H%M%S')}.json"
+    fname = (
+        file_title or ""
+    ) + f"classification_{start_dt.strftime('%Y%m%d_%H%M%S')}.json"
     (LOCAL_FILES / "results").mkdir(exist_ok=True)
     fpath = LOCAL_FILES / "results" / fname
     logger.info(f"Saving results to {fpath}")
@@ -1195,9 +1279,9 @@ def save_examples(training_data_df, correct: bool = True):
         saved_df = pd.read_csv(out_file, sep="\t")
         saved_tags = list(saved_df["tag"])
         saved_ids = set(saved_df["id"])
-        row_iter = training_data_df[
-            ~training_data_df["id"].isin(saved_ids)
-        ].query(query_str)
+        row_iter = training_data_df[~training_data_df["id"].isin(saved_ids)].query(
+            query_str
+        )
     else:
         row_iter = training_data_df.query(query_str)
 
@@ -1210,25 +1294,29 @@ def save_examples(training_data_df, correct: bool = True):
         ags_info_dict = row.agent_info
         syn_pairs = []
         for curie, info in ags_info_dict.items():
-            in_text, in_stmt = find_synonyms(row.text,
-                                             row.english,
-                                             info["synonyms"],
-                                             case_sensitive=False,
-                                             substring_match=True)
+            in_text, in_stmt = find_synonyms(
+                row.text,
+                row.english,
+                info["synonyms"],
+                case_sensitive=False,
+                substring_match=True,
+            )
             if in_text or in_stmt:
                 syn_pairs.append((in_text, in_stmt))
         if len(syn_pairs) != len(ags_info_dict):
-            skip = "> > Not all synonyms were found in the sentence and " \
-                   "statement, recommend skipping this one\n"
+            skip = (
+                "> > Not all synonyms were found in the sentence and "
+                "statement, recommend skipping this one\n"
+            )
         else:
             skip = ""
         syn_pairs_str = "\n".join([f"{s[0]} - {s[1]}" for s in syn_pairs])
 
         if not correct:
-            tag_distr = ', '.join(f'{t}: {c}' for t, c in Counter(saved_tags).most_common())
-            tag_str = (
-                f"Current Tag: {row.tag}\nSaved tags: {tag_distr}\n"
+            tag_distr = ", ".join(
+                f"{t}: {c}" for t, c in Counter(saved_tags).most_common()
             )
+            tag_str = f"Current Tag: {row.tag}\nSaved tags: {tag_distr}\n"
         else:
             tag_str = ""
         choice = input(
@@ -1252,9 +1340,11 @@ def save_examples(training_data_df, correct: bool = True):
         if out_file.exists():
             # Get the file size
             file_size = out_file.stat().st_size
-            choice = input(f"File {out_file} already exists (Size "
-                           f"{file_size} B). Overwrite, Append or Cancel? "
-                           f"(o/a/c): ")
+            choice = input(
+                f"File {out_file} already exists (Size "
+                f"{file_size} B). Overwrite, Append or Cancel? "
+                f"(o/a/c): "
+            )
             if choice == "o":
                 print(f"Saving {len(saved)} examples to {out_file}")
                 training_data_df.loc[saved].to_csv(out_file, **dump_options)
