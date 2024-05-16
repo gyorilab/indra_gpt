@@ -1,6 +1,6 @@
 # INDRA GPT
 
-If you want to run Bihan's pipeline for extracting statements based on
+If you want to run the pipeline for extracting statements based on
 the INDRA JSON schema, do the following:
 
 ```shell
