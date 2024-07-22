@@ -4,6 +4,7 @@ feeding the full json schema to ChatGPT."""
 import json
 import logging
 import random
+from json import JSONDecodeError
 from pathlib import Path
 
 import pandas as pd
@@ -203,7 +204,12 @@ def main(json_file, model: str, n_iter: int, output_file: Path):
             # as a valid statement in the output TSV file, this gives a quick
             # view of the statement extracted when loading the file later)
             statements.append(str(stmt_n))
-        except IndexError as e:
+        except (JSONDecodeError, IndexError, TypeError) as e:
+            # TypeError can happen when the response contains more than one
+            # statement json object and the post-processing function tries to
+            # access the "type" key in the response from the list of statement
+            # json objects.
+            # Todo: handle multiple statement json objects in a response
             statements.append(f"Error: {e}")
 
     # Save sentences, json_object_list, outputs, and statements as a pandas dataframe
