@@ -94,7 +94,7 @@ def gpt_stmt_json(stmt_json_examples, evidence_text):
     return chat_gpt_json
 
 
-def process_indra_object(stmt):
+def trim_stmt_json(stmt):
     """
     function to get rid of irrelevant parts of the indra statement
     dictionary
@@ -141,7 +141,7 @@ def main(json_file):
     json_object_list = json_content[:50]
 
     # run processing function on each json object to trim it down
-    json_object_list = [process_indra_object(stmt) for stmt in json_object_list]
+    json_object_list = [trim_stmt_json(stmt) for stmt in json_object_list]
 
     # Loop through each json object in json_object_list
     for json_object in tqdm(json_object_list, desc="Extracting", unit="statement"):
