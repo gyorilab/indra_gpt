@@ -136,24 +136,28 @@ def main(json_file, model: str, n_iter: int, output_file: Path):
     with open(json_file, "r") as f:
         json_content = json.load(f)
 
-    # assign first 50 json objects to json_object_list
+    # assign first N json objects to json_object_list
     if len(json_content) > n_iter:
         logger.warning(f"Number of iterations is greater than the number of statements "
                        f"in the file. All {n_iter} statements will be processed.")
     json_object_list = json_content[:n_iter]
-
-    # Trim each statement json to something manageable for chatGPT
-    json_object_list = [trim_stmt_json(stmt) for stmt in json_object_list]
+    json_object_map = {}
+    for stmt_json in json_object_list:
+        mh = stmt_json["matches_hash"]
+        json_object_map[mh] = trim_stmt_json(stmt_json)
 
     # Loop through each json object in json_object_list
-    for json_object in tqdm(json_object_list, desc="Extracting", unit="statement"):
+    for matches_hash in tqdm(json_object_map, desc="Extracting", unit="statement"):
+        json_object = json_object_map[matches_hash]
 
         # Uncomment to use when debugging
         # sample_list = [json_object_list[0],json_object_list[1]]
 
         # Take two statement jsons at random to feed to the chat history for each
         # iteration
-        sample_list = random.sample(json_object_list, 2)
+        sequence = list(set(json_object_map.keys()) - {matches_hash})
+        sample_hashes = random.sample(sequence, 2)
+        sample_list = [json_object_map[h] for h in sample_hashes]
 
         sentence = json_object["evidence"][0]["text"]
         sentences.append(sentence) # get the sentence from the current json
