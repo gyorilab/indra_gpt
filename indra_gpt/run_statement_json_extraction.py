@@ -137,7 +137,7 @@ def main(json_file, model: str, n_iter: int, output_file: Path):
         json_content = json.load(f)
 
     # assign first N json objects to json_object_list
-    if len(json_content) > n_iter:
+    if len(json_content) < n_iter:
         logger.warning(f"Number of iterations is greater than the number of statements "
                        f"in the file. All {n_iter} statements will be processed.")
     json_object_list = json_content[:n_iter]
