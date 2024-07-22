@@ -240,6 +240,8 @@ if __name__ == "__main__":
         help=f"Path to save the output tsv file. Default is {OUTPUT_DEFAULT.as_posix()}."
     )
     args = arg_parser.parse_args()
+    if args.iterations < 5:
+        raise ValueError("Number of iterations must be at least 5.")
     logger.info(f"Using OpenAI model: {args.openai_version}")
 
     main(
