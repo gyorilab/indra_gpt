@@ -19,7 +19,7 @@ client = OpenAI(api_key=api_key, organization=organization)
 
 def run_openai_chat(
     prompt: str,
-    model="gpt-4-0613",
+    model: str,
     max_tokens=1,
     retry_count=3,
     strip=True,
@@ -110,7 +110,7 @@ def run_openai_chat(
         reply = reply.strip().rstrip(".,!")
     if reply == "":
         logger.warning(
-            "OpenAI returned an empty response. See full response " "below for details."
+            "OpenAI returned an empty reply. See full API response below for details."
         )
         print(f"Response:\n---------\n{response}\n---------\n\n")
 
