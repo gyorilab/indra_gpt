@@ -10,7 +10,8 @@ from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 from indra_gpt.api import run_openai_chat
 from indra_gpt.constants import JSON_SCHEMA
-import openai.error
+import openai
+
 
 def gpt_stmt_json(stmt_json_examples, evidence_text):
     """
@@ -164,7 +165,7 @@ def main(json_file):
                 response = gpt_stmt_json(sample_list, json_object) # run
                 # gpt_stmt_json function on the randomly sampled list and
                 # current json object
-        except openai.error.InvalidRequestError as e:
+        except openai.BadRequestError as e:
             error_text = f"OpenAI error: {e}" # if chatGPT fails to create a
             # response
             outputs.append(error_text) # append error message
