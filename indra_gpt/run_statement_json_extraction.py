@@ -20,7 +20,7 @@ from indra_gpt.util import trim_stmt_json, post_process_extracted_json
 logger = logging.getLogger(__name__)
 
 
-def gpt_stmt_json(stmt_json_examples, evidence_text, model: str):
+def gpt_stmt_json(stmt_json_examples, evidence_text, model: str, debug: bool = False):
     """Prompt chatGPT to generate a statement json given a sentence
 
     This function feeds chatGPT a prompt that includes the json schema of a statement
@@ -35,6 +35,9 @@ def gpt_stmt_json(stmt_json_examples, evidence_text, model: str):
         A dictionary containing the evidence text to feed to chatGPT
     model : str
         The openai chat model to use.
+    debug : bool
+        If True, the function will print requests sent to and responses received
+        from the API, respectively.
 
     Returns
     -------
@@ -107,12 +110,12 @@ def gpt_stmt_json(stmt_json_examples, evidence_text, model: str):
         chat_history=history,
         max_tokens=9000,
         strip=False,
-        debug=False,
+        debug=debug,
     )
     return chat_gpt_json
 
 
-def main(json_file, model: str, n_iter: int, output_file: Path):
+def main(json_file, model: str, n_iter: int, output_file: Path, verbose: bool = False):
 
     """Function to run above operations on inputted training dataframe of json objects
 
@@ -126,6 +129,9 @@ def main(json_file, model: str, n_iter: int, output_file: Path):
         The number of statements to ask chatGPT to extract
     output_file : Path
         The path to save the output tsv file
+    verbose : bool
+        If True, the function will print requests sent to and responses received
+        from the API, respectively.
     """
 
     outputs = []  # list of every output by chatGPT
@@ -166,7 +172,9 @@ def main(json_file, model: str, n_iter: int, output_file: Path):
 
         try:
             with logging_redirect_tqdm():
-                response = gpt_stmt_json(sample_list, json_object, model=model)
+                response = gpt_stmt_json(
+                    sample_list, json_object, model=model, debug=verbose
+                )
                 # run gpt_stmt_json function on the randomly sampled list and
                 # current json object
         except openai.BadRequestError as e:
@@ -245,6 +253,9 @@ if __name__ == "__main__":
         "--output-file", type=str, default=OUTPUT_DEFAULT.as_posix(),
         help=f"Path to save the output tsv file. Default is {OUTPUT_DEFAULT.as_posix()}."
     )
+    arg_parser.add_argument("-v", "--verbose", action="store_true",
+                            help="Increase output verbosity. Will print requests sent "
+                                 "to and responses received from the API, respectively.")
     args = arg_parser.parse_args()
     if args.iterations < 5:
         raise ValueError("Number of iterations must be at least 5.")
@@ -254,5 +265,6 @@ if __name__ == "__main__":
         json_file=args.stmts_file,
         model=args.openai_version,
         n_iter=args.iterations,
-        output_file=Path(args.output_file)
+        output_file=Path(args.output_file),
+        verbose=args.verbose,
     )

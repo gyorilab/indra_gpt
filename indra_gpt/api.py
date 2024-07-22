@@ -83,7 +83,7 @@ def run_openai_chat(
             # Retry the request if it fails
             if i < retry_count - 1:
                 logger.warning(
-                    f"Request failed with error: {e}. Retrying " f"after 5 seconds."
+                    f"Request failed with error: {e}. Retrying after 5 seconds."
                 )
                 sleep(5)
             else:
@@ -91,8 +91,8 @@ def run_openai_chat(
 
     if debug:
         logger.info(
-            f"Prompt:\n-------\n{prompt}\n-------\n"
-            f"Response:\n---------\n{response}\n---------\n\n"
+            f"messages:\n-------\n{messages}\n-------\n"
+            f"Response:\n---------\n{response.dict()}\n---------\n\n"
         )
     if response is None:
         raise RuntimeError("No response from OpenAI")
