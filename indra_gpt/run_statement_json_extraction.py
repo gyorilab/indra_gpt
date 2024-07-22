@@ -14,7 +14,7 @@ from indra_gpt.api import run_openai_chat
 from indra_gpt.constants import JSON_SCHEMA, OUTPUT_DEFAULT, INPUT_DEFAULT
 import openai
 
-from indra_gpt.util import trim_stmt_json
+from indra_gpt.util import trim_stmt_json, post_process_extracted_json
 
 logger = logging.getLogger(__name__)
 
@@ -188,6 +188,9 @@ def main(json_file, model: str, n_iter: int, output_file: Path):
 
             # JSON loads the response
             stmt_json = json.loads(response)
+
+            # Run post-processing on the extracted json
+            stmt_json = post_process_extracted_json(stmt_json)
 
             # Extract the INDRA statement object from the json
             stmt_n = stmt_from_json(stmt_json)
