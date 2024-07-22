@@ -14,6 +14,7 @@ from indra_gpt.api import run_openai_chat
 from indra_gpt.constants import JSON_SCHEMA, OUTPUT_DEFAULT, INPUT_DEFAULT
 import openai
 
+from indra_gpt.util import trim_stmt_json
 
 logger = logging.getLogger(__name__)
 
@@ -108,29 +109,6 @@ def gpt_stmt_json(stmt_json_examples, evidence_text, model: str):
         debug=False,
     )
     return chat_gpt_json
-
-
-def trim_stmt_json(stmt):
-    """
-    function to get rid of irrelevant parts of the indra statement
-    dictionary
-
-    :param stmt:
-    :return stmt:
-
-    """
-
-    stmt["evidence"] = [{"text": stmt["evidence"][0].get("text")}]
-
-    del stmt["id"]
-    del stmt["matches_hash"]
-
-    if 'supports' in stmt:
-        del stmt['supports']
-    if 'supported_by' in stmt:
-        del stmt['supported_by']
-
-    return stmt
 
 
 def main(json_file, model: str, n_iter: int, output_file: Path):
