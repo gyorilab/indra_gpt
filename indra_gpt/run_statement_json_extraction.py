@@ -24,7 +24,7 @@ def gpt_stmt_json(stmt_json_examples, evidence_text):
     :return response:
     """
 
-    ############################# PROMPT ENGINEERING ###########################
+    # PROMPT ENGINEERING
 
     json_schema_string = json.dumps(JSON_SCHEMA)  # converting json schema to a string
 
@@ -49,8 +49,7 @@ def gpt_stmt_json(stmt_json_examples, evidence_text):
         "the JSON object.\n\nSentence: "
     )
 
-    ############################## HISTORY ############################
-
+    # Add chat history
     # variables to feed the chat history:
     stmt_json_1 = stmt_json_examples[0]  #
     # first example json in the training
@@ -78,8 +77,7 @@ def gpt_stmt_json(stmt_json_examples, evidence_text):
         # second stmt json example
     ]
 
-    ################### RUN PROMPT TO ASK CHATGPT #####################
-
+    # Prompt to feed chatGPT, including the reduced prompt without schema
     prompt = PROMPT_reduced + evidence_text["evidence"][0]["text"]
     # format the main prompt to ask chatGPT without being fed sample
     # data to only include the reduced prompt without the json schema +
@@ -92,10 +90,9 @@ def gpt_stmt_json(stmt_json_examples, evidence_text):
         max_tokens=9000,
         strip=False,
         debug=False,
-    )  # use run_openai_chat
-    # function on prompt, specifying model and max_tokens parameters as
-    # needed
-    return chat_gpt_json  # return chatGPT's response
+    )
+    return chat_gpt_json
+
 
 def process_indra_object(stmt):
     """
@@ -119,6 +116,7 @@ def process_indra_object(stmt):
 
     return stmt
 
+
 def main(json_file):
 
     """
@@ -137,24 +135,23 @@ def main(json_file):
     # object)
 
     with open(json_file, "r") as f:
-        json_content = json.load(f) # load json file
+        json_content = json.load(f)
 
-    json_object_list = json_content[:50]  # assign first 50 json objects to
-    # json_object_list
-    json_object_list = [process_indra_object(stmt) for stmt in
-    json_object_list] # run processing function on each json object to trim
-    # it down
+    # assign first 50 json objects to json_object_list
+    json_object_list = json_content[:50]
 
-    for json_object in tqdm(
-        json_object_list, desc="Extracting", unit="statement", unit_scale=True
-    ): # loop through each json object in json_object_list
+    # run processing function on each json object to trim it down
+    json_object_list = [process_indra_object(stmt) for stmt in json_object_list]
 
-        #sample_list = [json_object_list[0],json_object_list[1]] # unhash
-        # when debugging
+    # Loop through each json object in json_object_list
+    for json_object in tqdm(json_object_list, desc="Extracting", unit="statement"):
 
-        sample_list = random.sample(json_object_list, 2) # take in a random
-        # sample of any 2 json objects to feed to the chat history per
+        # Uncomment to use when debugging
+        # sample_list = [json_object_list[0],json_object_list[1]]
+
+        # Take two statement jsons at random to feed to the chat history for each
         # iteration
+        sample_list = random.sample(json_object_list, 2)
 
         sentence = json_object["evidence"][0]["text"]
         sentences.append(sentence) # get the sentence from the current json
@@ -184,14 +181,23 @@ def main(json_file):
         error loading the statement.
         """
         try:
-            json_str = json.loads(response) # load the response
-            stmt_n = stmt_from_json(json_str)  # extract the INDRA statement
-            # object from the string
-            statements.append(stmt_n) # append extracted statement to
-            # statements list
-        except IndexError as e:
-            statements.append(f"Error: {e}") # otherwise append error message
+            # Here run json.loads on the response separately from stmt_from_json
+            # to clearly see if the response is a valid json object
 
+            # JSON loads the response
+            stmt_json = json.loads(response)
+
+            # Extract the INDRA statement object from the json
+            stmt_n = stmt_from_json(stmt_json)
+
+            # Append the str extracted statement to statements list (while not saved
+            # as a valid statement in the output TSV file, this gives a quick
+            # view of the statement extracted when loading the file later)
+            statements.append(str(stmt_n))
+        except IndexError as e:
+            statements.append(f"Error: {e}")
+
+    # Save sentences, json_object_list, outputs, and statements as a pandas dataframe
     df = pd.DataFrame(
         {
             "sentence": sentences,
@@ -199,12 +205,10 @@ def main(json_file):
             "generated_json_object": outputs,
             "extracted_statement": statements,
         }
-    )     # save sentences, json_object_list, outputs, and statements as a pandas
-    # dataframe
-    df.to_csv("statement_json_extraction_results.tsv", sep="\t",
-              index=False) # save dataframe as tsv file
+    )
+    # Save dataframe as tsv file
+    df.to_csv("statement_json_extraction_results.tsv", sep="\t", index=False)
 
-    print("Done.")  # print done to know when main function has finished
 
 if __name__ == "__main__":
     main("indra_benchmark_corpus_all_correct.json") # run main function here
