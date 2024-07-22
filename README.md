@@ -84,3 +84,10 @@ includes a simplified JSON schema of the statement object):
   }
 ]
 ```
+
+## Statement Extraction Results
+
+The results of the statement extraction pipeline are saved in a tsv file. The notebook 
+`notebooks/Check statement json extraction.ipynb` contains code to analyze check the 
+correctness of the extracted statements and also attempts to salvage statements with 
+agents that were not properly regonized by the Chat GPT.
