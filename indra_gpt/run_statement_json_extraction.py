@@ -1,29 +1,51 @@
 """This module contains functions for extracting statements from text by
 feeding the full json schema to ChatGPT."""
 
-# import libraries
 import json
+import logging
 import random
+from json import JSONDecodeError
+from pathlib import Path
+
 import pandas as pd
 from indra.statements.io import stmt_from_json
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 from indra_gpt.api import run_openai_chat
-from indra_gpt.constants import JSON_SCHEMA
-import openai.error
+from indra_gpt.constants import JSON_SCHEMA, OUTPUT_DEFAULT, INPUT_DEFAULT
+import openai
 
-def gpt_stmt_json(stmt_json_examples, evidence_text):
+from indra_gpt.util import trim_stmt_json, post_process_extracted_json
+
+logger = logging.getLogger(__name__)
+
+
+def gpt_stmt_json(stmt_json_examples, evidence_text, model: str, debug: bool = False):
+    """Prompt chatGPT to generate a statement json given a sentence
+
+    This function feeds chatGPT a prompt that includes the json schema of a statement
+    json and question to generate a json object for a sentence using information in
+    the schema and two previous extraction examples.
+
+    Parameters
+    ----------
+    stmt_json_examples : list
+        A list of two statement json objects to feed to chatGPT as examples
+    evidence_text : dict
+        A dictionary containing the evidence text to feed to chatGPT
+    model : str
+        The openai chat model to use.
+    debug : bool
+        If True, the function will print requests sent to and responses received
+        from the API, respectively.
+
+    Returns
+    -------
+    chat_gpt_json : str
+        The response from OpenAI as a string
     """
-    function to feed chatGPT a prompt including the full json schema and
-    ask it to generate a json object for a sentence using information in
-    the schema
 
-    :param stmt_json_examples:
-    :param evidence_text:
-    :return response:
-    """
-
-    ############################# PROMPT ENGINEERING ###########################
+    # PROMPT ENGINEERING
 
     json_schema_string = json.dumps(JSON_SCHEMA)  # converting json schema to a string
 
@@ -48,8 +70,7 @@ def gpt_stmt_json(stmt_json_examples, evidence_text):
         "the JSON object.\n\nSentence: "
     )
 
-    ############################## HISTORY ############################
-
+    # Add chat history
     # variables to feed the chat history:
     stmt_json_1 = stmt_json_examples[0]  #
     # first example json in the training
@@ -77,8 +98,7 @@ def gpt_stmt_json(stmt_json_examples, evidence_text):
         # second stmt json example
     ]
 
-    ################### RUN PROMPT TO ASK CHATGPT #####################
-
+    # Prompt to feed chatGPT, including the reduced prompt without schema
     prompt = PROMPT_reduced + evidence_text["evidence"][0]["text"]
     # format the main prompt to ask chatGPT without being fed sample
     # data to only include the reduced prompt without the json schema +
@@ -86,47 +106,32 @@ def gpt_stmt_json(stmt_json_examples, evidence_text):
 
     chat_gpt_json = run_openai_chat(
         prompt,
-        model="gpt-3.5-turbo-16k",
+        model=model,
         chat_history=history,
         max_tokens=9000,
         strip=False,
-        debug=False,
-    )  # use run_openai_chat
-    # function on prompt, specifying model and max_tokens parameters as
-    # needed
-    return chat_gpt_json  # return chatGPT's response
+        debug=debug,
+    )
+    return chat_gpt_json
 
-def process_indra_object(stmt):
-    """
-    function to get rid of irrelevant parts of the indra statement
-    dictionary
 
-    :param stmt:
-    :return stmt:
+def main(json_file, model: str, n_iter: int, output_file: Path, verbose: bool = False):
 
-    """
+    """Function to run above operations on inputted training dataframe of json objects
 
-    stmt["evidence"] = [{"text": stmt["evidence"][0].get("text")}]
-
-    del stmt["id"]
-    del stmt["matches_hash"]
-
-    if 'supports' in stmt:
-        del stmt['supports']
-    if 'supported_by' in stmt:
-        del stmt['supported_by']
-
-    return stmt
-
-def main(json_file):
-
-    """
-    function to run above operations on inputted training dataframe of
-    json objects
-
-    :param json_file:
-    :output tsv file:
-
+    Parameters
+    ----------
+    json_file : str
+        path to the json file containing statement json objects
+    model : str
+        The openai chat model to use
+    n_iter : int
+        The number of statements to ask chatGPT to extract
+    output_file : Path
+        The path to save the output tsv file
+    verbose : bool
+        If True, the function will print requests sent to and responses received
+        from the API, respectively.
     """
 
     outputs = []  # list of every output by chatGPT
@@ -136,24 +141,30 @@ def main(json_file):
     # object)
 
     with open(json_file, "r") as f:
-        json_content = json.load(f) # load json file
+        json_content = json.load(f)
 
-    json_object_list = json_content[:50]  # assign first 50 json objects to
-    # json_object_list
-    json_object_list = [process_indra_object(stmt) for stmt in
-    json_object_list] # run processing function on each json object to trim
-    # it down
+    # assign first N json objects to json_object_list
+    if len(json_content) < n_iter:
+        logger.warning(f"Number of iterations is greater than the number of statements "
+                       f"in the file. All {n_iter} statements will be processed.")
+    json_object_list = json_content[:n_iter]
+    json_object_map = {}
+    for stmt_json in json_object_list:
+        mh = stmt_json["matches_hash"]
+        json_object_map[mh] = trim_stmt_json(stmt_json)
 
-    for json_object in tqdm(
-        json_object_list, desc="Extracting", unit="statement", unit_scale=True
-    ): # loop through each json object in json_object_list
+    # Loop through each json object in json_object_list
+    for matches_hash in tqdm(json_object_map, desc="Extracting", unit="statement"):
+        json_object = json_object_map[matches_hash]
 
-        #sample_list = [json_object_list[0],json_object_list[1]] # unhash
-        # when debugging
+        # Uncomment to use when debugging
+        # sample_list = [json_object_list[0],json_object_list[1]]
 
-        sample_list = random.sample(json_object_list, 2) # take in a random
-        # sample of any 2 json objects to feed to the chat history per
+        # Take two statement jsons at random to feed to the chat history for each
         # iteration
+        sequence = list(set(json_object_map.keys()) - {matches_hash})
+        sample_hashes = random.sample(sequence, 2)
+        sample_list = [json_object_map[h] for h in sample_hashes]
 
         sentence = json_object["evidence"][0]["text"]
         sentences.append(sentence) # get the sentence from the current json
@@ -161,10 +172,12 @@ def main(json_file):
 
         try:
             with logging_redirect_tqdm():
-                response = gpt_stmt_json(sample_list, json_object) # run
-                # gpt_stmt_json function on the randomly sampled list and
+                response = gpt_stmt_json(
+                    sample_list, json_object, model=model, debug=verbose
+                )
+                # run gpt_stmt_json function on the randomly sampled list and
                 # current json object
-        except openai.error.InvalidRequestError as e:
+        except openai.BadRequestError as e:
             error_text = f"OpenAI error: {e}" # if chatGPT fails to create a
             # response
             outputs.append(error_text) # append error message
@@ -183,14 +196,31 @@ def main(json_file):
         error loading the statement.
         """
         try:
-            json_str = json.loads(response) # load the response
-            stmt_n = stmt_from_json(json_str)  # extract the INDRA statement
-            # object from the string
-            statements.append(stmt_n) # append extracted statement to
-            # statements list
-        except IndexError as e:
-            statements.append(f"Error: {e}") # otherwise append error message
+            # Here run json.loads on the response separately from stmt_from_json
+            # to clearly see if the response is a valid json object
 
+            # JSON loads the response
+            stmt_json = json.loads(response)
+
+            # Run post-processing on the extracted json
+            stmt_json = post_process_extracted_json(stmt_json)
+
+            # Extract the INDRA statement object from the json
+            stmt_n = stmt_from_json(stmt_json)
+
+            # Append the str extracted statement to statements list (while not saved
+            # as a valid statement in the output TSV file, this gives a quick
+            # view of the statement extracted when loading the file later)
+            statements.append(str(stmt_n))
+        except (JSONDecodeError, IndexError, TypeError) as e:
+            # TypeError can happen when the response contains more than one
+            # statement json object and the post-processing function tries to
+            # access the "type" key in the response from the list of statement
+            # json objects.
+            # Todo: handle multiple statement json objects in a response
+            statements.append(f"Error: {e}")
+
+    # Save sentences, json_object_list, outputs, and statements as a pandas dataframe
     df = pd.DataFrame(
         {
             "sentence": sentences,
@@ -198,12 +228,43 @@ def main(json_file):
             "generated_json_object": outputs,
             "extracted_statement": statements,
         }
-    )     # save sentences, json_object_list, outputs, and statements as a pandas
-    # dataframe
-    df.to_csv("statement_json_extraction_results.tsv", sep="\t",
-              index=False) # save dataframe as tsv file
+    )
+    # Save dataframe as tsv file
+    df.to_csv(output_file, sep="\t", index=False)
 
-    print("Done.")  # print done to know when main function has finished
 
 if __name__ == "__main__":
-    main("indra_benchmark_corpus_all_correct.json") # run main function here
+    import argparse
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument(
+        "--stmts-file",
+        type=str,
+        default=INPUT_DEFAULT.absolute().as_posix(),
+        help=f"Path to the json file containing statement json objects. Default is "
+             f"{INPUT_DEFAULT.as_posix()}.",
+    )
+    arg_parser.add_argument("--openai-version", type=str, default="gpt-4o-mini",
+                            help="Provide a string corresponding to one of the model "
+                                 "names. See https://platform.openai.com/docs/models for "
+                                 "available models. Default is gpt-4o-mini.")
+    arg_parser.add_argument("--iterations", "-n", type=int, default=50,
+                            help="Number of iterations to run")
+    arg_parser.add_argument(
+        "--output-file", type=str, default=OUTPUT_DEFAULT.as_posix(),
+        help=f"Path to save the output tsv file. Default is {OUTPUT_DEFAULT.as_posix()}."
+    )
+    arg_parser.add_argument("-v", "--verbose", action="store_true",
+                            help="Increase output verbosity. Will print requests sent "
+                                 "to and responses received from the API, respectively.")
+    args = arg_parser.parse_args()
+    if args.iterations < 5:
+        raise ValueError("Number of iterations must be at least 5.")
+    logger.info(f"Using OpenAI model: {args.openai_version}")
+
+    main(
+        json_file=args.stmts_file,
+        model=args.openai_version,
+        n_iter=args.iterations,
+        output_file=Path(args.output_file),
+        verbose=args.verbose,
+    )

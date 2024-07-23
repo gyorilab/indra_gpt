@@ -1,26 +1,25 @@
 import logging
 from time import sleep
 
-import openai
+from openai import OpenAI
 from indra.config import IndraConfigError, get_config
 
 logger = logging.getLogger(__name__)
 
 
 try:
-    openai.api_key = get_config("OPENAI_API_KEY", failure_ok=False)
+    api_key = get_config("OPENAI_API_KEY", failure_ok=False)
     organization = get_config("OPENAI_ORG")
-    if organization:
-        openai.organization = organization
 except IndraConfigError as err:
     raise KeyError(
         "Please set OPENAI_API_KEY in the environment or in the indra config."
     ) from err
+client = OpenAI(api_key=api_key, organization=organization)
 
 
 def run_openai_chat(
     prompt: str,
-    model="gpt-4-0613",
+    model: str,
     max_tokens=1,
     retry_count=3,
     strip=True,
@@ -70,7 +69,7 @@ def run_openai_chat(
     response = None
     for i in range(retry_count):
         try:
-            response = openai.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model=model,
                 temperature=0,
                 max_tokens=max_tokens,
@@ -84,7 +83,7 @@ def run_openai_chat(
             # Retry the request if it fails
             if i < retry_count - 1:
                 logger.warning(
-                    f"Request failed with error: {e}. Retrying " f"after 5 seconds."
+                    f"Request failed with error: {e}. Retrying after 5 seconds."
                 )
                 sleep(5)
             else:
@@ -92,15 +91,15 @@ def run_openai_chat(
 
     if debug:
         logger.info(
-            f"Prompt:\n-------\n{prompt}\n-------\n"
-            f"Response:\n---------\n{response}\n---------\n\n"
+            f"messages:\n-------\n{messages}\n-------\n"
+            f"Response:\n---------\n{response.dict()}\n---------\n\n"
         )
     if response is None:
         raise RuntimeError("No response from OpenAI")
 
-    reply = response["choices"][0]["message"]["content"]
+    reply = response.choices[0].message.content
 
-    if response["choices"][0]["finish_reason"] == "length":
+    if response.choices[0].finish_reason == "length":
         logger.warning(
             "OpenAI response was truncated. Likely due to token "
             "constraints. Consider increasing the max_tokens parameter."
@@ -111,7 +110,7 @@ def run_openai_chat(
         reply = reply.strip().rstrip(".,!")
     if reply == "":
         logger.warning(
-            "OpenAI returned an empty response. See full response " "below for details."
+            "OpenAI returned an empty reply. See full API response below for details."
         )
         print(f"Response:\n---------\n{response}\n---------\n\n")
 

@@ -27,7 +27,7 @@ def run_chat_gpt_on_ev_text(ev_text: str, examples, debug=False) -> str:
         english statement from ChatGPT
     """
 
-    prompt_templ = 'Extract the relation from this sentence:  \n"{' 'prompt}"'
+    prompt_templ = 'Extract the relation from this sentence:  \n"{prompt}"'
     history = [
         {"role": "user", "content": prompt_templ.format(prompt=examples[0][1])},
         {"role": "assistant", "content": examples[0][0]},
