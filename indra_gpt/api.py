@@ -19,7 +19,7 @@ client = OpenAI(api_key=api_key, organization=organization)
 
 def run_openai_chat(
     prompt: str,
-    model: str,
+    model="gpt-4o-mini",
     max_tokens=1,
     retry_count=3,
     strip=True,
