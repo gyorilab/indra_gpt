@@ -115,3 +115,49 @@ def run_openai_chat(
         print(f"Response:\n---------\n{response}\n---------\n\n")
 
     return reply
+
+def run_openai_chat_batch(prompts, histories, model, max_tokens):
+
+    batch_requests = []
+
+    for i, prompt, history in enumerate(zip(prompts, histories)):
+        batch_requests.append(
+            {"custom_id": f"request-{i}", "method": "POST", "url": "/v1/chat/completions", "body": {"model": model, "messages": history.extend(prompt), "max_tokens": max_tokens}}
+        )
+
+    import json
+    with open("./tmp/batch_input.jsonl", "w") as f:
+        for request in batch_requests:
+            f.write(json.dumps(request) + "\n")
+            
+    # Upload the batch file
+    batch_input_file = client.files.create(
+        file=open("./tmp/batch_input.jsonl", "rb"),
+        purpose="batch"
+    )
+
+    batch_input_file_id = batch_input_file.id
+    client.batches.create(
+        input_file_id=batch_input_file_id,
+        endpoint="/v1/chat/completions",
+        completion_window="24h",
+        metadata={
+            "description": "nightly eval job"
+        }
+    )
+    batch = client.batches.retrieve('batch_67926dab0a408190857a2a4aa833fa1e')
+    batch_status = batch.to_dict()
+    batch_output_file_id = batch_status['output_file_id']
+    # Assuming file_response.text contains the string with multiple JSON objects
+    file_response_text = client.files.content(batch_output_file_id).text
+
+    # Split the response into lines and load each line as a JSON object
+    response_data = []
+    for line in file_response_text.splitlines():
+        if line.strip():  # Skip empty lines
+            response_data.append(json.loads(line))
+    # Now `response_data` is a list of dictionaries
+    replies = []
+    for entry in response_data:
+        replies.append(entry['response']['body']['choices'][0]['message']['content'])
+    return replies
