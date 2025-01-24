@@ -123,13 +123,13 @@ def gpt_stmt_json_batch(sample_lists, json_objects, model: str, debug: bool = Fa
         prompt, history = chat_prompt_and_history(sample_list, json_object)
         prompts.append(prompt)
         histories.append(history)
-    replies = run_openai_chat_batch(
+    batch_id = run_openai_chat_batch(
         prompts,
         chat_histories=histories,
         model=model,
         max_tokens=9000
     )
-    return replies
+    return batch_id
         
 
 def create_json_object_map(json_object_list):
@@ -191,35 +191,11 @@ def main(json_file, model: str, n_iter: int, output_file: Path, verbose: bool = 
             sequence = list(set(json_object_map.keys()) - {matches_hash})
             sample_hashes = random.sample(sequence, 2)
             sample_list = [json_object_map[h] for h in sample_hashes]
-            sample_lists.append((sample_list, json_object))
+            sample_lists.append(sample_list)
 
-        responses = gpt_stmt_json_batch(sample_lists, json_objects, model=model, debug=verbose)
-        
-        for response in responses:
-            try:
-                # Here run json.loads on the response separately from stmt_from_json
-                # to clearly see if the response is a valid json object
+        batch_id = gpt_stmt_json_batch(sample_lists, json_objects, model=model, debug=verbose)
+        logger.info(f"Batch job submitted with ID: {batch_id}")
 
-                # JSON loads the response
-                stmt_json = json.loads(response)
-
-                # Run post-processing on the extracted json
-                stmt_json = post_process_extracted_json(stmt_json)
-
-                # Extract the INDRA statement object from the json
-                stmt_n = stmt_from_json(stmt_json)
-
-                # Append the str extracted statement to statements list (while not saved
-                # as a valid statement in the output TSV file, this gives a quick
-                # view of the statement extracted when loading the file later)
-                statements.append(str(stmt_n))
-            except (JSONDecodeError, IndexError, TypeError) as e:
-                # TypeError can happen when the response contains more than one
-                # statement json object and the post-processing function tries to
-                # access the "type" key in the response from the list of statement
-                # json objects.
-                # Todo: handle multiple statement json objects in a response
-                statements.append(f"Error: {e}")
 
     else:
         # Loop through each json object in json_object_list
@@ -289,17 +265,17 @@ def main(json_file, model: str, n_iter: int, output_file: Path, verbose: bool = 
                 # Todo: handle multiple statement json objects in a response
                 statements.append(f"Error: {e}")
 
-    # Save sentences, json_object_list, outputs, and statements as a pandas dataframe
-    df = pd.DataFrame(
-        {
-            "sentence": sentences,
-            "input": [json.dumps(js) for js in json_object_list],
-            "generated_json_object": outputs,
-            "extracted_statement": statements,
-        }
-    )
-    # Save dataframe as tsv file
-    df.to_csv(output_file, sep="\t", index=False)
+        # Save sentences, json_object_list, outputs, and statements as a pandas dataframe
+        df = pd.DataFrame(
+            {
+                "sentence": sentences,
+                "input": [json.dumps(js) for js in json_object_list],
+                "generated_json_object": outputs,
+                "extracted_statement": statements,
+            }
+        )
+        # Save dataframe as tsv file
+        df.to_csv(output_file, sep="\t", index=False)
 
 
 if __name__ == "__main__":

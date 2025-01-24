@@ -1,5 +1,7 @@
 import logging
 from time import sleep
+import json
+import os
 
 from openai import OpenAI
 from indra.config import IndraConfigError, get_config
@@ -116,23 +118,28 @@ def run_openai_chat(
 
     return reply
 
-def run_openai_chat_batch(prompts, histories, model, max_tokens):
+def run_openai_chat_batch(prompts, chat_histories, model, max_tokens):
 
     batch_requests = []
 
-    for i, prompt, history in enumerate(zip(prompts, histories)):
+    for i, (prompt, history) in enumerate(zip(prompts, chat_histories)):
+        messages = history + [prompt]
         batch_requests.append(
-            {"custom_id": f"request-{i}", "method": "POST", "url": "/v1/chat/completions", "body": {"model": model, "messages": history.extend(prompt), "max_tokens": max_tokens}}
+            {"custom_id": f"request-{i}", "method": "POST", "url": "/v1/chat/completions", "body": {"model": model, "messages": messages, "max_tokens": max_tokens}}
         )
 
-    import json
-    with open("./tmp/batch_input.jsonl", "w") as f:
+    # Make a temporary directory in the directory one level above the directory of this file
+    tmp_dir_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tmp")
+    os.makedirs(tmp_dir_path, exist_ok=True)
+    # Write the batch requests to a file
+    batch_input_file_path = os.path.join(tmp_dir_path, "batch_input.jsonl")
+    with open(batch_input_file_path, "w") as f:
         for request in batch_requests:
             f.write(json.dumps(request) + "\n")
             
     # Upload the batch file
     batch_input_file = client.files.create(
-        file=open("./tmp/batch_input.jsonl", "rb"),
+        file=open(batch_input_file_path, "rb"),
         purpose="batch"
     )
 
@@ -145,7 +152,11 @@ def run_openai_chat_batch(prompts, histories, model, max_tokens):
             "description": "nightly eval job"
         }
     )
-    batch = client.batches.retrieve('batch_67926dab0a408190857a2a4aa833fa1e')
+    batch_id = client.batches.list().data[0].to_dict()['id']
+    return batch_id
+
+def get_batch_replies(batch_id):
+    batch = client.batches.retrieve(batch_id)
     batch_status = batch.to_dict()
     batch_output_file_id = batch_status['output_file_id']
     # Assuming file_response.text contains the string with multiple JSON objects
@@ -161,3 +172,4 @@ def run_openai_chat_batch(prompts, histories, model, max_tokens):
     for entry in response_data:
         replies.append(entry['response']['body']['choices'][0]['message']['content'])
     return replies
+
