@@ -125,7 +125,16 @@ def run_openai_chat_batch(prompts, chat_histories, model, max_tokens):
     for i, (prompt, history) in enumerate(zip(prompts, chat_histories)):
         messages = history + [prompt]
         batch_requests.append(
-            {"custom_id": f"request-{i}", "method": "POST", "url": "/v1/chat/completions", "body": {"model": model, "messages": messages, "max_tokens": max_tokens}}
+            {
+                "custom_id": f"request-{i}",
+                "method": "POST",
+                "url": "/v1/chat/completions",
+                "body": {
+                     "model": model,
+                     "messages": messages,
+                     "max_tokens": max_tokens
+                 }
+            }
         )
 
     # Make a temporary directory in the directory one level above the directory of this file
