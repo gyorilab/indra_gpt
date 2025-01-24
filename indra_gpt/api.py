@@ -118,6 +118,7 @@ def run_openai_chat(
 
     return reply
 
+
 def run_openai_chat_batch(prompts, chat_histories, model, max_tokens):
 
     batch_requests = []
@@ -163,6 +164,7 @@ def run_openai_chat_batch(prompts, chat_histories, model, max_tokens):
     )
     batch_id = client.batches.list().data[0].to_dict()['id']
     return batch_id
+
 
 def get_batch_replies(batch_id):
     batch = client.batches.retrieve(batch_id)

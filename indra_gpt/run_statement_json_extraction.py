@@ -19,6 +19,7 @@ from indra_gpt.util import trim_stmt_json, post_process_extracted_json
 
 logger = logging.getLogger(__name__)
 
+
 def chat_prompt_and_history(stmt_json_examples, evidence_text):
     json_schema_string = json.dumps(JSON_SCHEMA)  # converting json schema to a string
 
@@ -79,6 +80,7 @@ def chat_prompt_and_history(stmt_json_examples, evidence_text):
 
     return prompt, history
 
+
 def gpt_stmt_json(stmt_json_examples, evidence_text, model: str, debug: bool = False):
     """Prompt chatGPT to generate a statement json given a sentence
 
@@ -116,6 +118,7 @@ def gpt_stmt_json(stmt_json_examples, evidence_text, model: str, debug: bool = F
     )
     return chat_gpt_json
 
+
 def gpt_stmt_json_batch(sample_lists, json_objects, model: str, debug: bool = False):
     prompts = []
     histories = []
@@ -139,7 +142,15 @@ def create_json_object_map(json_object_list):
         json_object_map[mh] = trim_stmt_json(stmt_json)
     return json_object_map
 
-def main(json_file, model: str, n_iter: int, output_file: Path, verbose: bool = False, batch_jobs: bool = False):
+
+def main(
+    json_file,
+    model: str,
+    n_iter: int,
+    output_file: Path,
+    verbose: bool = False,
+    batch_jobs: bool = False
+):
 
     """Function to run above operations on inputted training dataframe of json objects
 
@@ -193,7 +204,9 @@ def main(json_file, model: str, n_iter: int, output_file: Path, verbose: bool = 
             sample_list = [json_object_map[h] for h in sample_hashes]
             sample_lists.append(sample_list)
 
-        batch_id = gpt_stmt_json_batch(sample_lists, json_objects, model=model, debug=verbose)
+        batch_id = gpt_stmt_json_batch(
+            sample_lists, json_objects, model=model, debug=verbose
+        )
         logger.info(f"Batch job submitted with ID: {batch_id}")
 
 
@@ -302,7 +315,9 @@ if __name__ == "__main__":
                             help="Increase output verbosity. Will print requests sent "
                                  "to and responses received from the API, respectively.")
     arg_parser.add_argument("-b", "--batch_jobs", action="store_true",
-                            help="If set, the script will run in batch job mode, processing groups of requests asynchronously to OpenAI API.")
+                            help="If set, the script will run in batch job mode, "
+                                 "processing groups of requests asynchronously to "
+                                 "OpenAI API.")
     args = arg_parser.parse_args()
     if args.iterations < 5:
         raise ValueError("Number of iterations must be at least 5.")
