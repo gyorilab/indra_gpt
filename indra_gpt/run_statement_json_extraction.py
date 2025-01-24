@@ -11,7 +11,7 @@ import pandas as pd
 from indra.statements.io import stmt_from_json
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
-from indra_gpt.api import run_openai_chat, run_openai_chat_batch
+from indra_gpt.api import run_openai_chat, run_openai_chat_batch, get_batch_replies
 from indra_gpt.constants import JSON_SCHEMA, OUTPUT_DEFAULT, INPUT_DEFAULT
 import openai
 
@@ -149,7 +149,8 @@ def main(
     n_iter: int,
     output_file: Path,
     verbose: bool = False,
-    batch_jobs: bool = False
+    batch_jobs: bool = False,
+    batch_id: str = None
 ):
 
     """Function to run above operations on inputted training dataframe of json objects
@@ -169,7 +170,25 @@ def main(
         from the API, respectively.
     batch_jobs : bool
         If True, the script will run in batch job mode, processing groups of requests asynchronously to OpenAI API.
+    batch_id : str
+        Provide a string of the batch job ID to retrieve the results of a batch job.
     """
+    
+    if batch_id:
+        replies = get_batch_replies(batch_id)
+        if replies is None:
+            # If replies is None, the batch job is not completed yet, or there was an error related to API, etc.
+            # In this case, we do not save the output file and just return nothing. 
+            return
+        tmp_dir_path = Path(__file__).resolve().parent.parent / "tmp"
+        tmp_dir_path.mkdir(parents=True, exist_ok=True)
+        # Write the batch requests to a file
+        batch_output_file_path = tmp_dir_path / "batch_output.jsonl"
+        with open(batch_output_file_path, "w") as f:
+            for reply in replies:
+                f.write(json.dumps(reply) + "\n")
+        return
+
     outputs = []  # list of every output by chatGPT
     sentences = []  # list of the sentences fed to the prompt
     statements = []  # list of json statements returned from outputted json
@@ -318,6 +337,9 @@ if __name__ == "__main__":
                             help="If set, the script will run in batch job mode, "
                                  "processing groups of requests asynchronously to "
                                  "OpenAI API.")
+    arg_parser.add_argument("--batch_id", type=str, default=None,
+                            help="Provide a tring of the batch job ID to retrieve the "
+                                 "results of a batch job.")
     args = arg_parser.parse_args()
     if args.iterations < 5:
         raise ValueError("Number of iterations must be at least 5.")
@@ -330,4 +352,5 @@ if __name__ == "__main__":
         output_file=Path(args.output_file),
         verbose=args.verbose,
         batch_jobs=args.batch_jobs,
+        batch_id=args.batch_id
     )

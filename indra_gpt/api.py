@@ -1,8 +1,7 @@
 import logging
 from time import sleep
 import json
-import os
-
+from pathlib import Path
 from openai import OpenAI
 from indra.config import IndraConfigError, get_config
 
@@ -139,10 +138,10 @@ def run_openai_chat_batch(prompts, chat_histories, model, max_tokens):
         )
 
     # Make a temporary directory in the directory one level above the directory of this file
-    tmp_dir_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tmp")
-    os.makedirs(tmp_dir_path, exist_ok=True)
+    tmp_dir_path = Path(__file__).resolve().parent.parent / "tmp"
+    tmp_dir_path.mkdir(parents=True, exist_ok=True)
     # Write the batch requests to a file
-    batch_input_file_path = os.path.join(tmp_dir_path, "batch_input.jsonl")
+    batch_input_file_path = tmp_dir_path / "batch_input.jsonl"
     with open(batch_input_file_path, "w") as f:
         for request in batch_requests:
             f.write(json.dumps(request) + "\n")
@@ -167,20 +166,27 @@ def run_openai_chat_batch(prompts, chat_histories, model, max_tokens):
 
 
 def get_batch_replies(batch_id):
-    batch = client.batches.retrieve(batch_id)
-    batch_status = batch.to_dict()
-    batch_output_file_id = batch_status['output_file_id']
-    # Assuming file_response.text contains the string with multiple JSON objects
-    file_response_text = client.files.content(batch_output_file_id).text
-
-    # Split the response into lines and load each line as a JSON object
-    response_data = []
-    for line in file_response_text.splitlines():
-        if line.strip():  # Skip empty lines
-            response_data.append(json.loads(line))
-    # Now `response_data` is a list of dictionaries
     replies = []
-    for entry in response_data:
-        replies.append(entry['response']['body']['choices'][0]['message']['content'])
+    try:
+        batch = client.batches.retrieve(batch_id)
+        status = batch.to_dict()['status']
+        if status == "completed":
+            batch_output_file_id = batch.to_dict()['output_file_id']
+            # Assuming file_response.text contains the string with multiple JSON objects
+            file_response_text = client.files.content(batch_output_file_id).text
+            # Split the response into lines and load each line as a JSON object
+            response_data = []
+            for line in file_response_text.splitlines():
+                if line.strip():  # Skip empty lines
+                    response_data.append(json.loads(line))
+            # Now `response_data` is a list of dictionaries
+            replies = []
+            for entry in response_data:
+                replies.append(entry['response']['body']['choices'][0]['message']['content'])
+        else:
+            logger.info(f"Batch job info: {batch}")
+            replies = None
+    except Exception as e:
+        logger.error(f"Error getting batch replies: {e}")
+        replies = None
     return replies
-
