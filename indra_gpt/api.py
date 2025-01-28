@@ -1,6 +1,8 @@
 import logging
 from time import sleep
-
+import json
+from pathlib import Path
+import time
 from openai import OpenAI
 from indra.config import IndraConfigError, get_config
 
@@ -19,7 +21,7 @@ client = OpenAI(api_key=api_key, organization=organization)
 
 def run_openai_chat(
     prompt: str,
-    model: str,
+    model="gpt-4o-mini",
     max_tokens=1,
     retry_count=3,
     strip=True,
@@ -115,3 +117,100 @@ def run_openai_chat(
         print(f"Response:\n---------\n{response}\n---------\n\n")
 
     return reply
+
+
+def run_openai_chat_batch(prompts, chat_histories, model, max_tokens):
+
+    batch_requests = []
+
+    for i, (prompt, history) in enumerate(zip(prompts, chat_histories)):
+        messages = history + prompt
+        batch_requests.append(
+            {
+                "custom_id": f"request-{i}",
+                "method": "POST",
+                "url": "/v1/chat/completions",
+                "body": {
+                     "model": model,
+                     "messages": messages,
+                     "max_tokens": max_tokens
+                 }
+            }
+        )
+
+    # Make a temporary directory in the directory one level above the directory of this file
+    batches_dir_path = Path(__file__).resolve().parent.parent / "batches"  
+    batches_dir_path.mkdir(parents=True, exist_ok=True)  # Create the parent directory if it doesn't exist
+
+    # Write the batch requests to a file
+    tmp_batch_input_file_path = batches_dir_path / "batch_input.jsonl"
+    with open(tmp_batch_input_file_path, "w") as f:
+        for request in batch_requests:
+            f.write(json.dumps(request) + "\n")
+            
+    # Upload the batch file
+    batch_input_file = client.files.create(
+        file=open(tmp_batch_input_file_path, "rb"),
+        purpose="batch"
+    )
+    # delete the temporary file
+    tmp_batch_input_file_path.unlink()
+
+    # Create the batch job using the uploaded file
+    batch_input_file_id = batch_input_file.id
+    client.batches.create(
+        input_file_id=batch_input_file_id,
+        endpoint="/v1/chat/completions",
+        completion_window="24h",
+        metadata={
+            "description": "nightly eval job"
+        }
+    )
+
+    # Retrieve batch ID
+    batch_id = client.batches.list().data[0].to_dict()['id']
+
+    # Make a batch input directory, where the batch input and output files are both stored
+    batch_dir_path = batches_dir_path / batch_id
+    batch_dir_path.mkdir(parents=True, exist_ok=True)
+
+    # Write the batch requests to a file
+    batch_input_file_path = batch_dir_path / "batch_input.jsonl"
+    with open(batch_input_file_path, "w") as f:
+        for request in batch_requests:
+            f.write(json.dumps(request) + "\n")
+
+    # Also add a txt file with when this batch was created
+    current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    with open(batch_dir_path / "metadata.txt", "w") as f:
+        f.write(f"Batch created at time: {current_time}\n")
+        f.write(f"Batch ID: {batch_id}\n")
+    return batch_id
+
+
+def get_batch_replies(batch_id):
+    replies = []
+    try:
+        batch = client.batches.retrieve(batch_id)
+        logger.info("Fetched data for batch id {batch_id})")
+        status = batch.to_dict()['status']
+        if status == "completed":
+            batch_output_file_id = batch.to_dict()['output_file_id']
+            # Assuming file_response.text contains the string with multiple JSON objects
+            file_response_text = client.files.content(batch_output_file_id).text
+            # Split the response into lines and load each line as a JSON object
+            response_data = []
+            for line in file_response_text.splitlines():
+                if line.strip():  # Skip empty lines
+                    response_data.append(json.loads(line))
+            # Now `response_data` is a list of dictionaries
+            replies = []
+            for entry in response_data:
+                replies.append(entry['response']['body']['choices'][0]['message']['content'])
+        else:
+            logger.info(f"Batch job info: {batch}")
+            replies = None
+    except Exception as e:
+        logger.error(f"Error getting batch replies: {e}")
+        replies = None
+    return replies
