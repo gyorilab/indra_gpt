@@ -2,6 +2,7 @@ import logging
 from time import sleep
 import json
 from pathlib import Path
+import time
 from openai import OpenAI
 from indra.config import IndraConfigError, get_config
 
@@ -123,7 +124,7 @@ def run_openai_chat_batch(prompts, chat_histories, model, max_tokens):
     batch_requests = []
 
     for i, (prompt, history) in enumerate(zip(prompts, chat_histories)):
-        messages = history + [prompt]
+        messages = history + prompt
         batch_requests.append(
             {
                 "custom_id": f"request-{i}",
@@ -138,20 +139,24 @@ def run_openai_chat_batch(prompts, chat_histories, model, max_tokens):
         )
 
     # Make a temporary directory in the directory one level above the directory of this file
-    tmp_dir_path = Path(__file__).resolve().parent.parent / "tmp"
-    tmp_dir_path.mkdir(parents=True, exist_ok=True)
+    batches_dir_path = Path(__file__).resolve().parent.parent / "batches"  
+    batches_dir_path.mkdir(parents=True, exist_ok=True)  # Create the parent directory if it doesn't exist
+
     # Write the batch requests to a file
-    batch_input_file_path = tmp_dir_path / "batch_input.jsonl"
-    with open(batch_input_file_path, "w") as f:
+    tmp_batch_input_file_path = batches_dir_path / "batch_input.jsonl"
+    with open(tmp_batch_input_file_path, "w") as f:
         for request in batch_requests:
             f.write(json.dumps(request) + "\n")
             
     # Upload the batch file
     batch_input_file = client.files.create(
-        file=open(batch_input_file_path, "rb"),
+        file=open(tmp_batch_input_file_path, "rb"),
         purpose="batch"
     )
+    # delete the temporary file
+    tmp_batch_input_file_path.unlink()
 
+    # Create the batch job using the uploaded file
     batch_input_file_id = batch_input_file.id
     client.batches.create(
         input_file_id=batch_input_file_id,
@@ -161,7 +166,25 @@ def run_openai_chat_batch(prompts, chat_histories, model, max_tokens):
             "description": "nightly eval job"
         }
     )
+
+    # Retrieve batch ID
     batch_id = client.batches.list().data[0].to_dict()['id']
+
+    # Make a batch input directory, where the batch input and output files are both stored
+    batch_dir_path = batches_dir_path / batch_id
+    batch_dir_path.mkdir(parents=True, exist_ok=True)
+
+    # Write the batch requests to a file
+    batch_input_file_path = batch_dir_path / "batch_input.jsonl"
+    with open(batch_input_file_path, "w") as f:
+        for request in batch_requests:
+            f.write(json.dumps(request) + "\n")
+
+    # Also add a txt file with when this batch was created
+    current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    with open(batch_dir_path / "metadata.txt", "w") as f:
+        f.write(f"Batch created at time: {current_time}\n")
+        f.write(f"Batch ID: {batch_id}\n")
     return batch_id
 
 
@@ -169,6 +192,7 @@ def get_batch_replies(batch_id):
     replies = []
     try:
         batch = client.batches.retrieve(batch_id)
+        print(batch_id)
         status = batch.to_dict()['status']
         if status == "completed":
             batch_output_file_id = batch.to_dict()['output_file_id']

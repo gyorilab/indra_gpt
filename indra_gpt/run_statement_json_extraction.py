@@ -74,11 +74,12 @@ def chat_prompt_and_history(stmt_json_examples, evidence_text):
 
     # Prompt to feed chatGPT, including the reduced prompt without schema
     prompt = PROMPT_reduced + evidence_text["evidence"][0]["text"]
+    prompt_openai_format = [{"role": "user", "content": prompt}]
     # format the main prompt to ask chatGPT without being fed sample
     # data to only include the reduced prompt without the json schema +
     # the main sentence inputted into the gpt_stmt_json function
 
-    return prompt, history
+    return prompt_openai_format, history
 
 
 def gpt_stmt_json(stmt_json_examples, evidence_text, model: str, debug: bool = False):
@@ -176,17 +177,28 @@ def main(
     
     if batch_id:
         replies = get_batch_replies(batch_id)
+        
         if replies is None:
             # If replies is None, the batch job is not completed yet, or there was an error related to API, etc.
             # In this case, we do not save the output file and just return nothing. 
+            print("Error retrieving batch replies. Please check the batch job ID or try again later.")
             return
-        tmp_dir_path = Path(__file__).resolve().parent.parent / "tmp"
-        tmp_dir_path.mkdir(parents=True, exist_ok=True)
-        # Write the batch requests to a file
-        batch_output_file_path = tmp_dir_path / "batch_output.jsonl"
+
+        batches_dir_path = Path(__file__).resolve().parent.parent / "batches"
+        batch_dir_path = batches_dir_path / batch_id
+
+        # Check if the batch directory exists
+        if not batch_dir_path.exists():
+            raise FileNotFoundError(f"Batch directory for batch_id {batch_id} does not exist. Please check the batch ID and try again.")
+
+        # Else save the output file
+        batch_output_file_path = batch_dir_path / "batch_output.jsonl"
+
         with open(batch_output_file_path, "w") as f:
             for reply in replies:
                 f.write(json.dumps(reply) + "\n")
+        
+        print(f"Batch output saved to {batch_output_file_path}")
         return
 
     outputs = []  # list of every output by chatGPT
