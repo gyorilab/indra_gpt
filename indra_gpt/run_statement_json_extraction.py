@@ -181,7 +181,8 @@ def main(
         if replies is None:
             # If replies is None, the batch job is not completed yet, or there was an error related to API, etc.
             # In this case, we do not save the output file and just return nothing. 
-            print("Error retrieving batch replies. Please check the batch job ID or try again later.")
+            logger.info("There is no batch replies to retrieve."
+                        " Please check if the batch job ID is correct, or try again later since the job may still be processing.")
             return
 
         batches_dir_path = Path(__file__).resolve().parent.parent / "batches"
@@ -198,7 +199,7 @@ def main(
             for reply in replies:
                 f.write(json.dumps(reply) + "\n")
         
-        print(f"Batch output saved to {batch_output_file_path}")
+        logger.info(f"Batch output saved to {batch_output_file_path}")
         return
 
     outputs = []  # list of every output by chatGPT
