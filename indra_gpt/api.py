@@ -192,7 +192,7 @@ def get_batch_replies(batch_id):
     replies = []
     try:
         batch = client.batches.retrieve(batch_id)
-        print(batch_id)
+        logger.info("Fetched data for batch id {batch_id})")
         status = batch.to_dict()['status']
         if status == "completed":
             batch_output_file_id = batch.to_dict()['output_file_id']

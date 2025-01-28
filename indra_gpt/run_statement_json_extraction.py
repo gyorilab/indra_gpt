@@ -181,8 +181,9 @@ def main(
         if replies is None:
             # If replies is None, the batch job is not completed yet, or there was an error related to API, etc.
             # In this case, we do not save the output file and just return nothing. 
-            logger.info("There is no batch replies to retrieve."
-                        " Please check if the batch job ID is correct, or try again later since the job may still be processing.")
+            logger.error(
+                "Error retrieving batch replies. Please check the batch job ID or try again later."
+            )
             return
 
         batches_dir_path = Path(__file__).resolve().parent.parent / "batches"
