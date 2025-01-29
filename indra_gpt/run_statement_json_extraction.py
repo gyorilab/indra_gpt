@@ -12,7 +12,7 @@ from indra.statements.io import stmt_from_json
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 from indra_gpt.api import run_openai_chat, run_openai_chat_batch, get_batch_replies
-from indra_gpt.constants import JSON_SCHEMA, OUTPUT_DEFAULT, INPUT_DEFAULT
+from indra_gpt.resources.constants import JSON_SCHEMA, OUTPUT_DEFAULT, INPUT_DEFAULT
 import openai
 
 from indra_gpt.util import trim_stmt_json, post_process_extracted_json
@@ -74,12 +74,11 @@ def chat_prompt_and_history(stmt_json_examples, evidence_text):
 
     # Prompt to feed chatGPT, including the reduced prompt without schema
     prompt = PROMPT_reduced + evidence_text["evidence"][0]["text"]
-    prompt_openai_format = [{"role": "user", "content": prompt}]
     # format the main prompt to ask chatGPT without being fed sample
     # data to only include the reduced prompt without the json schema +
     # the main sentence inputted into the gpt_stmt_json function
 
-    return prompt_openai_format, history
+    return prompt, history
 
 
 def gpt_stmt_json(stmt_json_examples, evidence_text, model: str, debug: bool = False):
@@ -321,7 +320,9 @@ def main(
             }
         )
         # Save dataframe as tsv file
+        output_file.parent.mkdir(parents=True, exist_ok=True)
         df.to_csv(output_file, sep="\t", index=False)
+        logger.info(f"Output written to {output_file}")
 
 
 if __name__ == "__main__":

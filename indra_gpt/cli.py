@@ -7,8 +7,8 @@ requires an API key to openai).
 
 import click
 
-from indra_gpt.check_correctness import get_create_training_set
-from indra_gpt.check_correctness import run_stats as run_stats_func
+from indra_gpt.util.check_correctness import get_create_training_set
+from indra_gpt.util.check_correctness import run_stats as run_stats_func
 
 
 @click.group("indra-gpt")
