@@ -5,6 +5,7 @@ from datetime import datetime
 from itertools import count
 from pathlib import Path
 from textwrap import dedent
+import time
 from time import sleep
 
 import biolookup
@@ -263,7 +264,8 @@ def get_create_training_set(
     pd.DataFrame
         A dataframe containing the training set.
     """
-    if curation_training_data.exists() and not refresh and not test:
+    # Return the pre-existing default training data if user did not specify any files. 
+    if  curation_training_data.exists() and not curations_file and not statement_json_file and not refresh and not test:
         df = pd.read_csv(curation_training_data, sep="\t")
         if isinstance(df["agent_json_list"][0], str):
             logger.info(
@@ -280,13 +282,15 @@ def get_create_training_set(
             df["agent_info"] = df["agent_info"].apply(eval)
         return df
 
-    # Create the training set
-    if curations_file is None or statement_json_file is None:
+    # Else generate the training data
+    # It both files are not provided raise error. 
+    if  curations_file is None or statement_json_file is None:
         raise FileNotFoundError(
             f"Please provide the curations and statement json file if "
             f"pre-generated training data is not available at "
             f"{curation_training_data}"
         )
+    # Else if both files are provided, generate the training data
     # Initialize Gilda so that tqdm is more accurate
     _ = gilda.get_grounder()
     logger.info("Loading curations")
@@ -300,15 +304,27 @@ def get_create_training_set(
     # Loop the curations, get the corresponding statement with evidence and
     # extend the curation with the evidence text and english assembled
     # statement
+    # Basically a join operation between the curations and the statements by
+    # the hashes. 
     curation_data = []
     skipped = 0
     for cur in tqdm(curs, desc="Matching curations to statements"):
-        stmt = stmts_by_hash[cur["pa_hash"]]
+        # If the pre-assembled has of curatation is not in the statements, skip this curation data.
+        try:
+            stmt = stmts_by_hash[cur["pa_hash"]]
+        except KeyError:
+            logger.warning(f"Skipping {cur['pa_hash']}, not found in statements")
+            skipped += 1
+            continue
+        
+        # Get the evidence text (get the first evidence text if there are multiple)
+        # If there aren't any evidence texts, skip this curation data.
         ev = [e for e in stmt.evidence if e.get_source_hash() == cur["source_hash"]][0]
         if ev.text is None:
             skipped += 1
             continue
-
+        
+        # Extend the curation data with: Evidence text, English statement, Agent list, and Agent info
         cur["text"] = ev.text
         eng_stmt = EnglishAssembler([stmt]).make_model()
         cur["english"] = eng_stmt
@@ -330,8 +346,12 @@ def get_create_training_set(
     # Save the training data
     df = pd.DataFrame(curation_data)
     if not test:
-        logger.info(f"Saving training data to {curation_training_data}")
-        df.to_csv(curation_training_data, sep="\t", index=False)
+        current_time = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
+        output_dir = LOCAL_FILES / "training_data"
+        output_dir.mkdir(exist_ok=True)
+        output_file = output_dir / f"training_data_{current_time}.tsv"
+        logger.info(f"Saving training data to {output_file}")
+        df.to_csv(output_file, sep="\t", index=False)
 
     return df
 

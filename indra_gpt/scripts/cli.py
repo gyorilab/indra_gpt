@@ -1,7 +1,7 @@
 """
-Run the indra gpt cli using ``python -m indra_gpt.cli create-training-data``
+Run the indra gpt cli using ``python -m indra_gpt.scripts.cli create-training-data``
 to create the initial data (requires a curations file and cached statements)
-or ``python -m indra_gpt.cli run-stats-cli`` to run the main accuracy test (
+or ``python -m indra_gpt.scripts.cli run-stats`` to run the main accuracy test (
 requires an API key to openai).
 """
 
