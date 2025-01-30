@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 HERE = Path(__file__).parent
-LOCAL_FILES = HERE.parent.joinpath("local_data")
+LOCAL_FILES = HERE.parent.parent.joinpath("local_data")
 LOCAL_FILES.mkdir(exist_ok=True)
 curation_training_data = LOCAL_FILES.joinpath("training_data.tsv")
 positive_examples_path = LOCAL_FILES.joinpath("positive_examples.tsv")
@@ -313,6 +313,7 @@ def get_create_training_set(
         eng_stmt = EnglishAssembler([stmt]).make_model()
         cur["english"] = eng_stmt
         ag_list = stmt.agent_list()
+        logger.debug(f"Agents: {ag_list}")
         cur["agent_json_list"] = [a.to_json() for a in ag_list]
         cur["agent_info"] = get_agent_info(
             ev_text=ev.text, english=eng_stmt, ag_list=ag_list
@@ -358,8 +359,8 @@ def generate_synonym_str(
     # The definition of {name2}{ex_str} is: "{definition2}".
     # The statement{ex_str} assumes that "{name1}" is the same as "{synonym1}"
     # and "{name2}" is the same as "{synonym2}"."""
-    index_str = f" in example {index}" if index is not None else ""
-    def_fmt = 'The definition of {name}%s is: "{definition}".\n' % index_str
+    index_str = f"in example {index}" if index is not None else ""
+    def_fmt = 'The definition of {name} %s is: "{definition}".\n' % index_str
     syn_str_intro = (
         'The statement%s assumes that "{name}" is the same '
         'as "{synonym}"' % index_str
@@ -380,8 +381,12 @@ def generate_synonym_str(
             if agent_info["definition"]:
                 definition = agent_info["definition"]
             else:
-                res = biolookup.lookup(curie)
-                definition = res.get("definition", "")
+                try:
+                    res = biolookup.lookup(curie)
+                    definition = res.get("definition", "<Definition not found from biolookup>")
+                except Exception as e:
+                    logger.error(f"Error looking up {curie}: {e}")
+                    definition = "<Definition not found from biolookup>"
 
             def_str += (
                 def_fmt.format(name=in_stmt, definition=definition)

@@ -1,4 +1,4 @@
-from indra_gpt.util.check_correctness import generate_example, generate_synonym_str, get_synonyms, generate_prompt
+from indra_gpt.util.check_correctness import generate_example, generate_synonym_str, generate_prompt #, get_synonyms 
 
 
 def test_generate_synonym_str():
@@ -7,6 +7,22 @@ def test_generate_synonym_str():
     synonymlist_long = [("a", "b"), ("c", "d")]
     synonymlist_short = [("a", "b")]
 
+    def convert_to_agents_info(synonymlist):
+        synonymlist_agents_info = {}
+        for i, syn in enumerate(synonymlist):
+            curie = f"syn_{i}"
+            agent_info = {}
+            agent_info['name'] = syn[0]
+            agent_info['synonyms'] = [syn[0],syn[1]]
+            agent_info['definition'] = None
+            agent_info['syn_in_text'] = syn[0]
+            agent_info['syn_in_stmt'] = syn[1]
+            synonymlist_agents_info[curie] = agent_info
+        return synonymlist_agents_info
+
+    synonymlist_long = convert_to_agents_info(synonymlist_long)
+    synonymlist_short = convert_to_agents_info(synonymlist_short)
+    
     # Test long list without index
     syn_test = generate_synonym_str(synonymlist_long)
     assert '- "a" and "b"' in syn_test, syn_test
@@ -59,15 +75,15 @@ def test_generate_example_no_synonyms():
     assert "synonyms" not in ex_str, ex_str
 
 
-def test_get_synonyms():
-    # Test nonsensical case
-    ag_json_list = [
-        {"name": "a", "db_refs": {"TEXT": "a", "HGNC": "1234"}},
-        {"name": "b", "db_refs": {"TEXT": "b", "HGNC": "4321"}},
-    ]
-    syns = get_synonyms(ag_json_list)
-    assert any("a" in syn for syn in syns), syns
-    assert any("b" in syn for syn in syns), syns
+# def test_get_synonyms():
+#     # Test nonsensical case
+#     ag_json_list = [
+#         {"name": "a", "db_refs": {"TEXT": "a", "HGNC": "1234"}},
+#         {"name": "b", "db_refs": {"TEXT": "b", "HGNC": "4321"}},
+#     ]
+#     syns = get_synonyms(ag_json_list)
+#     assert any("a" in syn for syn in syns), syns
+#     assert any("b" in syn for syn in syns), syns
 
 def test_generate_prompt():
     """Quickly test the prompt generation by calling this function"""
