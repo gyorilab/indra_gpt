@@ -2,21 +2,17 @@
 
 ## Overview
 
-This repository contains code for interacting with Chat GPT's chat API. The code is 
-divided into several files:
+This repository contains code for interacting with Chat GPT's chat API. The project has
+some key scripts that can be run on the command line. 
 
-- `api.py`: Contains the function `run_openai_chat` which sends a prompt to the Chat GPT
-  chat API and returns the response. It takes optional arguments to customize some of 
-  the settings of the API call.
-- `check_correctnes.py`: Contains functions to check for statement correctness, 
-  including checking for type of error in incorrect statements.
-- `cli.py` A CLI for `check_correctness.py`.
-- `constants.py` Contains constants used in `run_statement_json_extraction.py`.
-- `reach_extraction.py` Contains functions for extracting English statements given 
-  evidence text from a correct statement.
-- `run_statement_json_extraction.py` Contains functions for extracting sparse statement 
-  json objects given evidence text from a correct statement.
-- `utils.py` Contains utility functions used in `run_statement_json_extraction.py`.
+- `indra_gpt/scripts/run_statement_json_extraction.py`: Extracts sparse statement 
+  json objects given evidence text.
+
+- `indra_gpt/scripts/cli.py`: A CLI to check for English statement correctness, including checking for type of error in
+  incorrect English statements. 
+
+- `indra_gpt/scripts/reach_extraction.py`: Extracts implied English statements given 
+  evidence text.
 
 ## Installation
 Clone this repository and install the requirements with:
@@ -28,27 +24,29 @@ pip install -r requirements.txt
 
 To run the statement extraction pipeline:
 ```shell
-python -m indra_gpt.run_statement_json_extraction
+python -m indra_gpt.scripts.run_statement_json_extraction
 ```
 
 View the results:
 ```shell
-less statement_json_extraction_results.tsv
+less ./output/statement_json_extraction_results.tsv
 ```
 
 `run_statement_json_extraction` takes a couple of optional arguments:
 
 - `--stmts-file` Path to a json file containing statement json objects to check. They
   are assumed to be correct, i.e. explicitly curated as correct. This option defaults to
-  `indra_gpt/indra_benchmark_corpus_all_correct.json`
+  `indra_gpt/resources/indra_benchmark_corpus_all_correct.json`
 - `--openai-version` A string corresponding to one of the OpenAI model names. See
   https://platform.openai.com/docs/models for available models. Default is
   `'gpt-4o-mini'`.
 - `--iterations | -n` Number of statements to guess. Minimum is 5. Default is 50.
 - `--output-file` Path to save the output tsv file. Defaults to
   `indra_gpt/statement_json_extraction_results.tsv`.
+- `--batch_jobs` Use to run script will run as a batch job.
+- `--batch_id` Batch job id to see the current status of the job, if the job is completed, output will be downloaded. 
 
-## Details of Statement Extraction
+### Details of Statement Extraction
 
 The statement extraction pipeline uses OpenAI's Chat-GPT chat API to generate 
 statements by the 'show-and-tell' method. The pipeline iterates over a set of correct 
@@ -85,9 +83,42 @@ includes a simplified JSON schema of the statement object):
 ]
 ```
 
-## Statement Extraction Results
+### Statement Extraction Results
 
 The results of the statement extraction pipeline are saved in a tsv file. The notebook 
 `notebooks/Check statement json extraction.ipynb` contains code to analyze check the 
 correctness of the extracted statements and also attempts to salvage statements with 
 agents that were not properly regonized by the Chat GPT.
+
+## Evaluating Statement Correctness
+
+### Creating training data
+To run the evaluation we first need training data. Training data is constructed by joining a curation file and a statements file
+on their hash keys.
+
+Here is an example of creating training data:
+```shell
+python -m indra_gpt.scripts.cli create-training-data --curations-file "./indra_gpt/local_data/sample_curation.json" --statements-file "./indra_gpt/local_data/sample_statements.json" 
+```
+
+### Evaluating training data
+A training data can be evaluated by running this script:
+```shell
+python -m indra_gpt.scripts.cli run-stats
+```
+View the evaluation statistics in command line (example):
+```
+Confusion matrix:
+               correct  incorrect
+gpt_correct         44         12
+gpt_incorrect       22         22
+Precision: 0.7857142857142857
+Recall: 0.6666666666666666
+Accuracy: 0.66
+Total examples: 100
+```
+
+The evalation result file is saved here:
+```
+./local_data/results/correct_vs_incorrect_<creation date when you run above script>.json
+```

@@ -1,0 +1,31 @@
+sentence	input	generated_json_object	extracted_statement
+C5a promotes the proliferation of human nasopharyngeal carcinoma cells through PCAF-mediated STAT3 acetylation.	"{""type"": ""Acetylation"", ""enz"": {""name"": ""C5"", ""db_refs"": {""TEXT"": ""C5a"", ""NCIT"": ""C20487"", ""UP"": ""P01031"", ""HGNC"": ""1331""}}, ""sub"": {""name"": ""STAT3"", ""db_refs"": {""UP"": ""P40763"", ""HGNC"": ""11364"", ""TEXT"": ""STAT3""}}, ""belief"": 0.65, ""evidence"": [{""text"": ""C5a promotes the proliferation of human nasopharyngeal carcinoma cells through PCAF-mediated STAT3 acetylation.""}]}"	"{""type"": ""Acetylation"", ""enz"": {""name"": ""PCAF"", ""db_refs"": {""TEXT"": ""PCAF"", ""HGNC"": ""8600""}}, ""sub"": {""name"": ""STAT3"", ""db_refs"": {""TEXT"": ""STAT3"", ""HGNC"": ""11176"", ""UP"": ""P40763""}}, ""belief"": 0.85, ""evidence"": [{""text"": ""C5a promotes the proliferation of human nasopharyngeal carcinoma cells through PCAF-mediated STAT3 acetylation.""}]}"	Acetylation(PCAF(), STAT3())
+Furthermore, acetylation of p53 K120 by the MOF and MSL1v1 complex greatly enhanced the transcription activity of p53 (XREF_FIG).	"{""type"": ""Acetylation"", ""enz"": {""name"": ""KANSL1"", ""db_refs"": {""UP"": ""Q7Z3B3"", ""HGNC"": ""24565"", ""TEXT"": ""MSL1v1""}}, ""sub"": {""name"": ""TP53"", ""db_refs"": {""UP"": ""P04637"", ""HGNC"": ""11998"", ""TEXT"": ""p53""}}, ""residue"": ""K"", ""position"": ""120"", ""belief"": 0.9927351664162256, ""evidence"": [{""text"": ""Furthermore, acetylation of p53 K120 by the MOF and MSL1v1 complex greatly enhanced the transcription activity of p53 (XREF_FIG).""}]}"	"{""type"": ""Activation"", ""subj"": {""name"": ""MOF and MSL1v1 complex"", ""db_refs"": {""TEXT"": ""MOF and MSL1v1 complex""}}, ""obj"": {""name"": ""p53"", ""db_refs"": {""UP"": ""P04637"", ""HGNC"": ""11998"", ""TEXT"": ""p53""}}, ""obj_activity"": ""transcription"", ""belief"": 0.85, ""evidence"": [{""text"": ""Furthermore, acetylation of p53 K120 by the MOF and MSL1v1 complex greatly enhanced the transcription activity of p53 (XREF_FIG).""}]}"	Activation(MOF and MSL1v1 complex(), p53(), transcription)
+Indeed, we show that upon treatment with chemotherapeutic drugs c-Abl enhances the phosphorylation-dependent interaction between Pin1 and p73, and this in turn promotes p73 acetylation by p300.	"{""type"": ""Acetylation"", ""enz"": {""name"": ""EP300"", ""db_refs"": {""UP"": ""Q09472"", ""HGNC"": ""3373"", ""TEXT"": ""p300""}}, ""sub"": {""name"": ""TP73"", ""db_refs"": {""UP"": ""O15350"", ""HGNC"": ""12003"", ""TEXT"": ""p73""}}, ""belief"": 0.9999999998071971, ""evidence"": [{""text"": ""Indeed, we show that upon treatment with chemotherapeutic drugs c-Abl enhances the phosphorylation-dependent interaction between Pin1 and p73, and this in turn promotes p73 acetylation by p300.""}]}"	"{
+  ""type"": ""Activation"",
+  ""subj"": {
+    ""name"": ""c-Abl"",
+    ""db_refs"": {
+      ""TEXT"": ""c-Abl"",
+      ""HGNC"": ""100"",
+      ""UP"": ""P00519""
+    }
+  },
+  ""obj"": {
+    ""name"": ""p73"",
+    ""db_refs"": {
+      ""TEXT"": ""p73"",
+      ""HGNC"": ""9440"",
+      ""UP"": ""Q9Y5B2""
+    }
+  },
+  ""obj_activity"": ""phosphorylation"",
+  ""belief"": 0.85,
+  ""evidence"": [
+    {
+      ""text"": ""Indeed, we show that upon treatment with chemotherapeutic drugs c-Abl enhances the phosphorylation-dependent interaction between Pin1 and p73, and this in turn promotes p73 acetylation by p300.""
+    }
+  ]
+}"	Activation(c-Abl(), p73(), phosphorylation)
+We found that 24 hours of BMP pretreatment caused a doubling in PTEN half-life (15.1 hours to 28.4 hours, p = 0.03, n = 4).	"{""type"": ""Activation"", ""subj"": {""name"": ""BMP"", ""db_refs"": {""FPLX"": ""BMP"", ""TEXT"": ""BMP""}}, ""obj"": {""name"": ""PTEN"", ""db_refs"": {""UP"": ""P60484"", ""HGNC"": ""9588"", ""TEXT"": ""PTEN""}}, ""obj_activity"": ""activity"", ""belief"": 0.9145194475081968, ""evidence"": [{""text"": ""We found that 24 hours of BMP pretreatment caused a doubling in PTEN half-life (15.1 hours to 28.4 hours, p = 0.03, n = 4).""}]}"	"{""type"": ""IncreaseAmount"", ""subj"": {""name"": ""BMP"", ""db_refs"": {""TEXT"": ""Bone Morphogenetic Protein""}}, ""obj"": {""name"": ""PTEN"", ""db_refs"": {""UP"": ""Q60520"", ""HGNC"": ""9580"", ""TEXT"": ""Phosphatase and Tensin Homolog""}}, ""belief"": 0.75, ""evidence"": [{""text"": ""We found that 24 hours of BMP pretreatment caused a doubling in PTEN half-life (15.1 hours to 28.4 hours, p = 0.03, n = 4).""}]}"	IncreaseAmount(BMP(), PTEN())
+Activation of atypical protein kinase C zeta by caspase processing and degradation by the ubiquitin-proteasome system.	"{""type"": ""Activation"", ""subj"": {""name"": ""Caspase"", ""db_refs"": {""FPLX"": ""Caspase"", ""TEXT"": ""caspase""}}, ""obj"": {""name"": ""PRKCZ"", ""db_refs"": {""TEXT"": ""protein kinase C zeta"", ""HGNC"": ""9412"", ""UP"": ""Q05513""}}, ""obj_activity"": ""activity"", ""belief"": 0.65, ""evidence"": [{""text"": ""Activation of atypical protein kinase C zeta by caspase processing and degradation by the ubiquitin-proteasome system.""}]}"	"{""type"": ""Activation"", ""subj"": {""name"": ""CASP3"", ""db_refs"": {""UP"": ""P42574"", ""HGNC"": ""1500"", ""TEXT"": ""caspase-3""}}, ""obj"": {""name"": ""PRKCZ"", ""db_refs"": {""UP"": ""Q9Y4K1"", ""HGNC"": ""9440"", ""TEXT"": ""PKC zeta""}}, ""belief"": 0.9999999998071971, ""evidence"": [{""text"": ""Activation of atypical protein kinase C zeta by caspase processing and degradation by the ubiquitin-proteasome system.""}]}"	Activation(CASP3(), PRKCZ(), None)
