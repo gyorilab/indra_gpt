@@ -1,4 +1,4 @@
-from indra_gpt.util.check_correctness import generate_example, generate_synonym_str, get_synonyms
+from indra_gpt.util.check_correctness import generate_example, generate_synonym_str, get_synonyms, generate_prompt
 
 
 def test_generate_synonym_str():
@@ -68,3 +68,95 @@ def test_get_synonyms():
     syns = get_synonyms(ag_json_list)
     assert any("a" in syn for syn in syns), syns
     assert any("b" in syn for syn in syns), syns
+
+def test_generate_prompt():
+    """Quickly test the prompt generation by calling this function"""
+    test_sentence1 = "a binds b and c in this text"
+    test_stmt1 = "A binds B and C"
+    test_synonyms1 = {
+        "A": {
+            "name": "a",
+            "definition": "a is a protein",
+            "synonyms": ["a", "A", "aa", "A-A"],
+            "syn_in_text": "a",
+            "syn_in_stmt": "A",
+        },
+        "B": {
+            "name": "b",
+            "definition": "b is a protein",
+            "synonyms": ["b", "B"],
+            "syn_in_text": "b",
+            "syn_in_stmt": "B",
+        },
+        "C": {
+            "name": "c",
+            "definition": "c is a protein",
+            "synonyms": ["c", "C"],
+            "syn_in_text": "c",
+            "syn_in_stmt": "C",
+        },
+    }
+
+    test_sentence2 = "C phosphorylates D in this text"
+    test_stmt2 = "C phosphorylates D"
+
+    test_sentence3 = "E deactivates f in this text"
+    test_stmt3 = "E activates F"
+    test_synonyms3 = {
+        "F": {
+            "name": "F",
+            "definition": "F is a small molecule",
+            "synonyms": ["f", "F", "ff", "F3"],
+            "syn_in_text": "f",
+            "syn_in_stmt": "F",
+        },
+    }
+
+    test_sentence4 = "X deactivates Y in this text"
+    test_stmt4 = "x deactivates Y"
+    test_synonyms4 = {
+        "x": {
+            "name": "X",
+            "definition": "X is a protein",
+            "synonyms": ["X", "x", "XX", "X1"],
+            "syn_in_text": "X",
+            "syn_in_stmt": "x",
+        },
+    }
+
+    test_query_sentence = "a inhibits b in this text"
+    test_query_stmt = "A inhibits B"
+    test_query_synonyms = {
+        "A": {
+            "name": "A",
+            "definition": "A is a protein",
+            "synonyms": ["a", "A", "a1"],
+            "syn_in_text": "a",
+            "syn_in_stmt": "A",
+        },
+        "B": {
+            "name": "B",
+            "definition": "B is a protein",
+            "synonyms": ["b", "B", "b1", "B1", "bb"],
+            "syn_in_text": "b",
+            "syn_in_stmt": "B",
+        },
+    }
+
+    pos_examples = [
+        (test_sentence1, test_stmt1, test_synonyms1),
+        (test_sentence2, test_stmt2, None),
+    ]
+    neg_examples = [
+        (test_sentence3, test_stmt3, test_synonyms3),
+        (test_sentence4, test_stmt4, test_synonyms4),
+    ]
+
+    test_prompt = generate_prompt(
+        query_sentence=test_query_sentence,
+        query_stmt=test_query_stmt,
+        pos_ex_list=pos_examples,
+        neg_ex_list=neg_examples,
+        query_agent_info=test_query_synonyms,
+    )
+    print(test_prompt)
