@@ -98,7 +98,7 @@ on their hash keys.
 
 Here is an example of creating training data:
 ```shell
-python -m indra_gpt.scripts.cli create-training-data --curations-file "./indra_gpt/local_data/sample_curation.json" --statements-file "./indra_gpt/local_data/sample_statements.json" 
+python -m indra_gpt.scripts.cli create-training-data --curations-file "./local_data/sample_curation.json" --statements-file "./local_data/sample_statements.json" 
 ```
 
 ### Evaluating training data

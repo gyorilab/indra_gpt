@@ -52,6 +52,10 @@ def get_git_revision_hash() -> str:
 
 def get_ag_ns_id(db_refs, default):
     """Return a tuple of name space, id from an Agent's db_refs."""
+    # Note that only the first namespace in the default_ns_order 
+    # that is found in the db_refs will be returned. This might
+    # not be the best way to handle this, but it is the current 
+    # behavior. If this db is not a good one this is a problem. 
     for ns in default_ns_order:
         if ns in db_refs:
             return ns, db_refs[ns]
@@ -73,8 +77,18 @@ def get_names_gilda(db_refs, name):
     list
         A list of names for the agent.
     """
-    db, _id = get_ag_ns_id(db_refs, name)
-    synonyms = gilda.get_names(db, _id)
+    # db, _id = get_ag_ns_id(db_refs, name)
+
+    # The following code block finds the first namespace in the default_ns_order
+    # that has non-empty synonym list when using gilda.
+    synonyms = []
+    for ns in default_ns_order:
+        if ns in db_refs:
+            _id = db_refs[ns]
+            synonyms = gilda.get_names(ns, _id)
+            if len(synonyms) > 0:
+                break
+
     if name not in synonyms:
         synonyms.append(name)
     if "TEXT" in db_refs and db_refs["TEXT"] not in synonyms:
@@ -330,6 +344,8 @@ def get_create_training_set(
         cur["english"] = eng_stmt
         ag_list = stmt.agent_list()
         logger.debug(f"Agents: {ag_list}")
+        cur["statement_json"] = stmt.to_json()
+        cur["statement_indra"] = stmt
         cur["agent_json_list"] = [a.to_json() for a in ag_list]
         cur["agent_info"] = get_agent_info(
             ev_text=ev.text, english=eng_stmt, ag_list=ag_list
@@ -380,7 +396,7 @@ def generate_synonym_str(
     # The statement{ex_str} assumes that "{name1}" is the same as "{synonym1}"
     # and "{name2}" is the same as "{synonym2}"."""
     index_str = f"in example {index}" if index is not None else ""
-    def_fmt = 'The definition of {name} %s is: "{definition}".\n' % index_str
+    def_fmt = 'The definition of {name}%s is: "{definition}".\n' % index_str
     syn_str_intro = (
         'The statement%s assumes that "{name}" is the same '
         'as "{synonym}"' % index_str
@@ -568,7 +584,7 @@ def generate_query_str(query_sentence, query_stmt, agents_info=None) -> str:
         used in the statement.
     """
     query_str = (
-        "Is the following statement implied by the sentence "
+        "Is the following statement implied by the sentence, "
         "assuming the sentence and the statement follow the same "
         "pattern as in the examples above?\n\n"
     )
@@ -752,6 +768,109 @@ def explain_negative_examples(
         json.dump(results_dict, f, indent=4)
 
     return results_dict
+
+
+def save_examples(training_data_df, correct: bool = True):
+    """Save examples of correct or incorrect statements to a file.
+
+    Parameters
+    ----------
+    training_data_df : pd.DataFrame
+        The training data dataframe.
+    correct : bool, optional
+        Whether to save the correct or incorrect examples, by default True
+    """
+    saved = []
+    saved_tags = []
+    if correct:
+        out_file = positive_examples_path
+        query_str = 'tag == "correct"'
+
+    else:
+        out_file = negative_examples_path
+        query_str = 'tag != "correct"'
+
+    if out_file.exists():
+        saved_df = pd.read_csv(out_file, sep="\t")
+        saved_tags = list(saved_df["tag"])
+        saved_ids = set(saved_df["id"])
+        row_iter = training_data_df[~training_data_df["id"].isin(saved_ids)].query(
+            query_str
+        )
+    else:
+        row_iter = training_data_df.query(query_str)
+
+    for row in row_iter.sample(frac=1.0).itertuples():
+        if correct:
+            assert row.tag == "correct"
+        else:
+            assert row.tag != "correct"
+
+        ags_info_dict = row.agent_info
+        syn_pairs = []
+        for curie, info in ags_info_dict.items():
+            in_text, in_stmt = find_synonyms(
+                row.text,
+                row.english,
+                info["synonyms"],
+                case_sensitive=False,
+                substring_match=True,
+            )
+            if in_text or in_stmt:
+                syn_pairs.append((in_text, in_stmt))
+        if len(syn_pairs) != len(ags_info_dict):
+            skip = (
+                "> > Not all synonyms were found in the sentence and "
+                "statement, recommend skipping this one\n"
+            )
+        else:
+            skip = ""
+        syn_pairs_str = "\n".join([f"{s[0]} - {s[1]}" for s in syn_pairs])
+
+        if not correct:
+            tag_distr = ", ".join(
+                f"{t}: {c}" for t, c in Counter(saved_tags).most_common()
+            )
+            tag_str = f"Current Tag: {row.tag}\nSaved tags: {tag_distr}\n"
+        else:
+            tag_str = ""
+        choice = input(
+            f"\nSentence:\n---------\n{row.text}\n---------\n\n"
+            f"Statement:\n----------\n{row.english}\n----------\n\nSynonyms:"
+            f"\n---------\n{syn_pairs_str}\n\n{tag_str}"
+            f"{skip}Got {len(saved)} examples so far\nSave? (y/n/b): "
+        )
+        if choice == "b":
+            print("Breaking")
+            break
+        elif choice == "y":
+            print("Saving")
+            saved.append(row.Index)
+            saved_tags.append(row.tag)
+        else:
+            print("Not saving")
+
+    if saved:
+        dump_options = dict(index=False, header=True, sep="\t")
+        if out_file.exists():
+            # Get the file size
+            file_size = out_file.stat().st_size
+            choice = input(
+                f"File {out_file} already exists (Size "
+                f"{file_size} B). Overwrite, Append or Cancel? "
+                f"(o/a/c): "
+            )
+            if choice == "o":
+                print(f"Saving {len(saved)} examples to {out_file}")
+                training_data_df.loc[saved].to_csv(out_file, **dump_options)
+            elif choice == "a":
+                print(f"Appending {len(saved)} examples to {out_file}")
+                # Skip header and set mode to append
+                dump_options.update(header=False, mode="a")
+                training_data_df.loc[saved].to_csv(out_file, **dump_options)
+        else:
+            print(f"Saving {len(saved)} examples to {out_file}")
+            training_data_df.loc[saved].to_csv(out_file, **dump_options)
 
 
 def run_stats(
@@ -1187,106 +1306,3 @@ def classify_statements(
         json.dump(results_dict, f, indent=4)
 
     return results_dict
-
-
-def save_examples(training_data_df, correct: bool = True):
-    """Save examples of correct or incorrect statements to a file.
-
-    Parameters
-    ----------
-    training_data_df : pd.DataFrame
-        The training data dataframe.
-    correct : bool, optional
-        Whether to save the correct or incorrect examples, by default True
-    """
-    saved = []
-    saved_tags = []
-    if correct:
-        out_file = positive_examples_path
-        query_str = 'tag == "correct"'
-
-    else:
-        out_file = negative_examples_path
-        query_str = 'tag != "correct"'
-
-    if out_file.exists():
-        saved_df = pd.read_csv(out_file, sep="\t")
-        saved_tags = list(saved_df["tag"])
-        saved_ids = set(saved_df["id"])
-        row_iter = training_data_df[~training_data_df["id"].isin(saved_ids)].query(
-            query_str
-        )
-    else:
-        row_iter = training_data_df.query(query_str)
-
-    for row in row_iter.sample(frac=1.0).itertuples():
-        if correct:
-            assert row.tag == "correct"
-        else:
-            assert row.tag != "correct"
-
-        ags_info_dict = row.agent_info
-        syn_pairs = []
-        for curie, info in ags_info_dict.items():
-            in_text, in_stmt = find_synonyms(
-                row.text,
-                row.english,
-                info["synonyms"],
-                case_sensitive=False,
-                substring_match=True,
-            )
-            if in_text or in_stmt:
-                syn_pairs.append((in_text, in_stmt))
-        if len(syn_pairs) != len(ags_info_dict):
-            skip = (
-                "> > Not all synonyms were found in the sentence and "
-                "statement, recommend skipping this one\n"
-            )
-        else:
-            skip = ""
-        syn_pairs_str = "\n".join([f"{s[0]} - {s[1]}" for s in syn_pairs])
-
-        if not correct:
-            tag_distr = ", ".join(
-                f"{t}: {c}" for t, c in Counter(saved_tags).most_common()
-            )
-            tag_str = f"Current Tag: {row.tag}\nSaved tags: {tag_distr}\n"
-        else:
-            tag_str = ""
-        choice = input(
-            f"\nSentence:\n---------\n{row.text}\n---------\n\n"
-            f"Statement:\n----------\n{row.english}\n----------\n\nSynonyms:"
-            f"\n---------\n{syn_pairs_str}\n\n{tag_str}"
-            f"{skip}Got {len(saved)} examples so far\nSave? (y/n/b): "
-        )
-        if choice == "b":
-            print("Breaking")
-            break
-        elif choice == "y":
-            print("Saving")
-            saved.append(row.Index)
-            saved_tags.append(row.tag)
-        else:
-            print("Not saving")
-
-    if saved:
-        dump_options = dict(index=False, header=True, sep="\t")
-        if out_file.exists():
-            # Get the file size
-            file_size = out_file.stat().st_size
-            choice = input(
-                f"File {out_file} already exists (Size "
-                f"{file_size} B). Overwrite, Append or Cancel? "
-                f"(o/a/c): "
-            )
-            if choice == "o":
-                print(f"Saving {len(saved)} examples to {out_file}")
-                training_data_df.loc[saved].to_csv(out_file, **dump_options)
-            elif choice == "a":
-                print(f"Appending {len(saved)} examples to {out_file}")
-                # Skip header and set mode to append
-                dump_options.update(header=False, mode="a")
-                training_data_df.loc[saved].to_csv(out_file, **dump_options)
-        else:
-            print(f"Saving {len(saved)} examples to {out_file}")
-            training_data_df.loc[saved].to_csv(out_file, **dump_options)
