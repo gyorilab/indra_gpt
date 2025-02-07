@@ -1,0 +1,684 @@
+{
+    "type": "object",
+    "properties": {
+        "statements": {
+            "type": "array",
+            "items": {
+                "anyOf": [
+                    {"$ref": "#/definitions/RegulateActivity"},
+                    {"$ref": "#/definitions/Modification"},
+                    {"$ref": "#/definitions/SelfModification"},
+                    {"$ref": "#/definitions/ActiveForm"},
+                    {"$ref": "#/definitions/Gef"},
+                    {"$ref": "#/definitions/Gap"},
+                    {"$ref": "#/definitions/Complex"},
+                    {"$ref": "#/definitions/Association"},
+                    {"$ref": "#/definitions/Translocation"},
+                    {"$ref": "#/definitions/RegulateAmount"},
+                    {"$ref": "#/definitions/Conversion"}
+                ]
+            }
+        }
+    },
+    "required": ["statements"],
+    "additionalProperties": false,
+    "definitions": {
+        "RegulateActivity": {
+            "description": "Regulation of activity (such as activation and inhibition)",
+            "allOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "kind": {
+                            "type": "string",
+                            "const": "RegulateActivity"
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": ["Activation", "Inhibition"],
+                            "description": "The type of the statement"
+                        },
+                        "subj": {
+                            "allOf": [
+                                {"$ref": "#/definitions/Agent"}
+                            ],
+                            "description": "The agent responsible for the change in activity, i.e., the 'upstream' node."
+                        },
+                        "obj": {
+                            "allOf": [
+                                {"$ref": "#/definitions/Agent"}
+                            ],
+                            "description": "The agent whose activity is influenced by the subject, i.e., the 'downstream' node."
+                        },
+                        "obj_activity": {
+                            "allOf": [
+                                {"type": "string"}
+                            ],
+                            "description": "The activity of the obj Agent that is affected, e.g., its 'kinase' activity."
+                        }
+                    },
+                    "required": ["kind", "type", "subj", "obj", "obj_activity"],
+                    "additionalProperties": false
+                },
+                {
+                    "$ref": "#/definitions/Statement"
+                }
+            ]
+        },
+        "Modification": {
+            "description": "Statement representing the modification of a protein.",
+            "allOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "kind": {
+                            "type": "string",
+                            "const": "Modification"
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": ["Phosphorylation", "Dephosphorylation", "Ubiquitination", "Deubiquitination", "Sumoylation", "Desumoylation", "Hydroxylation", "Dehydroxylation", "Acetylation", "Deacetylation", "Glycosylation", "Deglycosylation", "Farnesylation", "Defarnesylation", "Geranylgeranylation", "Degeranylgeranylation", "Palmitoylation", "Depalmitoylation", "Myristoylation", "Demyristoylation", "Ribosylation", "Deribosylation", "Methylation", "Demethylation"],
+                            "description": "The type of the statement"
+                        },
+                        "enz": {
+                            "allOf": [
+                                {"$ref": "#/definitions/Agent"}
+                            ],
+                            "description": "The enzyme involved in the modification."
+                        },
+                        "sub": {
+                            "allOf": [
+                                {"$ref": "#/definitions/Agent"}
+                            ],
+                            "description": "The substrate of the modification."
+                        },
+                        "residue": {
+                            "allOf": [
+                                {"type": "string"}
+                            ],
+                            "description": "The amino acid residue being modified, or None if it is unknown or unspecified."
+                        },
+                        "position": {
+                            "allOf": [
+                                {"type": "string"}
+                            ],
+                            "description": "The position of the modified amino acid, or None if it is unknown or unspecified."
+                        }
+                    },
+                    "required": ["kind", "type", "enz", "sub", "residue", "position"],
+                    "additionalProperties": false
+                },
+                {
+                    "$ref": "#/definitions/Statement"
+                }
+            ]
+        },
+        "SelfModification": {
+            "description": "Statement representing the self-modification of a protein.",
+            "allOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "kind": {
+                            "type": "string",
+                            "const": "SelfModification"
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": ["Autophosphorylation", "Transphosphorylation"],
+                            "description": "The type of the statement"
+                        },
+                        "enz": {
+                            "allOf": [
+                                {"$ref": "#/definitions/Agent"}
+                            ],
+                            "description": "The enzyme involved in the modification."
+                        },
+                        "residue": {
+                            "allOf": [
+                                {"type": "string"}
+                            ],
+                            "description": "The amino acid residue being modified, or None if it is unknown or unspecified."
+                        },
+                        "position": {
+                            "allOf": [
+                                {"type": "string"}
+                            ],
+                            "description": "The position of the modified amino acid, or None if it is unknown or unspecified."
+                        }
+                    },
+                    "required": ["kind", "type", "enz", "residue", "position"],
+                    "additionalProperties": false
+                },
+                {
+                    "$ref": "#/definitions/Statement"
+                }
+            ]
+        },
+        "ActiveForm": {
+            "description": "Specifies conditions causing an Agent to be active or inactive. Types of conditions influencing a specific type of biochemical activity can include modifications, bound Agents, and mutations.",
+            "allOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "kind": {
+                            "type": "string",
+                            "const": "ActiveForm"
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": ["ActiveForm"],
+                            "description": "The type of the statement"
+                        },
+                        "agent": {
+                            "allOf": [
+                                {"$ref": "#/definitions/Agent"}
+                            ],
+                            "description": "The Agent in a particular active or inactive state. The sets of ModConditions, BoundConditions, and MutConditions on the given Agent instance indicate the relevant conditions."
+                        },
+                        "activity": {
+                            "type": "string",
+                            "description": "The type of activity influenced by the given set of conditions, e.g., 'kinase'."
+                        },
+                        "is_active": {
+                            "allOf": [
+                                {"type": "boolean"}
+                            ],
+                            "description": "Whether the conditions are activating (True) or inactivating (False)."
+                        }
+                    },
+                    "required": ["kind", "type", "agent", "activity", "is_active"],
+                    "additionalProperties": false
+                },
+                {
+                    "$ref": "#/definitions/Statement"
+                }
+            ]
+        },
+        "Gef": {
+            "description": "Exchange of GTP for GDP on a small GTPase protein mediated by a GEF. Represents the generic process by which a guanosine exchange factor (GEF) catalyzes nucleotide exchange on a GTPase protein.",
+            "allOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "kind": {
+                            "type": "string",
+                            "const": "Gef"
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": ["Gef"],
+                            "description": "The type of the statement"
+                        },
+                        "gef": {
+                            "allOf": [
+                                {"$ref": "#/definitions/Agent"}
+                            ],
+                            "description": "The guanosine exchange factor."
+                        },
+                        "ras": {
+                            "allOf": [
+                                {"$ref": "#/definitions/Agent"}
+                            ],
+                            "description": "The GTPase protein."
+                        }
+                    },
+                    "required": ["kind", "type", "gef", "ras"],
+                    "additionalProperties": false
+                },
+                {
+                    "$ref": "#/definitions/Statement"
+                }
+            ]
+        },
+        "Gap": {
+            "description": "Acceleration of a GTPase protein's GTP hydrolysis rate by a GAP. Represents the generic process by which a GTPase activating protein (GAP) catalyzes GTP hydrolysis by a particular small GTPase protein.",
+            "allOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "kind": {
+                            "type": "string",
+                            "const": "Gap"
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum" : ["Gap"],
+                            "description": "The type of the statement"
+                        },
+                        "gap": {
+                            "allOf": [
+                                {"$ref": "#/definitions/Agent"}
+                            ],
+                            "description": "The GTPase activating protein."
+                        },
+                        "ras": {
+                            "allOf": [
+                                {"$ref": "#/definitions/Agent"}
+                            ],
+                            "description": "The GTPase protein."
+                        }
+                    },
+                    "required": ["kind", "type", "gap", "ras"],
+                    "additionalProperties": false
+                },
+                {
+                    "$ref": "#/definitions/Statement"
+                }
+            ]
+        },
+        "Complex": {
+            "description": "A set of proteins observed to be in a complex.",
+            "allOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "kind": {
+                            "type": "string",
+                            "const": "Complex"
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": ["Complex", "Association"],
+                            "description": "The type of the statement"
+                        },
+                        "members": {
+                            "allOf": [
+                                {
+                                    "type": "array",
+                                    "items": {"$ref": "#/definitions/Agent"}
+                                }
+                            ]
+                        }
+                    },
+                    "required": ["kind", "type", "members"],
+                    "additionalProperties": false
+                },
+                {
+                    "$ref": "#/definitions/Statement"
+                }
+            ]
+        },
+        "Association": {
+            "description": "A set of unordered concepts that are associated with each other.",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Complex"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "kind": {
+                            "type": "string",
+                            "const": "Association"
+                        }
+                    },
+                    "required": ["kind"],
+                    "additionalProperties": false
+                }
+            ]
+        },
+        "Translocation": {
+            "description": "The translocation of a molecular agent from one location to another.",
+            "allOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "kind": {
+                            "type": "string",
+                            "const": "Translocation"
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": ["Translocation"],
+                            "description": "The type of the statement"
+                        },
+                        "agent": {
+                            "allOf": [
+                                {"$ref": "#/definitions/Agent"}
+                            ],
+                            "description": "The agent which translocates."
+                        },
+                        "from_location": {
+                            "allOf": [
+                                {"type": "string"}
+                            ],
+                            "description": "The location from which the agent translocates. This must be a valid GO cellular component name (e.g. 'cytoplasm') or ID (e.g. 'GO:0005737')."
+                        },
+                        "to_location": {
+                            "allOf": [
+                                {"type": "string"}
+                            ],
+                            "description": "The location to which the agent translocates. This must be a valid GO cellular component name or ID."
+                        }
+                    },
+                    "required": ["kind", "type", "agent", "from_location", "to_location"],
+                    "additionalProperties": false
+                },
+                {
+                    "$ref": "#/definitions/Statement"
+                }
+            ]
+        },
+        "RegulateAmount": {
+            "description": "Represents directed, two-element interactions.",
+            "allOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "kind": {
+                            "type": "string",
+                            "const": "RegulateAmount"
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": ["IncreaseAmount", "DecreaseAmount"]
+                        },
+                        "subj": {
+                            "allOf": [
+                                {"$ref": "#/definitions/Agent"}
+                            ],
+                            "description": "The mediating protein"
+                        },
+                        "obj": {
+                            "allOf": [
+                                {"$ref": "#/definitions/Agent"}
+                            ],
+                            "description": "The affected protein"
+                        }
+                    },
+                    "required": ["kind", "type", "subj", "obj"],
+                    "additionalProperties": false
+                },
+                {
+                    "$ref": "#/definitions/Statement"
+                }
+            ]
+        },
+        "Conversion": {
+            "description": "Conversion of molecular species mediated by a controller protein.",
+            "allOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "kind": {
+                            "type": "string",
+                            "const": "Conversion"
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": ["Conversion"]
+                        },
+                        "subj": {
+                            "allOf": [
+                                {"$ref": "#/definitions/Agent"}
+                            ],
+                            "description": "The protein mediating the conversion."
+                        },
+                        "obj_from": {
+                            "allOf": [
+                                {
+                                    "type": "array",
+                                    "items": {"$ref": "#/definitions/Agent"}
+                                }
+                            ],
+                            "description": "The list of molecular species being consumed by the conversion."
+                        },
+                        "obj_to": {
+                            "allOf": [
+                                {
+                                    "type": "array",
+                                    "items": {"$ref": "#/definitions/Agent"}
+                                }
+                            ],
+                            "description": "The list of molecular species being created by the conversion."
+                        }
+                    },
+                    "required": ["kind", "type", "subj", "obj_from", "obj_to"],
+                    "additionalProperties": false
+                },
+                {
+                    "$ref": "#/definitions/Statement"
+                }
+            ]
+        },
+        "Statement": {
+            "type": "object",
+            "description": "All statement types, below, may have these fields and 'inherit' from this schema",
+            "properties": {
+                "evidence": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Evidence"
+                    }
+                },
+                "id": {
+                    "allOf": [
+                        {"type": "string"}
+                    ],
+                    "description": "Statement UUID"
+                },
+                "supports": {
+                    "allOf": [
+                        {
+                            "type": "array",
+                            "items": { 
+                                "type": "string" 
+                            }
+                        }
+                    ]
+                },
+                "supported_by": {
+                    "allOf": [
+                        {
+                            "type": "array",
+                            "items": { 
+                                "type": "string" 
+                            }
+                        }
+                    ]
+                }
+            },
+            "required": ["evidence", "id", "supports", "supported_by"],
+            "additionalProperties": false
+        },
+        "Evidence": {
+            "type": "object",
+            "description": "Container for evidence supporting a given statement.",
+            "properties": {
+                "text": {
+                    "type": "string",
+                    "description": "Natural language text supporting the statement."
+                },
+                "source_api": {
+                    "allOf": [
+                        {"type": "string"}
+                    ],
+                    "description": "String identifying the INDRA API used to capture the statement, e.g., 'trips', 'biopax', 'bel'."
+                },
+                "pmid": {
+                    "allOf": [
+                        {"type": "string"}
+                    ],
+                    "description": "String indicating the Pubmed ID of the source of the statement."
+                },
+                "source_id": {
+                    "allOf": [
+                        {"type": "string"}
+                    ],
+                    "description": "For statements drawn from databases, ID of the database entity corresponding to the statement."
+                },
+                "annotations": {
+                    "allOf": [
+                        {
+                            "type": "object",
+                            "additionalProperties": false
+                        }
+                    ],
+                    "description": "Dictionary containing additional information on the context of the statement, e.g., species, cell line, tissue type, etc. The entries may vary depending on the source of the information."
+                },
+                "epistemics": {
+                    "allOf": [
+                        {
+                            "type": "object",
+                            "additionalProperties": false
+                        }
+                    ],
+                    "description": "A dictionary describing various forms of epistemic certainty associated with the statement."
+                }
+            },
+            "required": ["text", "source_api", "pmid", "source_id", "annotations", "epistemics"],
+            "additionalProperties": false
+        },
+        "Agent": {
+            "type": "object",
+            "description": "A molecular entity, e.g., a protein.",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the agent, preferably a canonicalized name such as an HGNC gene name."
+                },
+                "mods": {
+                    "allOf": [
+                        {
+                            "type": "array",
+                            "items": {"$ref": "#/definitions/ModCondition"}
+                        }
+                    ],
+                    "description": "Modification state of the agent."
+                },
+                "mutations": {
+                    "allOf": [
+                        {
+                            "type": "array",
+                            "items": {"$ref": "#/definitions/MutCondition"}
+                        }
+                    ],
+                    "description": "Amino acid mutations of the agent."
+                },
+                "bound_conditions": {
+                    "allOf": [
+                        {
+                            "type": "array",
+                            "items": {"$ref": "#/definitions/BoundCondition"}
+                        }
+                    ],
+                    "description": "Other agents bound to the agent in this context."
+                },
+                "activity": {
+                    "allOf": [
+                        {"$ref": "#/definitions/ActivityCondition"}
+                    ],
+                    "description": "Activity of the agent."
+                },
+                "location": {
+                    "allOf": [
+                        {"type": "string"}
+                    ],
+                    "description": "Cellular location of the agent. Must be a valid name (e.g. 'nucleus') or identifier (e.g. 'GO:0005634')for a GO cellular compartment."
+                },
+                "db_refs": {
+                    "allOf": [
+                        {
+                            "type": "object",
+                            "additionalProperties": false
+                        }
+                    ],
+                    "description": "Dictionary of database identifiers associated with this agent."
+                },
+                "sbo": {
+                    "anyOf": [
+                        {"type": "string"}
+                    ],
+                    "description": "Role of this agent in the systems biology ontology"
+                }
+            },
+            "required": ["name", "mods", "mutations", "bound_conditions", "activity", "location", "db_refs", "sbo"],
+            "additionalProperties": false
+        },
+        "ModCondition": {
+            "type": "object",
+            "description": "Mutation state of an amino acid position of an Agent.",
+            "properties": {
+                "mod_type": {
+                    "type": "string",
+                    "description": "The type of post-translational modification, e.g., 'phosphorylation'. Valid modification types currently include: 'phosphorylation', 'ubiquitination', 'sumoylation', 'hydroxylation', and 'acetylation'. If an invalid modification type is passed an InvalidModTypeError is raised."
+                },
+                "residue": {
+                    "allOf": [
+                        {"type": "string"}
+                    ],
+                    "description": "String indicating the modified amino acid, e.g., 'Y' or 'tyrosine'. If None, indicates that the residue at the modification site is unknown or unspecified."
+                },
+                "position": {
+                    "allOf": [
+                        {"type": "string"}
+                    ],
+                    "description": "String indicating the position of the modified amino acid, e.g., '202'. If None, indicates that the position is unknown or unspecified."
+                },
+                "is_modified": {
+                    "type": "boolean",
+                    "description": "Specifies whether the modification is present or absent. Setting the flag specifies that the Agent with the ModCondition is unmodified at the site."
+                }
+            },
+            "required": ["mod_type", "residue", "position", "is_modified"],
+            "additionalProperties": false
+        },
+        "MutCondition": {
+            "type": "object",
+            "description": "Mutation state of an amino acid position of an Agent.",
+            "properties": {
+                "position": {
+                    "allOf": [
+                        {"type": "string"}
+                    ],
+                    "description": "Residue position of the mutation in the protein sequence."
+                },
+                "residue_from": {
+                    "allOf": [
+                        {"type": "string"}
+                    ],
+                    "description": "Wild-type (unmodified) amino acid residue at the given position."
+                },
+                "residue_to": {
+                    "allOf": [
+                        {"type": "string"}
+                    ],
+                    "description": "Amino acid at the position resulting from the mutation."
+                }
+            },
+            "required": ["position", "residue_from", "residue_to"],
+            "additionalProperties": false
+        },
+        "ActivityCondition": {
+            "type": "object",
+            "description": "An active or inactive state of a protein.",
+            "properties": {
+                "activity_type": {
+                    "type": "string",
+                    "description": "The type of activity, e.g. 'kinase'. The basic, unspecified molecular activity is represented as 'activity'. Examples of other activity types are 'kinase', 'phosphatase', 'catalytic', 'transcription', etc."
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "description": "Specifies whether the given activity type is present or absent."
+                }
+            },
+            "required": ["activity_type", "is_active"],
+            "additionalProperties": false
+        },
+        "BoundCondition": {
+            "type": "object",
+            "description": "Identify Agents bound (or not bound) to a given Agent in a given context.",
+            "properties": {
+                "agent": {"$ref": "#/definitions/Agent"},
+                "is_bound": {
+                    "type": "boolean",
+                    "description": "Specifies whether the given Agent is bound or unbound in the current context."
+                }
+            },
+            "required": ["agent", "is_bound"],
+            "additionalProperties": false
+        }
+    }
+}

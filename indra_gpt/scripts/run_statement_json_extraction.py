@@ -8,20 +8,17 @@ from indra_gpt.api.api import process_data_with_client
 logger = logging.getLogger(__name__)
 
 # Define the main function
-def main(statements_file, model, n_iter, output_file, verbose, batch_jobs, batch_id):
-    if args.iterations < 5:
-        raise ValueError("Number of iterations must be at least 5.")
-    logger.info(f"Using model: {args.model_name}")
-
+def main(statements_file_json, model, iterations, output_file, verbose, batch_jobs, batch_id):
     kwargs = {
-        "statements_file": statements_file,
+        "statements_file_json": statements_file_json,
         "model": model,
-        "n_iter": n_iter,
+        "iterations": iterations,
         "output_file": output_file,
         "verbose": verbose,
         "batch_jobs": batch_jobs,
         "batch_id": batch_id
     }
+    
     process_data_with_client(**kwargs)
 
 
@@ -29,7 +26,7 @@ if __name__ == "__main__":
     import argparse
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument(
-        "--statements_file",
+        "--statements_file_json",
         type=str,
         default=INPUT_DEFAULT.absolute().as_posix(),
         help=f"Path to the json file containing statement json objects. Default is "
@@ -56,9 +53,9 @@ if __name__ == "__main__":
     args = arg_parser.parse_args()
 
     main(
-        statements_file=args.statements_file,
+        statements_file_json=args.statements_file_json,
         model=args.model_name,
-        n_iter=args.iterations,
+        iterations=args.iterations,
         output_file=Path(args.output_file),
         verbose=args.verbose,
         batch_jobs=args.batch_jobs,
