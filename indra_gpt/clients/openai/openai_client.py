@@ -120,7 +120,7 @@ class OpenAIClient(ClientInterface):
             history.extend([user_message, assistant_message])
         return history
 
-    def get_response_single_inference(self, chat_prompt, chat_history, max_tokens=1, retry_count=3, strip=True, debug=False):
+    def get_response_single_inference(self, chat_prompt, chat_history=None, max_tokens=1, retry_count=3, strip=True, debug=False):
         messages = chat_history + [chat_prompt]
         retry_count = max(retry_count, 1)
         response = None
@@ -159,6 +159,7 @@ class OpenAIClient(ClientInterface):
                 "constraints. Consider increasing the max_tokens parameter."
             )
         # Remove whitespace and trailing punctuations 
+        reply = response.choices[0].message.content
         if strip:
             reply = reply.strip().rstrip(".,!")
         if reply == "":
@@ -261,6 +262,9 @@ class OpenAIClient(ClientInterface):
                     generated_json_object = response['response']['body']['choices'][0]['message']['content']
                     generated_statement_json_objects.append(generated_json_object)
                 return generated_statement_json_objects
+            else:
+                logger.info("No results to save. Please check the status of the batch job.")
+                return None
             
         elif self.batch_jobs:
             chat_prompts = []
@@ -273,6 +277,7 @@ class OpenAIClient(ClientInterface):
                 chat_histories.append(chat_history)
             batch_id = self.send_batch_inference(chat_prompts, chat_histories, max_tokens=9000)
             logger.info(f"Batch job submitted with ID: {batch_id}")
+            logger.info("Please check the status of the batch job later.")
             return None
         
         else:
@@ -281,7 +286,7 @@ class OpenAIClient(ClientInterface):
                 samples = self.get_samples(get_json_object_map, matches_hash)
                 chat_prompt = self.get_chat_prompt(original_statement_json_object)
                 chat_history = self.get_chat_history(samples)
-                response = self.get_response_single_inference(chat_prompt, chat_history)
+                response = self.get_response_single_inference(chat_prompt, chat_history, max_tokens=9000)
                 generated_json_object = response.choices[0].message.content
                 generated_statement_json_objects.append(generated_json_object)
             return generated_statement_json_objects
@@ -289,7 +294,16 @@ class OpenAIClient(ClientInterface):
     def get_results_df(self, generated_statement_json_objects):
         original_statement_json_objects = self.get_input_json_objects()
         input_texts = self.get_input_texts(original_statement_json_objects)
-        extracted_statements = [stmt_from_json(post_process_extracted_json(x)) for x in generated_statement_json_objects]
+        extracted_statements = []
+        for generated_statement_json_object in generated_statement_json_objects:
+            try: 
+                stmt_json = json.loads(generated_statement_json_object)
+                stmt_json = post_process_extracted_json(stmt_json)
+                stmt_indra = stmt_from_json(stmt_json)
+                extracted_statements.append(str(stmt_indra))
+            except (JSONDecodeError, IndexError, TypeError) as e:
+                logger.error(f"Error extracting statement: {e}")
+                extracted_statements.append(f"Error: {e}")
         result_df = pd.DataFrame(
             {
                 "input_text": input_texts,

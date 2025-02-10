@@ -13,16 +13,16 @@ def generate_statements_with_client(**kwargs):
     if kwargs.get("model") == 'gpt-4o-mini':
         client = OpenAIClient(**kwargs)
     elif kwargs.get("model") == 'claude-3-5-sonnet-latest':
-        from indra_gpt.clients.anthropic.anthropic_client import AnthropicClient
         client = AnthropicClient(**kwargs)
     else:
         raise ValueError("Enter valid model, currently supported models are: 'gpt-4o-mini', 'claude-3-5-sonnet-latest'.")
     
     try:
         generated_statement_json_objects = client.generate_statement_json_objects()
-        results_df = client.get_results_df(generated_statement_json_objects)
-        client.save_results_df(results_df)
-        return results_df
+        if generated_statement_json_objects:
+            results_df = client.get_results_df(generated_statement_json_objects)
+            client.save_results_df(results_df)
+            return results_df
     except Exception as e:
         logger.error(f"Error processing data with client: {e}")
         raise e

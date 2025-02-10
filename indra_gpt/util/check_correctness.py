@@ -16,7 +16,7 @@ from indra.statements import default_ns_order
 from indra.statements.io import stmts_from_json_file
 from tqdm import tqdm
 
-from indra_gpt.api import run_openai_chat
+from indra_gpt.clients.openai.openai_client import OpenAIClient
 
 logger = logging.getLogger(__name__)
 
@@ -723,12 +723,11 @@ def explain_negative_examples(
         prompt = generate_negative_expl_prompt(
             query_text=query_text, query_stmt=query_english, query_agent_info=ag_info
         )
-
+        chat_prompt = {"role": "user", "content": prompt}
         # Run the chat completion
         try:
-            response = run_openai_chat(
-                prompt=prompt, max_tokens=max_tokens, strip=False
-            )
+            client = OpenAIClient()
+            response = client.get_response_single_inference(chat_prompt, max_tokens=max_tokens, strip=False).choices[0].message.content
         except Exception as e:
             logger.error(f"Error running OpenAI chat: {e}")
             results_dict["error_count"] += 1

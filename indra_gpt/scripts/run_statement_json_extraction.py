@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 
 from indra_gpt.resources.constants import OUTPUT_DEFAULT, INPUT_DEFAULT
-from indra_gpt.api.api import process_data_with_client
+from indra_gpt.api.api import generate_statements_with_client
 
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ def main(statements_file_json, model, iterations, output_file, verbose, batch_jo
         "batch_id": batch_id
     }
     
-    process_data_with_client(**kwargs)
+    generate_statements_with_client(**kwargs)
 
 
 if __name__ == "__main__":
