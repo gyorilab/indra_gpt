@@ -727,7 +727,9 @@ def explain_negative_examples(
         # Run the chat completion
         try:
             client = OpenAIClient()
-            response = client.get_response_single_inference(chat_prompt, max_tokens=max_tokens, strip=False).choices[0].message.content
+            response = client.get_response_single_inference(chat_prompt, 
+                                                            max_tokens=max_tokens, 
+                                                            strip=False).choices[0].message.content
         except Exception as e:
             logger.error(f"Error running OpenAI chat: {e}")
             results_dict["error_count"] += 1
@@ -1033,10 +1035,14 @@ def run_stats(
 
         # Run the chat completion
         chat_qa = {"prompt": prompt, "tag": checker_dict["tag"]}
+        chat_prompt = {"role": "user", "content": prompt}
+        # Run the chat completion
         try:
-            choice = run_openai_chat(
-                prompt=prompt, max_tokens=max_tokens, debug=debug_print
-            )
+            client = OpenAIClient()
+            choice = client.get_response_single_inference(chat_prompt, 
+                                                            max_tokens=max_tokens, 
+                                                            debug=debug_print,
+                                                            strip=False).choices[0].message.content
         except Exception as e:
             logger.warning(f"Error while running chat completion: {e}")
             chat_qa["response"] = None
@@ -1258,10 +1264,13 @@ def classify_statements(
         )
 
         # Run the chat completion
+        chat_prompt = {"role": "user", "content": prompt}
         try:
-            response = run_openai_chat(
-                prompt=prompt, max_tokens=max_tokens, debug=debug_print
-            )
+            client = OpenAIClient()
+            response = client.get_response_single_inference(chat_prompt, 
+                                                            max_tokens=max_tokens, 
+                                                            debug=debug_print,
+                                                            strip=False).choices[0].message.content
         except Exception as e:
             logger.warning(f"Error while running chat completion: {e}")
             results_dict["error_count"] += 1
