@@ -8,11 +8,12 @@ from pathlib import Path
 import time
 from openai import OpenAI
 from indra.config import IndraConfigError, get_config
-from indra_gpt.resources.constants import OUTPUT_DIR, JSON_SCHEMA, OUTPUT_DEFAULT
+from indra_gpt.resources.constants import OUTPUT_DIR, JSON_SCHEMA, OUTPUT_DEFAULT, SCHEMA_STRUCTURED_OUTPUT_PATH
 import random
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 from indra_gpt.util import post_process_extracted_json
+from indra_gpt.util.util import merge_allOf
 from indra.statements.io import stmt_from_json
 import pandas as pd
 from json import JSONDecodeError
@@ -38,8 +39,9 @@ class OpenAIClient(ClientInterface):
         self.iterations = kwargs.get("iterations")
         self.output_file = kwargs.get("output_file")
         self.verbose = kwargs.get("verbose")
-        self.batch_jobs = kwargs.get("batch_jobs")
+        self.batch_job = kwargs.get("batch_job")
         self.batch_id = kwargs.get("batch_id")
+        self.structured_output = kwargs.get("structured_output")
     
     def get_input_json_objects(self):
         with open(self.statements_file_json, "r") as f:
@@ -126,16 +128,32 @@ class OpenAIClient(ClientInterface):
         response = None
         for i in range(retry_count):
             try:
-                response = client.chat.completions.create(
-                    model=self.model,
-                    temperature=0,
-                    max_tokens=max_tokens,
-                    top_p=1.0,
-                    frequency_penalty=0.0,
-                    presence_penalty=0.0,
-                    messages=messages,
-                )
-                break
+                if self.structured_output:
+                    with open(SCHEMA_STRUCTURED_OUTPUT_PATH) as file:
+                        schema = json.load(file)
+                    post_processed_schema = merge_allOf(schema, schema)
+                    response = client.beta.chat.completions.parse(
+                        model=self.model,
+                        messages=[chat_prompt],
+                        response_format={
+                            "type": "json_schema", 
+                            "json_schema": {
+                                "name": "indra_statement_json",
+                                "strict": True, 
+                                "schema": post_processed_schema
+                            }
+                        }
+                    )
+                else:
+                    response = client.chat.completions.create(
+                        model=self.model,
+                        temperature=0,
+                        max_tokens=max_tokens,
+                        top_p=1.0,
+                        frequency_penalty=0.0,
+                        presence_penalty=0.0,
+                        messages=messages,
+                    )
             except Exception as e:
                 # Retry the request if it fails
                 if i < retry_count - 1:
@@ -171,20 +189,47 @@ class OpenAIClient(ClientInterface):
 
     def send_batch_inference(self, original_statement_json_objects, chat_prompts, chat_histories, max_tokens=1):
         batch_requests = []
+        if self.structured_output:
+            with open(SCHEMA_STRUCTURED_OUTPUT_PATH) as file:
+                schema = json.load(file)
+            post_processed_schema = merge_allOf(schema, schema)
+
         for i, (chat_prompt, chat_history) in enumerate(zip(chat_prompts, chat_histories)):
             messages = chat_history + [chat_prompt]
-            batch_requests.append(
-                {
-                    "custom_id": f"request-{i}",
-                    "method": "POST",
-                    "url": "/v1/chat/completions",
-                    "body": {
-                        "model": self.model,
-                        "messages": messages,
-                        "max_tokens": max_tokens
+            if self.structured_output:
+                batch_requests.append(
+                    {
+                        "custom_id": f"request-{i}",
+                        "method": "POST",
+                        "url": "/v1/chat/completions",
+                        "body": {
+                            "model": self.model,
+                            "messages": [chat_prompt],
+                            "max_tokens": max_tokens,
+                            "response_format":{
+                                "type": "json_schema", 
+                                "json_schema": {
+                                    "name": "indra_statement_json",
+                                    "strict": True, 
+                                    "schema": post_processed_schema
+                                }
+                            }
+                        }
                     }
-                }
-            )
+                )
+            else:
+                batch_requests.append(
+                    {
+                        "custom_id": f"request-{i}",
+                        "method": "POST",
+                        "url": "/v1/chat/completions",
+                        "body": {
+                            "model": self.model,
+                            "messages": messages,
+                            "max_tokens": max_tokens
+                        }
+                    }
+                )
         # Make a temporary directory in the directory one level above the directory of this file
         batches_dir_path = OUTPUT_DIR / "batches"
         batches_dir_path.mkdir(parents=True, exist_ok=True)  # Create the parent directory if it doesn't exist
@@ -271,7 +316,7 @@ class OpenAIClient(ClientInterface):
                 logger.info("No results to save. Please check the status of the batch job.")
                 return None
             
-        elif self.batch_jobs:
+        elif self.batch_job:
             chat_prompts = []
             chat_histories = []
             for original_statement_json_object in original_statement_json_objects:

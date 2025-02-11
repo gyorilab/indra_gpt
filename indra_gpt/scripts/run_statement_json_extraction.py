@@ -8,15 +8,16 @@ from indra_gpt.api.api import generate_statements_with_client
 logger = logging.getLogger(__name__)
 
 # Define the main function
-def main(statements_file_json, model, iterations, output_file, verbose, batch_jobs, batch_id):
+def main(statements_file_json, model, iterations, output_file, verbose, batch_job, batch_id, structured_output):
     kwargs = {
         "statements_file_json": statements_file_json,
         "model": model,
         "iterations": iterations,
         "output_file": output_file,
         "verbose": verbose,
-        "batch_jobs": batch_jobs,
-        "batch_id": batch_id
+        "batch_job": batch_job,
+        "batch_id": batch_id,
+        "structured_output": structured_output
     }
     
     generate_statements_with_client(**kwargs)
@@ -43,13 +44,15 @@ if __name__ == "__main__":
     arg_parser.add_argument("-v", "--verbose", action="store_true",
                             help="Increase output verbosity. Will print requests sent "
                                  "to and responses received from the API, respectively.")
-    arg_parser.add_argument("-b", "--batch_jobs", action="store_true",
+    arg_parser.add_argument("-b", "--batch_job", action="store_true",
                             help="If set, the script will run in batch job mode, "
                                  "processing groups of requests asynchronously to "
                                  "OpenAI API.")
     arg_parser.add_argument("--batch_id", type=str, default=None,
                             help="Provide a tring of the batch job ID to retrieve the "
                                  "results of a batch job.")
+    arg_parser.add_argument("--structured_output", action="store_true", help="If set, the output will strictly adhere to \
+                            the provided schema. Currently only supported for OpenAI API.")
     args = arg_parser.parse_args()
 
     main(
@@ -58,6 +61,7 @@ if __name__ == "__main__":
         iterations=args.iterations,
         output_file=Path(args.output_file),
         verbose=args.verbose,
-        batch_jobs=args.batch_jobs,
-        batch_id=args.batch_id
+        batch_job=args.batch_job,
+        batch_id=args.batch_id,
+        structured_output=args.structured_output
     )
