@@ -8,7 +8,7 @@ from pathlib import Path
 import time
 from openai import OpenAI
 from indra.config import IndraConfigError, get_config
-from indra_gpt.resources.constants import OUTPUT_DIR, JSON_SCHEMA
+from indra_gpt.resources.constants import OUTPUT_DIR, JSON_SCHEMA, OUTPUT_DEFAULT
 import random
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
@@ -169,7 +169,7 @@ class OpenAIClient(ClientInterface):
             print(f"Response:\n---------\n{response}\n---------\n\n")
         return response
 
-    def send_batch_inference(self, chat_prompts, chat_histories, max_tokens=1):
+    def send_batch_inference(self, original_statement_json_objects, chat_prompts, chat_histories, max_tokens=1):
         batch_requests = []
         for i, (chat_prompt, chat_history) in enumerate(zip(chat_prompts, chat_histories)):
             messages = chat_history + [chat_prompt]
@@ -220,6 +220,11 @@ class OpenAIClient(ClientInterface):
         with open(batch_input_file_path, "w") as f:
             for request in batch_requests:
                 f.write(json.dumps(request) + "\n")
+        # Write the original json statements to a file to keep track of the input
+        original_json_statements_path = batch_dir_path / "original_statements.jsonl"
+        with open(original_json_statements_path, "w") as f:
+            for statement in original_statement_json_objects:
+                f.write(json.dumps(statement) + "\n")
         # Also add a txt file with when this batch was created
         current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         with open(batch_dir_path / "metadata.txt", "w") as f:
@@ -275,7 +280,7 @@ class OpenAIClient(ClientInterface):
                 chat_history = self.get_chat_history(samples)
                 chat_prompts.append(chat_prompt)
                 chat_histories.append(chat_history)
-            batch_id = self.send_batch_inference(chat_prompts, chat_histories, max_tokens=9000)
+            batch_id = self.send_batch_inference(original_statement_json_objects, chat_prompts, chat_histories, max_tokens=9000)
             logger.info(f"Batch job submitted with ID: {batch_id}")
             logger.info("Please check the status of the batch job later.")
             return None
@@ -292,8 +297,15 @@ class OpenAIClient(ClientInterface):
             return generated_statement_json_objects
 
     def get_results_df(self, generated_statement_json_objects):
-        original_statement_json_objects = self.get_input_json_objects()
+        if self.batch_id:
+            # Read the jsonl file containing the original statements
+            original_json_statements_path = OUTPUT_DIR / "batches" / self.batch_id / "original_statements.jsonl"
+            with open(original_json_statements_path, "r") as f:
+                original_statement_json_objects = [json.loads(line) for line in f]
+        else:
+            original_statement_json_objects = self.get_input_json_objects()
         input_texts = self.get_input_texts(original_statement_json_objects)
+
         extracted_statements = []
         for generated_statement_json_object in generated_statement_json_objects:
             try: 
@@ -315,6 +327,9 @@ class OpenAIClient(ClientInterface):
         return result_df
 
     def save_results_df(self, results_df):
-        self.output_file.parent.mkdir(parents=True, exist_ok=True)
+        if self.batch_id and self.output_file == OUTPUT_DEFAULT:
+            self.output_file = OUTPUT_DIR / "batches" / self.batch_id / "extraction_results.tsv"
+        else:
+            self.output_file.parent.mkdir(parents=True, exist_ok=True)
         results_df.to_csv(self.output_file, sep="\t", index=False)
         logger.info(f"Results saved to {self.output_file}")
