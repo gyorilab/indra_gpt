@@ -28,6 +28,18 @@ def trim_stmt_json(stmt):
 
     return stmt
 
+# Recursively go through each key-value, and if it is an empty string or list or dict, remove the key-value pair
+def remove_empty_strings_and_lists(d):
+    for key, value in list(d.items()):
+        if isinstance(value, dict):
+            remove_empty_strings_and_lists(value)
+        elif isinstance(value, list):
+            for i in value:
+                if isinstance(i, dict):
+                    remove_empty_strings_and_lists(i)
+        if value in [None, "", [], {}]:
+            del d[key]
+    return d
 
 def post_process_extracted_json(gpt_stmt_json):
     """Function to post process the extracted json from chatGPT
@@ -48,6 +60,8 @@ def post_process_extracted_json(gpt_stmt_json):
         gpt_stmt_json["type"] = mapped_type
     except KeyError:
         pass
+
+    gpt_stmt_json = remove_empty_strings_and_lists(gpt_stmt_json)
 
     return gpt_stmt_json
 

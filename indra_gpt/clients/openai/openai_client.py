@@ -350,14 +350,21 @@ class OpenAIClient(ClientInterface):
         else:
             original_statement_json_objects = self.get_input_json_objects()
         input_texts = self.get_input_texts(original_statement_json_objects)
+        original_statements = [stmt_from_json(stmt_json) for stmt_json in original_statement_json_objects]
 
         extracted_statements = []
         for generated_statement_json_object in generated_statement_json_objects:
             try: 
-                stmt_json = json.loads(generated_statement_json_object)
-                stmt_json = post_process_extracted_json(stmt_json)
-                stmt_indra = stmt_from_json(stmt_json)
-                extracted_statements.append(str(stmt_indra))
+                if self.structured_output: # output is a json object with property 'statements' which is a list of statements
+                    stmts_json = json.loads(generated_statement_json_object)['statements']
+                    stmts_json = [post_process_extracted_json(stmt_json) for stmt_json in stmts_json]
+                    stmts_indra = [stmt_from_json(stmt_json) for stmt_json in stmts_json]
+                    extracted_statements.append(str(stmts_indra))
+                else:   # output is a single json object of a statement
+                    stmt_json = json.loads(generated_statement_json_object)                    
+                    stmt_json = post_process_extracted_json(stmt_json)
+                    stmt_indra = stmt_from_json(stmt_json)
+                    extracted_statements.append(str(stmt_indra))
             except (JSONDecodeError, IndexError, TypeError) as e:
                 logger.error(f"Error extracting statement: {e}")
                 extracted_statements.append(f"Error: {e}")
@@ -366,7 +373,8 @@ class OpenAIClient(ClientInterface):
                 "input_text": input_texts,
                 "original_statement_json": original_statement_json_objects,
                 "generated_statement_json": generated_statement_json_objects,
-                "extracted_statement": extracted_statements
+                "original_statement": original_statements,
+                "generated_statement": extracted_statements
             }
         )
         return result_df
