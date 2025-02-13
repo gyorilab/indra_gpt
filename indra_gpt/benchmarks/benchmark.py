@@ -23,7 +23,17 @@ class Benchmark:
         self.generated_statements_json = None
         self.generated_statements = None
 
-    def get_benchmark_df(self):
+    def get_comparison_df(self):
+        df = self.get_results_df()
+        df['comparison'] = df.apply(
+            lambda x: self.compare_lists_of_statements(
+                x['original_statements'] if isinstance(x['original_statements'], list) else [],
+                x['generated_statements'] if isinstance(x['generated_statements'], list) else []
+            ), axis=1
+        )
+        return df
+    
+    def get_results_df(self):
         self._load_benchmark()
         self._generate_statements()
 
@@ -33,14 +43,6 @@ class Benchmark:
             "original_statements": self.original_statements,
             "generated_statements": self.generated_statements
         })
-        for i, row in df.iterrows():
-            original_stmts = row["original_statements"]
-            generated_stmts = row["generated_statements"]
-            try:
-                results = self.compare_statement_to_statements(original_stmts, generated_stmts)
-            except Exception as e:
-                results = f"Error: {e}"
-            df.at[i, "results"] = results
         return df
 
     def _load_benchmark(self):
@@ -67,16 +69,43 @@ class Benchmark:
                     stmts_json = json.loads(generated_statement_json_object)['statements']
                     stmts_json = [post_process_extracted_json(stmt_json) for stmt_json in stmts_json]
                     stmts_indra = [stmt_from_json(stmt_json) for stmt_json in stmts_json]
-                    self.generated_statements.append(str(stmts_indra))
+                    self.generated_statements.append(stmts_indra)
                 else:   # output is a single json object of a statement
                     stmt_json = json.loads(generated_statement_json_object)                    
                     stmt_json = post_process_extracted_json(stmt_json)
                     stmt_indra = stmt_from_json(stmt_json)
-                    self.generated_statements.append(str(stmt_indra))
+                    self.generated_statements.append([stmt_indra])
             except (JSONDecodeError, IndexError, TypeError) as e:
                 logger.error(f"Error extracting statement: {e}")
                 self.generated_statements.append(f"Error: {e}")
 
+    def compare_lists_of_statements(self, stmt_list1, stmt_list2):
+        results = []
+        
+        # Ensure valid lists
+        if not isinstance(stmt_list1, list) or not isinstance(stmt_list2, list):
+            return [{"error": "Invalid input (expected lists)"}]
+        
+        if not stmt_list1 or not stmt_list2:  # Handle empty lists
+            return [{"error": "One or both lists are empty"}]
+
+        for s1 in stmt_list1:
+            for s2 in stmt_list2:
+                d = {}
+                equals, equals_type, same_set_of_agents = self.compare_two_statements(s1, s2)
+                d['equals'] = equals
+                d['equals_type'] = equals_type
+                d['same_set_of_agents'] = same_set_of_agents
+                results.append(d)
+
+        return results
+    
+    def compare_two_statements(self, stmt1, stmt2):
+        equals = self.equals(stmt1, stmt2)
+        equals_type = self.equals_type(stmt1, stmt2)
+        same_set_of_agents = self.same_set_of_agents(stmt1, stmt2)
+        return equals, equals_type, same_set_of_agents
+    
     def equals(self, stmt1, stmt2):
         return stmt1.equals(stmt2)
     
@@ -90,15 +119,5 @@ class Benchmark:
         stmt2_agents_grounded = set(x.get_grounding() for x in stmt2_agents if x is not None)
         return stmt1_agents_grounded == stmt2_agents_grounded
     
-    def compare_two_statements(self, stmt1, stmt2):
-        equals = self.equals(stmt1, stmt2)
-        equals_type = self.equals_type(stmt1, stmt2)
-        same_set_of_agents = self.same_set_of_agents(stmt1, stmt2)
-        return equals, equals_type, same_set_of_agents
     
-    def compare_statement_to_statements(self, stmt, stmts):
-        results = []
-        for s in stmts:
-            results.append(self.compare_two_statements(stmt, s))
-        return results
-
+                    
