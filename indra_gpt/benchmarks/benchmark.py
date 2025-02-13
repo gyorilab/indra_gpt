@@ -1,5 +1,6 @@
 import sys
 from indra.statements.io import stmts_from_json, stmt_from_json
+import indra.statements
 from indra_gpt.resources.constants import OUTPUT_DEFAULT
 from indra.preassembler.grounding_mapper.gilda import ground_statements
 from indra_gpt.api.api import generate_statements_with_client
@@ -7,6 +8,8 @@ from indra_gpt.util import post_process_extracted_json
 from json import JSONDecodeError
 import json
 import pandas as pd
+
+from indra.preassembler.grounding_mapper.gilda import ground_statements
 
 import logging
 logger = logging.getLogger(__name__)
@@ -25,10 +28,16 @@ class Benchmark:
 
     def get_comparison_df(self):
         df = self.get_results_df()
-        df['comparison'] = df.apply(
+        df['comparison_result'] = df.apply(
             lambda x: self.compare_lists_of_statements(
                 x['original_statements'] if isinstance(x['original_statements'], list) else [],
                 x['generated_statements'] if isinstance(x['generated_statements'], list) else []
+            ), axis=1
+        )
+        df['comparison_result_grounded'] = df.apply(
+            lambda x: self.compare_lists_of_statements(
+                x['original_statements_grounded'] if isinstance(x['original_statements_grounded'], list) else [],
+                x['generated_statements_grounded'] if isinstance(x['generated_statements_grounded'], list) else []
             ), axis=1
         )
         return df
@@ -43,7 +52,19 @@ class Benchmark:
             "original_statements": self.original_statements,
             "generated_statements": self.generated_statements
         })
+
+        df['original_statements_grounded'] = df['original_statements'].apply(self._safe_ground_statements)
+        df['generated_statements_grounded'] = df['generated_statements'].apply(self._safe_ground_statements)
+
         return df
+    
+    def _safe_ground_statements(self, statements):
+            """Runs ground_statements() with error handling."""
+            try:
+                return ground_statements(statements) if isinstance(statements, list) else statements
+            except Exception as e:
+                print(f"Error grounding statements: {e}")
+                return statements  # Return original statements on failure
 
     def _load_benchmark(self):
         with open(self.benchmark_file, "r") as f:
@@ -92,32 +113,16 @@ class Benchmark:
         for s1 in stmt_list1:
             for s2 in stmt_list2:
                 d = {}
-                equals, equals_type, same_set_of_agents = self.compare_two_statements(s1, s2)
+                equals, equals_type, agents_equal = self.compare_two_statements(s1, s2)
                 d['equals'] = equals
                 d['equals_type'] = equals_type
-                d['same_set_of_agents'] = same_set_of_agents
+                d['agents_equal'] = agents_equal
                 results.append(d)
 
         return results
     
     def compare_two_statements(self, stmt1, stmt2):
-        equals = self.equals(stmt1, stmt2)
-        equals_type = self.equals_type(stmt1, stmt2)
-        same_set_of_agents = self.same_set_of_agents(stmt1, stmt2)
-        return equals, equals_type, same_set_of_agents
-    
-    def equals(self, stmt1, stmt2):
-        return stmt1.equals(stmt2)
-    
-    def equals_type(self, stmt1, stmt2):
-        return type(stmt1) == type(stmt2)
-    
-    def same_set_of_agents(self, stmt1, stmt2):
-        stmt1_agents = stmt1.real_agent_list()
-        stmt2_agents = stmt2.real_agent_list()
-        stmt1_agents_grounded = set(x.get_grounding() for x in stmt1_agents if x is not None)
-        stmt2_agents_grounded = set(x.get_grounding() for x in stmt2_agents if x is not None)
-        return stmt1_agents_grounded == stmt2_agents_grounded
-    
-    
-                    
+        equals = stmt1.equals(stmt2)
+        equals_type = stmt1.types_equals(stmt2)
+        agents_equal = stmt1.agents_equal(stmt2),
+        return equals, equals_type, agents_equal
