@@ -8,6 +8,7 @@ from indra_gpt.util import post_process_extracted_json
 from json import JSONDecodeError
 import json
 import pandas as pd
+import numpy as np
 
 from indra.preassembler.grounding_mapper.gilda import ground_statements
 
@@ -25,23 +26,91 @@ class Benchmark:
         self.orginal_statements = None
         self.generated_statements_json = None
         self.generated_statements = None
+    
+    def compute_comparison_statistics(self, df, column_name="comparison_result", index_column="best_match_index"):
+        """Compute accuracy statistics from the best match in comparison results."""
+        stats = {}
 
+        # Filter out invalid indices
+        valid_rows = df[df[index_column] >= 0]
+
+        # Extract individual metrics safely
+        equals_values = []
+        equals_type_values = []
+        agents_equal_values = []
+
+        for _, row in valid_rows.iterrows():
+            best_index = row[index_column]
+            comparison_list = row[column_name]
+
+            if isinstance(comparison_list, list) and 0 <= best_index < len(comparison_list):
+                best_match = comparison_list[best_index]
+
+                if isinstance(best_match, dict):  # Ensure it's a dict
+                    equals_values.append(best_match.get("equals", False))
+                    equals_type_values.append(best_match.get("equals_type", False))
+                    agents_equal_values.append(best_match.get("agents_equal", False))
+
+        # Compute accuracy, handling empty lists
+        stats["equals_accuracy"] = np.mean(equals_values) if equals_values else 0
+        stats["equals_type_accuracy"] = np.mean(equals_type_values) if equals_type_values else 0
+        stats["agents_equal_accuracy"] = np.mean(agents_equal_values) if agents_equal_values else 0
+
+        return stats
+    
     def get_comparison_df(self):
         df = self.get_results_df()
+
         df['comparison_result'] = df.apply(
             lambda x: self.compare_lists_of_statements(
                 x['original_statements'] if isinstance(x['original_statements'], list) else [],
                 x['generated_statements'] if isinstance(x['generated_statements'], list) else []
             ), axis=1
         )
+
         df['comparison_result_grounded'] = df.apply(
             lambda x: self.compare_lists_of_statements(
                 x['original_statements_grounded'] if isinstance(x['original_statements_grounded'], list) else [],
                 x['generated_statements_grounded'] if isinstance(x['generated_statements_grounded'], list) else []
             ), axis=1
         )
+
+        # Save best match index instead of full dictionary
+        df['best_match_index'] = df['comparison_result'].apply(self.get_best_match_index)
+        df['best_match_grounded_index'] = df['comparison_result_grounded'].apply(self.get_best_match_index)
+
         return df
     
+    def get_best_match_index(self, comparison_results):
+        """
+        Given a list of comparison results (list of dicts), return the index of the best match.
+        Prioritizes 'equals', then 'equals_type', then 'agents_equal'.
+        Returns -1 if no valid match is found.
+        """
+        if not isinstance(comparison_results, list) or not comparison_results:
+            return -1  # Return -1 for empty or invalid lists
+
+        best_index = -1
+        best_score = (-1, -1, -1)  # (equals, equals_type, agents_equal)
+
+        for i, result in enumerate(comparison_results):
+            if not isinstance(result, dict):  # Skip invalid results
+                continue
+
+            # Convert boolean values to numeric scores (True=1, False=0)
+            score = (
+                int(result.get('equals', False)),
+                int(result.get('equals_type', False)),
+                int(result.get('agents_equal', False))
+            )
+
+            # Update best match index if the score is better
+            if score > best_score:
+                best_index = i
+                best_score = score
+
+        return best_index
+        
     def get_results_df(self):
         self._load_benchmark()
         self._generate_statements()
@@ -124,5 +193,5 @@ class Benchmark:
     def compare_two_statements(self, stmt1, stmt2):
         equals = stmt1.equals(stmt2)
         equals_type = stmt1.types_equals(stmt2)
-        agents_equal = stmt1.agents_equal(stmt2),
+        agents_equal = stmt1.agents_equal(stmt2)
         return equals, equals_type, agents_equal
