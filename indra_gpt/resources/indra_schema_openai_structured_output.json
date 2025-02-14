@@ -615,13 +615,18 @@
                     "description": "Cellular location of the agent. Must be a valid name (e.g. 'nucleus') or identifier (e.g. 'GO:0005634')for a GO cellular compartment."
                 },
                 "db_refs": {
-                    "anyOf": [
-                        {
-                            "type": "object",
-                            "additionalProperties": false
-                        },
-                        {"type": "null"}
-                    ],
+                    "type": "object",
+                    "properties": {
+                        "HGNC": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                        "UP": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                        "FPLX": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                        "CHEBI": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                        "GO": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+                        "TEXT": {"type": "string"},
+                        "NCIT": {"anyOf": [{"type": "string"}, {"type": "null"}]}
+                    },
+                    "required": ["HGNC", "UP", "FPLX", "CHEBI", "GO", "TEXT", "NCIT"],
+                    "additionalProperties": false,
                     "description": "Dictionary of database identifiers associated with this agent."
                 },
                 "sbo": {

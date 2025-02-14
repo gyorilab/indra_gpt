@@ -8,11 +8,12 @@ from pathlib import Path
 import time
 from openai import OpenAI
 from indra.config import IndraConfigError, get_config
-from indra_gpt.resources.constants import OUTPUT_DIR, JSON_SCHEMA
+from indra_gpt.resources.constants import OUTPUT_DIR, JSON_SCHEMA, OUTPUT_DEFAULT, SCHEMA_STRUCTURED_OUTPUT_PATH
 import random
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 from indra_gpt.util import post_process_extracted_json
+from indra_gpt.util.util import merge_allOf
 from indra.statements.io import stmt_from_json
 import pandas as pd
 from json import JSONDecodeError
@@ -38,8 +39,9 @@ class OpenAIClient(ClientInterface):
         self.iterations = kwargs.get("iterations")
         self.output_file = kwargs.get("output_file")
         self.verbose = kwargs.get("verbose")
-        self.batch_jobs = kwargs.get("batch_jobs")
+        self.batch_job = kwargs.get("batch_job")
         self.batch_id = kwargs.get("batch_id")
+        self.structured_output = kwargs.get("structured_output")
     
     def get_input_json_objects(self):
         with open(self.statements_file_json, "r") as f:
@@ -126,16 +128,32 @@ class OpenAIClient(ClientInterface):
         response = None
         for i in range(retry_count):
             try:
-                response = client.chat.completions.create(
-                    model=self.model,
-                    temperature=0,
-                    max_tokens=max_tokens,
-                    top_p=1.0,
-                    frequency_penalty=0.0,
-                    presence_penalty=0.0,
-                    messages=messages,
-                )
-                break
+                if self.structured_output:
+                    with open(SCHEMA_STRUCTURED_OUTPUT_PATH) as file:
+                        schema = json.load(file)
+                    post_processed_schema = merge_allOf(schema, schema)
+                    response = client.beta.chat.completions.parse(
+                        model=self.model,
+                        messages=[chat_prompt],
+                        response_format={
+                            "type": "json_schema", 
+                            "json_schema": {
+                                "name": "indra_statement_json",
+                                "strict": True, 
+                                "schema": post_processed_schema
+                            }
+                        }
+                    )
+                else:
+                    response = client.chat.completions.create(
+                        model=self.model,
+                        temperature=0,
+                        max_tokens=max_tokens,
+                        top_p=1.0,
+                        frequency_penalty=0.0,
+                        presence_penalty=0.0,
+                        messages=messages,
+                    )
             except Exception as e:
                 # Retry the request if it fails
                 if i < retry_count - 1:
@@ -169,22 +187,49 @@ class OpenAIClient(ClientInterface):
             print(f"Response:\n---------\n{response}\n---------\n\n")
         return response
 
-    def send_batch_inference(self, chat_prompts, chat_histories, max_tokens=1):
+    def send_batch_inference(self, original_statement_json_objects, chat_prompts, chat_histories, max_tokens=1):
         batch_requests = []
+        if self.structured_output:
+            with open(SCHEMA_STRUCTURED_OUTPUT_PATH) as file:
+                schema = json.load(file)
+            post_processed_schema = merge_allOf(schema, schema)
+
         for i, (chat_prompt, chat_history) in enumerate(zip(chat_prompts, chat_histories)):
             messages = chat_history + [chat_prompt]
-            batch_requests.append(
-                {
-                    "custom_id": f"request-{i}",
-                    "method": "POST",
-                    "url": "/v1/chat/completions",
-                    "body": {
-                        "model": self.model,
-                        "messages": messages,
-                        "max_tokens": max_tokens
+            if self.structured_output:
+                batch_requests.append(
+                    {
+                        "custom_id": f"request-{i}",
+                        "method": "POST",
+                        "url": "/v1/chat/completions",
+                        "body": {
+                            "model": self.model,
+                            "messages": [chat_prompt],
+                            "max_tokens": max_tokens,
+                            "response_format":{
+                                "type": "json_schema", 
+                                "json_schema": {
+                                    "name": "indra_statement_json",
+                                    "strict": True, 
+                                    "schema": post_processed_schema
+                                }
+                            }
+                        }
                     }
-                }
-            )
+                )
+            else:
+                batch_requests.append(
+                    {
+                        "custom_id": f"request-{i}",
+                        "method": "POST",
+                        "url": "/v1/chat/completions",
+                        "body": {
+                            "model": self.model,
+                            "messages": messages,
+                            "max_tokens": max_tokens
+                        }
+                    }
+                )
         # Make a temporary directory in the directory one level above the directory of this file
         batches_dir_path = OUTPUT_DIR / "batches"
         batches_dir_path.mkdir(parents=True, exist_ok=True)  # Create the parent directory if it doesn't exist
@@ -220,6 +265,11 @@ class OpenAIClient(ClientInterface):
         with open(batch_input_file_path, "w") as f:
             for request in batch_requests:
                 f.write(json.dumps(request) + "\n")
+        # Write the original json statements to a file to keep track of the input
+        original_json_statements_path = batch_dir_path / "original_statements.jsonl"
+        with open(original_json_statements_path, "w") as f:
+            for statement in original_statement_json_objects:
+                f.write(json.dumps(statement) + "\n")
         # Also add a txt file with when this batch was created
         current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         with open(batch_dir_path / "metadata.txt", "w") as f:
@@ -266,7 +316,7 @@ class OpenAIClient(ClientInterface):
                 logger.info("No results to save. Please check the status of the batch job.")
                 return None
             
-        elif self.batch_jobs:
+        elif self.batch_job:
             chat_prompts = []
             chat_histories = []
             for original_statement_json_object in original_statement_json_objects:
@@ -275,7 +325,7 @@ class OpenAIClient(ClientInterface):
                 chat_history = self.get_chat_history(samples)
                 chat_prompts.append(chat_prompt)
                 chat_histories.append(chat_history)
-            batch_id = self.send_batch_inference(chat_prompts, chat_histories, max_tokens=9000)
+            batch_id = self.send_batch_inference(original_statement_json_objects, chat_prompts, chat_histories, max_tokens=9000)
             logger.info(f"Batch job submitted with ID: {batch_id}")
             logger.info("Please check the status of the batch job later.")
             return None
@@ -292,15 +342,29 @@ class OpenAIClient(ClientInterface):
             return generated_statement_json_objects
 
     def get_results_df(self, generated_statement_json_objects):
-        original_statement_json_objects = self.get_input_json_objects()
+        if self.batch_id:
+            # Read the jsonl file containing the original statements
+            original_json_statements_path = OUTPUT_DIR / "batches" / self.batch_id / "original_statements.jsonl"
+            with open(original_json_statements_path, "r") as f:
+                original_statement_json_objects = [json.loads(line) for line in f]
+        else:
+            original_statement_json_objects = self.get_input_json_objects()
         input_texts = self.get_input_texts(original_statement_json_objects)
+        original_statements = [stmt_from_json(stmt_json) for stmt_json in original_statement_json_objects]
+
         extracted_statements = []
         for generated_statement_json_object in generated_statement_json_objects:
             try: 
-                stmt_json = json.loads(generated_statement_json_object)
-                stmt_json = post_process_extracted_json(stmt_json)
-                stmt_indra = stmt_from_json(stmt_json)
-                extracted_statements.append(str(stmt_indra))
+                if self.structured_output: # output is a json object with property 'statements' which is a list of statements
+                    stmts_json = json.loads(generated_statement_json_object)['statements']
+                    stmts_json = [post_process_extracted_json(stmt_json) for stmt_json in stmts_json]
+                    stmts_indra = [stmt_from_json(stmt_json) for stmt_json in stmts_json]
+                    extracted_statements.append(str(stmts_indra))
+                else:   # output is a single json object of a statement
+                    stmt_json = json.loads(generated_statement_json_object)                    
+                    stmt_json = post_process_extracted_json(stmt_json)
+                    stmt_indra = stmt_from_json(stmt_json)
+                    extracted_statements.append(str(stmt_indra))
             except (JSONDecodeError, IndexError, TypeError) as e:
                 logger.error(f"Error extracting statement: {e}")
                 extracted_statements.append(f"Error: {e}")
@@ -309,12 +373,16 @@ class OpenAIClient(ClientInterface):
                 "input_text": input_texts,
                 "original_statement_json": original_statement_json_objects,
                 "generated_statement_json": generated_statement_json_objects,
-                "extracted_statement": extracted_statements
+                "original_statement": original_statements,
+                "generated_statement": extracted_statements
             }
         )
         return result_df
 
     def save_results_df(self, results_df):
-        self.output_file.parent.mkdir(parents=True, exist_ok=True)
+        if self.batch_id and self.output_file == OUTPUT_DEFAULT:
+            self.output_file = OUTPUT_DIR / "batches" / self.batch_id / "extraction_results.tsv"
+        else:
+            self.output_file.parent.mkdir(parents=True, exist_ok=True)
         results_df.to_csv(self.output_file, sep="\t", index=False)
         logger.info(f"Results saved to {self.output_file}")

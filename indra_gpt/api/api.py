@@ -22,7 +22,8 @@ def generate_statements_with_client(**kwargs):
         if generated_statement_json_objects:
             results_df = client.get_results_df(generated_statement_json_objects)
             client.save_results_df(results_df)
-            return results_df
     except Exception as e:
         logger.error(f"Error processing data with client: {e}")
         raise e
+    
+    return generated_statement_json_objects
