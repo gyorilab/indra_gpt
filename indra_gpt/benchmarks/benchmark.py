@@ -18,16 +18,18 @@ logger = logging.getLogger(__name__)
 class Benchmark:
 
     def __init__(self, model, benchmark_file, structured_output, n_statements):
-        self.model = model
-        self.benchmark_file = benchmark_file
-        self.structured_output = structured_output
-        self.n_statements = n_statements
-        self.original_statements_json = None
-        self.orginal_statements = None
+        self.config = {
+            "model": model,
+            "benchmark_file": benchmark_file,
+            "structured_output": structured_output,
+            "n_statements": n_statements
+        }
+        self.original_statement_json = None
+        self.orginal_statement = None
         self.generated_statements_json = None
         self.generated_statements = None
     
-    def compute_comparison_statistics(self, df, column_name="comparison_result", index_column="best_match_index"):
+    def compute_comparison_statistics(self, df, column_name="comparison_result_grounded", index_column="best_match_grounded_index"):
         """Compute accuracy statistics from the best match in comparison results."""
         stats = {}
 
@@ -52,9 +54,10 @@ class Benchmark:
                     agents_equal_values.append(best_match.get("agents_equal", False))
 
         # Compute accuracy, handling empty lists
-        stats["equals_accuracy"] = np.mean(equals_values) if equals_values else 0
-        stats["equals_type_accuracy"] = np.mean(equals_type_values) if equals_type_values else 0
-        stats["agents_equal_accuracy"] = np.mean(agents_equal_values) if agents_equal_values else 0
+        stats["config"] = self.config
+        stats["equals_accuracy"] = float(np.mean(equals_values)) if equals_values else 0.0
+        stats["equals_type_accuracy"] = float(np.mean(equals_type_values)) if equals_type_values else 0.0
+        stats["agents_equal_accuracy"] = float(np.mean(agents_equal_values)) if agents_equal_values else 0.0
 
         return stats
     
@@ -63,14 +66,14 @@ class Benchmark:
 
         df['comparison_result'] = df.apply(
             lambda x: self.compare_lists_of_statements(
-                x['original_statements'] if isinstance(x['original_statements'], list) else [],
+                x['original_statement'] if isinstance(x['original_statement'], list) else [],
                 x['generated_statements'] if isinstance(x['generated_statements'], list) else []
             ), axis=1
         )
 
         df['comparison_result_grounded'] = df.apply(
             lambda x: self.compare_lists_of_statements(
-                x['original_statements_grounded'] if isinstance(x['original_statements_grounded'], list) else [],
+                x['original_statement_grounded'] if isinstance(x['original_statement_grounded'], list) else [],
                 x['generated_statements_grounded'] if isinstance(x['generated_statements_grounded'], list) else []
             ), axis=1
         )
@@ -116,13 +119,13 @@ class Benchmark:
         self._generate_statements()
 
         df = pd.DataFrame({
-            "original_statements_json": self.original_statements_json,
+            "original_statement_json": self.original_statement_json,
             "generated_statements_json": self.generated_statements_json,
-            "original_statements": self.original_statements,
+            "original_statement": self.original_statement,
             "generated_statements": self.generated_statements
         })
 
-        df['original_statements_grounded'] = df['original_statements'].apply(self._safe_ground_statements)
+        df['original_statement_grounded'] = df['original_statement'].apply(self._safe_ground_statements)
         df['generated_statements_grounded'] = df['generated_statements'].apply(self._safe_ground_statements)
 
         return df
@@ -136,26 +139,26 @@ class Benchmark:
                 return statements  # Return original statements on failure
 
     def _load_benchmark(self):
-        with open(self.benchmark_file, "r") as f:
-            self.original_statements_json = json.load(f)[:self.n_statements]
-        self.original_statements = [stmts_from_json([stmt_json]) for stmt_json in self.original_statements_json][:self.n_statements]
+        with open(self.config['benchmark_file'], "r") as f:
+            self.original_statement_json = json.load(f)[:self.config['n_statements']]
+        self.original_statement = [stmts_from_json([stmt_json]) for stmt_json in self.original_statement_json][:self.config['n_statements']]
 
     def _generate_statements(self):
         kwargs = {
-            "statements_file_json": self.benchmark_file,
-            "model": self.model,
+            "statements_file_json": self.config['benchmark_file'],
+            "model": self.config['model'],
             "output_file": OUTPUT_DEFAULT,
-            "iterations": self.n_statements,
+            "iterations": self.config['n_statements'],
             "verbose": False,
             "batch_job": False,
             "batch_id": None,
-            "structured_output": self.structured_output
+            "structured_output": self.config['structured_output']
         }
         self.generated_statements_json = generate_statements_with_client(**kwargs)
         self.generated_statements = []
         for generated_statement_json_object in self.generated_statements_json:
             try: 
-                if self.structured_output: # output is a json object with property 'statements' which is a list of statements
+                if self.config['structured_output']: # output is a json object with property 'statements' which is a list of statements
                     stmts_json = json.loads(generated_statement_json_object)['statements']
                     stmts_json = [post_process_extracted_json(stmt_json) for stmt_json in stmts_json]
                     stmts_indra = [stmt_from_json(stmt_json) for stmt_json in stmts_json]
