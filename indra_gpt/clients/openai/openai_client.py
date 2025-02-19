@@ -42,6 +42,7 @@ class OpenAIClient(ClientInterface):
         self.batch_job = kwargs.get("batch_job")
         self.batch_id = kwargs.get("batch_id")
         self.structured_output = kwargs.get("structured_output")
+        self.random_sample = kwargs.get("random_sample")
     
     def get_input_json_objects(self):
         with open(self.statements_file_json, "r") as f:
@@ -50,7 +51,10 @@ class OpenAIClient(ClientInterface):
         if len(statements_json_content) < self.iterations:
             logger.warning(f"Number of iterations is greater than the number of statements "
                         f"in the file. All {self.iterations} statements will be processed.")
-        original_statement_json_objects = statements_json_content[:self.iterations]
+        if self.random_sample:
+            original_statement_json_objects = random.sample(statements_json_content, self.iterations)
+        else:
+            original_statement_json_objects = statements_json_content[:self.iterations]
         return original_statement_json_objects
 
     def get_input_texts(self, original_statement_json_objects):
@@ -300,8 +304,7 @@ class OpenAIClient(ClientInterface):
             batch_response = None
         return batch_response
 
-    def generate_statement_json_objects(self):
-        original_statement_json_objects = self.get_input_json_objects()
+    def generate_statement_json_objects(self, original_statement_json_objects):
         get_json_object_map = self.get_json_object_map(original_statement_json_objects)
         generated_statement_json_objects = []
 
@@ -341,14 +344,16 @@ class OpenAIClient(ClientInterface):
                 generated_statement_json_objects.append(generated_json_object)
             return generated_statement_json_objects
 
-    def get_results_df(self, generated_statement_json_objects):
+    def get_results_df(self, original_statement_json_objects, generated_statement_json_objects):
         if self.batch_id:
             # Read the jsonl file containing the original statements
             original_json_statements_path = OUTPUT_DIR / "batches" / self.batch_id / "original_statements.jsonl"
             with open(original_json_statements_path, "r") as f:
                 original_statement_json_objects = [json.loads(line) for line in f]
-        else:
-            original_statement_json_objects = self.get_input_json_objects()
+
+        if original_statement_json_objects is None: 
+            raise ValueError("original_statement_json_objects must be provided if batch_id is not set.")
+        
         input_texts = self.get_input_texts(original_statement_json_objects)
         original_statements = [stmt_from_json(stmt_json) for stmt_json in original_statement_json_objects]
 

@@ -8,7 +8,7 @@ from indra_gpt.api.api import generate_statements_with_client
 logger = logging.getLogger(__name__)
 
 # Define the main function
-def main(statements_file_json, model, iterations, output_file, verbose, batch_job, batch_id, structured_output):
+def main(statements_file_json, model, iterations, output_file, verbose, batch_job, batch_id, structured_output, random_sample):
     kwargs = {
         "statements_file_json": statements_file_json,
         "model": model,
@@ -17,7 +17,8 @@ def main(statements_file_json, model, iterations, output_file, verbose, batch_jo
         "verbose": verbose,
         "batch_job": batch_job,
         "batch_id": batch_id,
-        "structured_output": structured_output
+        "structured_output": structured_output,
+        "random_sample": random_sample
     }
     
     generate_statements_with_client(**kwargs)
@@ -53,6 +54,7 @@ if __name__ == "__main__":
                                  "results of a batch job.")
     arg_parser.add_argument("--structured_output", action="store_true", help="If set, the output will strictly adhere to \
                             the provided schema. Currently only supported for OpenAI API.")
+    arg_parser.add_argument("--random_sample", action="store_true", help="If set, the input statements will be randomly sampled.")
     args = arg_parser.parse_args()
 
     main(
@@ -63,5 +65,6 @@ if __name__ == "__main__":
         verbose=args.verbose,
         batch_job=args.batch_job,
         batch_id=args.batch_id,
-        structured_output=args.structured_output
+        structured_output=args.structured_output,
+        random_sample=args.random_sample
     )

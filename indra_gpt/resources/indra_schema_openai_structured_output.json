@@ -40,15 +40,13 @@
                         },
                         "subj": {
                             "anyOf": [
-                                {"$ref": "#/definitions/Agent"},
-                                {"type": "null"}
+                                {"$ref": "#/definitions/Agent"}
                             ],
                             "description": "The agent responsible for the change in activity, i.e., the 'upstream' node."
                         },
                         "obj": {
                             "anyOf": [
-                                {"$ref": "#/definitions/Agent"},
-                                {"type": "null"}
+                                {"$ref": "#/definitions/Agent"}
                             ],
                             "description": "The agent whose activity is influenced by the subject, i.e., the 'downstream' node."
                         },
@@ -85,15 +83,13 @@
                         },
                         "enz": {
                             "anyOf": [
-                                {"$ref": "#/definitions/Agent"},
-                                {"type": "null"}
+                                {"$ref": "#/definitions/Agent"}
                             ],
                             "description": "The enzyme involved in the modification."
                         },
                         "sub": {
                             "anyOf": [
-                                {"$ref": "#/definitions/Agent"},
-                                {"type": "null"}
+                                {"$ref": "#/definitions/Agent"}
                             ],
                             "description": "The substrate of the modification."
                         },
@@ -137,8 +133,7 @@
                         },
                         "enz": {
                             "anyOf": [
-                                {"$ref": "#/definitions/Agent"},
-                                {"type": "null"}
+                                {"$ref": "#/definitions/Agent"}
                             ],
                             "description": "The enzyme involved in the modification."
                         },
@@ -192,8 +187,7 @@
                         },
                         "is_active": {
                             "anyOf": [
-                                {"type": "boolean"},
-                                {"type": "null"}
+                                {"type": "boolean"}
                             ],
                             "description": "Whether the conditions are activating (True) or inactivating (False)."
                         }
@@ -223,15 +217,13 @@
                         },
                         "gef": {
                             "anyOf": [
-                                {"$ref": "#/definitions/Agent"},
-                                {"type": "null"}
+                                {"$ref": "#/definitions/Agent"}
                             ],
                             "description": "The guanosine exchange factor."
                         },
                         "ras": {
                             "anyOf": [
-                                {"$ref": "#/definitions/Agent"},
-                                {"type": "null"}
+                                {"$ref": "#/definitions/Agent"}
                             ],
                             "description": "The GTPase protein."
                         }
@@ -261,15 +253,13 @@
                         },
                         "gap": {
                             "anyOf": [
-                                {"$ref": "#/definitions/Agent"},
-                                {"type": "null"}
+                                {"$ref": "#/definitions/Agent"}
                             ],
                             "description": "The GTPase activating protein."
                         },
                         "ras": {
                             "anyOf": [
-                                {"$ref": "#/definitions/Agent"},
-                                {"type": "null"}
+                                {"$ref": "#/definitions/Agent"}
                             ],
                             "description": "The GTPase protein."
                         }
@@ -302,8 +292,7 @@
                                 {
                                     "type": "array",
                                     "items": {"$ref": "#/definitions/Agent"}
-                                },
-                                {"type": "null"}
+                                }
                             ]
                         }
                     },
@@ -358,15 +347,13 @@
                         },
                         "from_location": {
                             "anyOf": [
-                                {"type": "string"},
-                                {"type": "null"}
+                                {"type": "string"}
                             ],
                             "description": "The location from which the agent translocates. This must be a valid GO cellular component name (e.g. 'cytoplasm') or ID (e.g. 'GO:0005737')."
                         },
                         "to_location": {
                             "anyOf": [
-                                {"type": "string"},
-                                {"type": "null"}
+                                {"type": "string"}
                             ],
                             "description": "The location to which the agent translocates. This must be a valid GO cellular component name or ID."
                         }
@@ -395,15 +382,13 @@
                         },
                         "subj": {
                             "anyOf": [
-                                {"$ref": "#/definitions/Agent"},
-                                {"type": "null"}
+                                {"$ref": "#/definitions/Agent"}
                             ],
                             "description": "The mediating protein"
                         },
                         "obj": {
                             "anyOf": [
-                                {"$ref": "#/definitions/Agent"},
-                                {"type": "null"}
+                                {"$ref": "#/definitions/Agent"}
                             ],
                             "description": "The affected protein"
                         }
@@ -432,8 +417,7 @@
                         },
                         "subj": {
                             "anyOf": [
-                                {"$ref": "#/definitions/Agent"},
-                                {"type": "null"}
+                                {"$ref": "#/definitions/Agent"}
                             ],
                             "description": "The protein mediating the conversion."
                         },
@@ -442,8 +426,7 @@
                                 {
                                     "type": "array",
                                     "items": {"$ref": "#/definitions/Agent"}
-                                },
-                                {"type": "null"}
+                                }
                             ],
                             "description": "The list of molecular species being consumed by the conversion."
                         },
@@ -452,8 +435,7 @@
                                 {
                                     "type": "array",
                                     "items": {"$ref": "#/definitions/Agent"}
-                                },
-                                {"type": "null"}
+                                }
                             ],
                             "description": "The list of molecular species being created by the conversion."
                         }

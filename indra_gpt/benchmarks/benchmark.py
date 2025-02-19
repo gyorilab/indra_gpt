@@ -17,12 +17,13 @@ logger = logging.getLogger(__name__)
 
 class Benchmark:
 
-    def __init__(self, model, benchmark_file, structured_output, n_statements):
+    def __init__(self, model, benchmark_file, structured_output, n_statements, random_sample):
         self.config = {
             "model": model,
             "benchmark_file": benchmark_file,
             "structured_output": structured_output,
-            "n_statements": n_statements
+            "n_statements": n_statements,
+            "random_sample": random_sample
         }
         self.original_statement_json = None
         self.orginal_statement = None
@@ -115,7 +116,6 @@ class Benchmark:
         return best_index
         
     def get_results_df(self):
-        self._load_benchmark()
         self._generate_statements()
 
         df = pd.DataFrame({
@@ -138,11 +138,6 @@ class Benchmark:
                 print(f"Error grounding statements: {e}")
                 return statements  # Return original statements on failure
 
-    def _load_benchmark(self):
-        with open(self.config['benchmark_file'], "r") as f:
-            self.original_statement_json = json.load(f)[:self.config['n_statements']]
-        self.original_statement = [stmts_from_json([stmt_json]) for stmt_json in self.original_statement_json][:self.config['n_statements']]
-
     def _generate_statements(self):
         kwargs = {
             "statements_file_json": self.config['benchmark_file'],
@@ -152,9 +147,11 @@ class Benchmark:
             "verbose": False,
             "batch_job": False,
             "batch_id": None,
-            "structured_output": self.config['structured_output']
+            "structured_output": self.config['structured_output'],
+            "random_sample": self.config['random_sample']
         }
-        self.generated_statements_json = generate_statements_with_client(**kwargs)
+        self.original_statement_json, self.generated_statements_json = generate_statements_with_client(**kwargs)
+        self.original_statement = [stmts_from_json([stmt_json]) for stmt_json in self.original_statement_json][:self.config['n_statements']]
         self.generated_statements = []
         for generated_statement_json_object in self.generated_statements_json:
             try: 
