@@ -4,13 +4,13 @@ import indra.statements
 from indra_gpt.resources.constants import OUTPUT_DEFAULT
 from indra.preassembler.grounding_mapper.gilda import ground_statements
 from indra_gpt.api.api import generate_statements_with_client
-from indra_gpt.util import post_process_extracted_json
 from json import JSONDecodeError
 import json
 import pandas as pd
 import numpy as np
 
 from indra.preassembler.grounding_mapper.gilda import ground_statements
+from indra_gpt.post_process.post_processor import PostProcessor
 
 import logging
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ class Benchmark:
         self.generated_statements_json = None
         self.generated_statements = None
     
-    def compute_comparison_statistics(self, df, column_name="comparison_result_grounded", index_column="best_match_grounded_index"):
+    def compute_comparison_statistics(self, df, column_name="comparison_result", index_column="best_match_index"):
         """Compute accuracy statistics from the best match in comparison results."""
         stats = {}
 
@@ -72,16 +72,8 @@ class Benchmark:
             ), axis=1
         )
 
-        df['comparison_result_grounded'] = df.apply(
-            lambda x: self.compare_lists_of_statements(
-                x['original_statement_grounded'] if isinstance(x['original_statement_grounded'], list) else [],
-                x['generated_statements_grounded'] if isinstance(x['generated_statements_grounded'], list) else []
-            ), axis=1
-        )
-
         # Save best match index instead of full dictionary
         df['best_match_index'] = df['comparison_result'].apply(self.get_best_match_index)
-        df['best_match_grounded_index'] = df['comparison_result_grounded'].apply(self.get_best_match_index)
 
         return df
     
@@ -125,9 +117,6 @@ class Benchmark:
             "generated_statements": self.generated_statements
         })
 
-        df['original_statement_grounded'] = df['original_statement'].apply(self._safe_ground_statements)
-        df['generated_statements_grounded'] = df['generated_statements'].apply(self._safe_ground_statements)
-
         return df
     
     def _safe_ground_statements(self, statements):
@@ -152,19 +141,33 @@ class Benchmark:
         }
         self.original_statement_json, self.generated_statements_json = generate_statements_with_client(**kwargs)
         self.original_statement = [stmts_from_json([stmt_json]) for stmt_json in self.original_statement_json][:self.config['n_statements']]
+
+        config = {
+            "model": self.config['model'],
+            "num_samples_from_corpus": self.config['n_statements'],
+            "structured_output": self.config['structured_output'],
+            "random_sample": self.config['random_sample']
+        }
+
+        post_processor = PostProcessor(config)
+        input_texts = [post_processor.get_input_text_from_original_statement_json(x) for x in self.original_statement_json]
+        pmids = [post_processor.get_pmid_from_original_statement_json(x) for x in self.original_statement_json]
         self.generated_statements = []
-        for generated_statement_json_object in self.generated_statements_json:
+        for generated_statement_json_object, input_text, pmid in zip(self.generated_statements_json, input_texts, pmids):
             try: 
                 if self.config['structured_output']: # output is a json object with property 'statements' which is a list of statements
                     stmts_json = json.loads(generated_statement_json_object)['statements']
-                    stmts_json = [post_process_extracted_json(stmt_json) for stmt_json in stmts_json]
-                    stmts_indra = [stmt_from_json(stmt_json) for stmt_json in stmts_json]
-                    self.generated_statements.append(stmts_indra)
+                    post_processed_stmts_json = [post_processor.post_process_extracted_statement_json(stmt_json, input_text, pmid, update_evidence=True) 
+                                                 for stmt_json in stmts_json]
+                    stmts_indra = stmts_from_json(post_processed_stmts_json)
+                    grounded_stmts_indra = post_processor.ground_and_annotate_statements(stmts_indra)
+                    self.generated_statements.append(grounded_stmts_indra)
                 else:   # output is a single json object of a statement
                     stmt_json = json.loads(generated_statement_json_object)                    
-                    stmt_json = post_process_extracted_json(stmt_json)
-                    stmt_indra = stmt_from_json(stmt_json)
-                    self.generated_statements.append([stmt_indra])
+                    post_processed_stmt_json = post_processor.post_process_extracted_statement_json(stmt_json, input_text, pmid, update_evidence=True)
+                    stmt_indra = stmt_from_json(post_processed_stmt_json)
+                    grounded_stmts_indra = post_processor.ground_and_annotate_statements([stmt_indra])
+                    self.generated_statements.append(grounded_stmts_indra)
             except (JSONDecodeError, IndexError, TypeError) as e:
                 logger.error(f"Error extracting statement: {e}")
                 self.generated_statements.append(f"Error: {e}")

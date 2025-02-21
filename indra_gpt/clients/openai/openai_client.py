@@ -12,12 +12,12 @@ from indra_gpt.resources.constants import OUTPUT_DIR, JSON_SCHEMA, OUTPUT_DEFAUL
 import random
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
-from indra_gpt.util import post_process_extracted_json
 from indra_gpt.util.util import merge_allOf
 from indra.statements.io import stmt_from_json
 import pandas as pd
 from json import JSONDecodeError
 
+from indra_gpt.post_process.post_processor import PostProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -358,21 +358,33 @@ class OpenAIClient(ClientInterface):
         original_statements = [stmt_from_json(stmt_json) for stmt_json in original_statement_json_objects]
 
         extracted_statements = []
-        for generated_statement_json_object in generated_statement_json_objects:
+        config = {
+            "model": self.model,
+            "num_samples": self.iterations,
+            "structured_output": self.structured_output,
+            "random_sample": self.random_sample,
+            "grounding_strategy": "gilda"
+        }
+
+        post_processor = PostProcessor(config)
+        input_texts = [post_processor.get_input_text_from_original_statement_json(x) for x in original_statement_json_objects]
+        pmids = [post_processor.get_pmid_from_original_statement_json(x) for x in original_statement_json_objects]
+        for generated_statement_json_object, input_text, pmid in zip(generated_statement_json_objects, input_texts, pmids):
             try: 
                 if self.structured_output: # output is a json object with property 'statements' which is a list of statements
                     stmts_json = json.loads(generated_statement_json_object)['statements']
-                    stmts_json = [post_process_extracted_json(stmt_json) for stmt_json in stmts_json]
-                    stmts_indra = [stmt_from_json(stmt_json) for stmt_json in stmts_json]
+                    post_processed_stmts_json = [post_processor.post_process_extracted_statement_json(stmt_json, input_text, pmid, update_evidence=True) for stmt_json in stmts_json]
+                    stmts_indra = [stmt_from_json(x) for x in post_processed_stmts_json]
                     extracted_statements.append(str(stmts_indra))
                 else:   # output is a single json object of a statement
                     stmt_json = json.loads(generated_statement_json_object)                    
-                    stmt_json = post_process_extracted_json(stmt_json)
-                    stmt_indra = stmt_from_json(stmt_json)
+                    post_processed_stmt_json = post_processor.post_process_extracted_statement_json(stmt_json, input_text, pmid, update_evidence=True)
+                    stmt_indra = stmt_from_json(post_processed_stmt_json)
                     extracted_statements.append(str(stmt_indra))
             except (JSONDecodeError, IndexError, TypeError) as e:
                 logger.error(f"Error extracting statement: {e}")
                 extracted_statements.append(f"Error: {e}")
+
         result_df = pd.DataFrame(
             {
                 "input_text": input_texts,
