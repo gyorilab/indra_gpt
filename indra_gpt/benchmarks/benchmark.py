@@ -25,10 +25,10 @@ class Benchmark:
             "n_statements": n_statements,
             "random_sample": random_sample
         }
-        self.original_statement_json = None
-        self.orginal_statement = None
-        self.generated_statements_json = None
-        self.generated_statements = None
+        self.original_json_stmts = None
+        self.original_stmts = None
+        self.generated_json_stmts = None
+        self.generated_stmts = None
     
     def compute_comparison_statistics(self, df, column_name="comparison_result", index_column="best_match_index"):
         """Compute accuracy statistics from the best match in comparison results."""
@@ -111,22 +111,14 @@ class Benchmark:
         self._generate_statements()
 
         df = pd.DataFrame({
-            "original_statement_json": self.original_statement_json,
-            "generated_statements_json": self.generated_statements_json,
-            "original_statement": self.original_statement,
-            "generated_statements": self.generated_statements
+            "original_statement_json": self.original_json_stmts,
+            "generated_statements_json": self.generated_json_stmts,
+            "original_statement": self.original_stmts,
+            "generated_statements": self.generated_stmts
         })
 
         return df
     
-    def _safe_ground_statements(self, statements):
-            """Runs ground_statements() with error handling."""
-            try:
-                return ground_statements(statements) if isinstance(statements, list) else statements
-            except Exception as e:
-                print(f"Error grounding statements: {e}")
-                return statements  # Return original statements on failure
-
     def _generate_statements(self):
         kwargs = {
             "statements_file_json": self.config['benchmark_file'],
@@ -137,10 +129,12 @@ class Benchmark:
             "batch_job": False,
             "batch_id": None,
             "structured_output": self.config['structured_output'],
-            "random_sample": self.config['random_sample']
+            "random_sample": self.config['random_sample'], 
+            "save_results": False
         }
-        self.original_statement_json, self.generated_statements_json = generate_statements_with_client(**kwargs)
-        self.original_statement = [stmts_from_json([stmt_json]) for stmt_json in self.original_statement_json][:self.config['n_statements']]
+        original_json_stmts, generated_json_responses = generate_statements_with_client(**kwargs)
+        self.original_json_stmts = original_json_stmts
+        self.original_stmts = [stmts_from_json([stmt_json]) for stmt_json in self.original_json_stmts][:self.config['n_statements']]
 
         config = {
             "model": self.config['model'],
@@ -150,28 +144,22 @@ class Benchmark:
         }
 
         post_processor = PostProcessor(config)
-        input_texts = [post_processor.get_input_text_from_original_statement_json(x) for x in self.original_statement_json]
-        pmids = [post_processor.get_pmid_from_original_statement_json(x) for x in self.original_statement_json]
-        self.generated_statements = []
-        for generated_statement_json_object, input_text, pmid in zip(self.generated_statements_json, input_texts, pmids):
+        input_texts = [post_processor.get_input_text_from_original_statement_json(x) for x in self.original_json_stmts]
+        pmids = [post_processor.get_pmid_from_original_statement_json(x) for x in self.original_json_stmts]
+        self.generated_json_stmts = []
+        self.generated_stmts = []
+        for generated_json_response, input_text, pmid in zip(generated_json_responses, input_texts, pmids):
+            kwargs = {"input_text": input_text, "pmid": pmid}
             try: 
-                if self.config['structured_output']: # output is a json object with property 'statements' which is a list of statements
-                    stmts_json = json.loads(generated_statement_json_object)['statements']
-                    post_processed_stmts_json = [post_processor.post_process_extracted_statement_json(stmt_json, input_text, pmid, update_evidence=True) 
-                                                 for stmt_json in stmts_json]
-                    stmts_indra = stmts_from_json(post_processed_stmts_json)
-                    grounded_stmts_indra = post_processor.ground_and_annotate_statements(stmts_indra)
-                    self.generated_statements.append(grounded_stmts_indra)
-                else:   # output is a single json object of a statement
-                    stmt_json = json.loads(generated_statement_json_object)                    
-                    post_processed_stmt_json = post_processor.post_process_extracted_statement_json(stmt_json, input_text, pmid, update_evidence=True)
-                    stmt_indra = stmt_from_json(post_processed_stmt_json)
-                    grounded_stmts_indra = post_processor.ground_and_annotate_statements([stmt_indra])
-                    self.generated_statements.append(grounded_stmts_indra)
+                post_processed_json_stmts = post_processor.post_process_generated_response(generated_json_response, **kwargs)
+                preassembled_stmts = post_processor.preassemble_pipeline(post_processed_json_stmts)
+                self.generated_json_stmts.append(post_processed_json_stmts)
+                self.generated_stmts.append(preassembled_stmts)
             except (JSONDecodeError, IndexError, TypeError) as e:
                 logger.error(f"Error extracting statement: {e}")
-                self.generated_statements.append(f"Error: {e}")
-
+                self.generated_json_stmts.append(f"Error: {e}")
+                self.generated_stmts.append(f"Error: {e}")
+                
     def compare_lists_of_statements(self, stmt_list1, stmt_list2):
         results = []
         

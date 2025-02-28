@@ -18,7 +18,8 @@ def main(statements_file_json, model, iterations, output_file, verbose, batch_jo
         "batch_job": batch_job,
         "batch_id": batch_id,
         "structured_output": structured_output,
-        "random_sample": random_sample
+        "random_sample": random_sample, 
+        "save_results": True
     }
     
     generate_statements_with_client(**kwargs)

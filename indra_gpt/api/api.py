@@ -18,13 +18,13 @@ def generate_statements_with_client(**kwargs):
         raise ValueError("Enter valid model, currently supported models are: 'gpt-4o-mini', 'claude-3-5-sonnet-latest'.")
     
     try:
-        original_statement_json_objects = client.get_input_json_objects()
-        generated_statement_json_objects = client.generate_statement_json_objects(original_statement_json_objects)
-        if generated_statement_json_objects:
-            results_df = client.get_results_df(original_statement_json_objects, generated_statement_json_objects)
+        original_json_stmts = client.get_input_json_objects()
+        generated_json_responses = client.generate_statement_json_objects(original_json_stmts)
+        if generated_json_responses and kwargs["save_results"]:
+            results_df = client.get_results_df(original_json_stmts, generated_json_responses)
             client.save_results_df(results_df)
     except Exception as e:
         logger.error(f"Error processing data with client: {e}")
         raise e
     
-    return original_statement_json_objects, generated_statement_json_objects
+    return original_json_stmts, generated_json_responses

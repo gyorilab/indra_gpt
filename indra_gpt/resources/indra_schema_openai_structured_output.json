@@ -531,14 +531,20 @@
                     "description": "Dictionary containing additional information on the context of the statement, e.g., species, cell line, tissue type, etc. The entries may vary depending on the source of the information."
                 },
                 "epistemics": {
-                    "anyOf": [
-                        {
-                            "type": "object",
-                            "additionalProperties": false
+                    "type": "object",
+                    "description": "A dictionary describing various forms of epistemic certainty associated with the statement.",
+                    "properties": {
+                        "hypothesis": {
+                            "type": "boolean",
+                            "description": "Specifies whether the statement is a hypothesis."
                         },
-                        {"type": "null"}
-                    ],
-                    "description": "A dictionary describing various forms of epistemic certainty associated with the statement."
+                        "negation": {
+                            "type": "boolean",
+                            "description": "Specifies whether the statement is negated."
+                        }
+                    },
+                    "required": ["hypothesis", "negation"],
+                    "additionalProperties": false
                 }
             },
             "required": ["text", "source_api", "pmid", "source_id", "annotations", "epistemics"],
