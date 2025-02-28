@@ -1,71 +1,125 @@
 import logging
 from pathlib import Path
+import argparse
 
-from indra_gpt.resources.constants import OUTPUT_DEFAULT, INPUT_DEFAULT
-from indra_gpt.api.api import generate_statements_with_client
+from indra_gpt.resources.constants import OUTPUT_DEFAULT
+from indra_gpt.api.api import generate_statements
+from indra_gpt.config import ConfigManager
+from indra_gpt.util.util import save_results
 
 
 logger = logging.getLogger(__name__)
 
-# Define the main function
-def main(statements_file_json, model, iterations, output_file, verbose, batch_job, batch_id, structured_output, random_sample):
-    kwargs = {
-        "statements_file_json": statements_file_json,
-        "model": model,
-        "iterations": iterations,
-        "output_file": output_file,
-        "verbose": verbose,
-        "batch_job": batch_job,
-        "batch_id": batch_id,
-        "structured_output": structured_output,
-        "random_sample": random_sample, 
-        "save_results": True
-    }
-    
-    generate_statements_with_client(**kwargs)
+def main(**kwargs):
+    # Initialize configuration objects
+    preprocessing_config = PreProcessingConfig({
+        "user_inputs_file": kwargs["user_inputs_file"], 
+        "num_samples": kwargs["num_samples"],
+        "random_sample": kwargs["random_sample"],
+        "n_shot_prompting": kwargs["n_shot_prompting"],
+        "user_input_refinement_strat": kwargs["user_input_refinement_strat"]
+    })
 
+    generation_config = GenerationConfig({
+        "model": kwargs["model"],
+        "structured_output": kwargs["structured_output"],
+        "feedback_refinement_iterations": kwargs["feedback_refinement_iterations"],
+        "batch_job": kwargs["batch_job"],
+        "batch_id": kwargs["batch_id"], 
+    })
+
+    postprocessing_config = PostProcessingConfig({
+        "grounding": kwargs["grounding"]
+    })
+
+    # Instantiate processing objects
+    pre_processor = PreProcessor(preprocessing_config)
+    post_processor = PostProcessor(postprocessing_config)
+
+    # Generate responses using preprocessing and generation settings
+    generated_responses = generate_responses(generation_config, pre_processor)
+
+    # Save results with the correct configurations
+    save_results(kwargs["output_file"], generated_responses, post_processor)
 
 if __name__ == "__main__":
-    import argparse
-    arg_parser = argparse.ArgumentParser()
+    arg_parser = argparse.ArgumentParser(description="Script for running structured knowledge extraction.")
+    ##### arguments for the input and output files and job mode #####
     arg_parser.add_argument(
-        "--statements_file_json",
+        "--user_inputs_file",
         type=str,
-        default=INPUT_DEFAULT.absolute().as_posix(),
-        help=f"Path to the json file containing statement json objects. Default is "
-             f"{INPUT_DEFAULT.as_posix()}.",
+        default=None,
+        help="Path to the file containing user inputs for inference. Format can be either: "
+            "(1) a txt file where each line is an input text, or "
+            "(2) a JSON file with a list of input texts in [{'text': 'input text', 'pmid': 'pmid'}] format. "
+            "If not provided, input texts will be extracted from the benchmark corpus."
     )
-    arg_parser.add_argument("--model_name", type=str, default="gpt-4o-mini",
-                            help="Provide the name of the model to use, e.g., 'gpt-4o-mini' or 'claude-3-5-sonnet-latest'.")
-    arg_parser.add_argument("--iterations", "-n", type=int, default=50,
-                            help="Number of iterations to run")
     arg_parser.add_argument(
-        "--output_file", type=str, default=OUTPUT_DEFAULT.as_posix(),
-        help=f"Path to save the output tsv file. Default is {OUTPUT_DEFAULT.as_posix()}."
+        "--num_samples", "-n", 
+        type=int, 
+        default=50,
+        help="Number of input texts to process from the input file for inference. "
+            "By default, the first N texts are used unless --random_sample is specified."
     )
-    arg_parser.add_argument("-v", "--verbose", action="store_true",
-                            help="Increase output verbosity. Will print requests sent "
-                                 "to and responses received from the API, respectively.")
-    arg_parser.add_argument("-b", "--batch_job", action="store_true",
-                            help="If set, the script will run in batch job mode, "
-                                 "processing groups of requests asynchronously to "
-                                 "OpenAI API.")
-    arg_parser.add_argument("--batch_id", type=str, default=None,
-                            help="Provide a tring of the batch job ID to retrieve the "
-                                 "results of a batch job.")
-    arg_parser.add_argument("--structured_output", action="store_true", help="If set, the output will strictly adhere to \
-                            the provided schema. Currently only supported for OpenAI API.")
-    arg_parser.add_argument("--random_sample", action="store_true", help="If set, the input statements will be randomly sampled.")
-    args = arg_parser.parse_args()
+    arg_parser.add_argument(
+        "--random_sample", 
+        action="store_true", 
+        help="Randomly sample input text from input file if set."
+    )
+    arg_parser.add_argument(
+        "--output_file", 
+        type=str, 
+        default=OUTPUT_DEFAULT.as_posix(),
+        help=f"Path to save the output TSV file. Default: {OUTPUT_DEFAULT.as_posix()}."
+    )
+    arg_parser.add_argument(
+        "--batch_job", "-b",
+        action="store_true",
+        help="Enable batch job mode to process requests asynchronously to the OpenAI API."
+    )
+    arg_parser.add_argument(
+        "--batch_id", 
+        type=str, 
+        default=None,
+        help="Provide a string for the batch job ID to retrieve batch results."
+    )
+    ##### arguments for the model and generation strategy settings #####
+    arg_parser.add_argument(
+        "--model_name", 
+        type=str, 
+        default="gpt-4o-mini",
+        help="Specify the model name. Default: 'gpt-4o-mini'."
+    )
+    arg_parser.add_argument(
+        "--structured_output", 
+        action="store_true", 
+        help="Force the output to strictly follow a structured schema. (Only supported for OpenAI API currently.)"
+    )
+    arg_parser.add_argument(
+        "--n_shot_prompting", 
+        type=int,  
+        default=0, 
+        help="Number of example input-output pairs to include for few-shot prompting. "
+         "A value of 0 results in zero-shot prompting."
+    )
+    arg_parser.add_argument(
+        "--user_input_refinement_strat", 
+        type=str, 
+        default="default", 
+        help="User input preprocessing strategy: 'default' or 'summarize'."
+    )
+    arg_parser.add_argument(
+        "--feedback_refinement_iterations", 
+        type=int, 
+        default=0, 
+        help="Number of iterations for feedback-based refinement strategy."
+    )
+    arg_parser.add_argument(
+        "--grounding",
+        action="store_true",
+        help="Enable grounding of extracted named entities."
+    )
 
-    main(
-        statements_file_json=args.statements_file_json,
-        model=args.model_name,
-        iterations=args.iterations,
-        output_file=Path(args.output_file),
-        verbose=args.verbose,
-        batch_job=args.batch_job,
-        batch_id=args.batch_id,
-        structured_output=args.structured_output,
-        random_sample=args.random_sample
-    )
+    cli_args = arg_parser.parse_args()
+    args_dict = vars(cli_args)
+    main(**args_dict)
