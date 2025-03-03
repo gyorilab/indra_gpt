@@ -23,7 +23,9 @@ def main(**kwargs):
     pipeline = StatementExtractionPipeline(pre_processor, generator, post_processor)
 
     # Run the pipeline and save the results
-    pipeline.run_and_save_results(kwargs["output_file"])
+    output_file = kwargs.get("output_file", OUTPUT_DEFAULT.as_posix())
+    logger.info("Running structured knowledge extraction pipeline...")
+    pipeline.run_and_save_results(output_file)
 
 if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(description="Script for running structured knowledge extraction.")
@@ -40,7 +42,7 @@ if __name__ == "__main__":
     arg_parser.add_argument(
         "--num_samples", "-n", 
         type=int, 
-        default=50,
+        default=5,
         help="Number of input texts to process from the input file for inference. "
             "By default, the first N texts are used unless --random_sample is specified."
     )
@@ -50,6 +52,13 @@ if __name__ == "__main__":
         help="Randomly sample input text from input file if set."
     )
     arg_parser.add_argument(
+        "--random_seed",
+        type=int,
+        default=42,
+        help=("Random seed for sampling input texts. "
+               "Default: 42.")
+    )
+    arg_parser.add_argument(
         "--output_file", 
         type=str, 
         default=OUTPUT_DEFAULT.as_posix(),
@@ -57,7 +66,7 @@ if __name__ == "__main__":
     )
     ##### arguments for the model and generation strategy settings #####
     arg_parser.add_argument(
-        "--model_name", 
+        "--model", 
         type=str, 
         default="gpt-4o-mini",
         help="Specify the model name. Default: 'gpt-4o-mini'."
@@ -75,10 +84,10 @@ if __name__ == "__main__":
          "A value of 0 results in zero-shot prompting."
     )
     arg_parser.add_argument(
-        "--feedback_refinement_iterations", 
+        "--self_correction_iterations", 
         type=int, 
         default=0, 
-        help="Number of iterations for feedback-based refinement strategy."
+        help="Number of iterations for self-correction (dialogue) strategy."
     )
     arg_parser.add_argument(
         "--grounding",

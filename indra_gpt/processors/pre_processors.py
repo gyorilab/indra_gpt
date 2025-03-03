@@ -3,28 +3,22 @@ import json
 import random
 from indra_gpt.configs import PreProcessingConfig
 from indra_gpt.resources.constants import JSON_SCHEMA, INPUT_DEFAULT
-from indra_gpt.util.util import load_input_file
+from indra_gpt.util.util import sample_from_input_file
 
 class PreProcessor:
     def __init__(self, config: PreProcessingConfig):
-        """
-        Initializes the preprocessor with the given configuration.
-
-        Parameters:
-        - config (PreProcessingConfig): Configuration containing user inputs, sampling settings, and preprocessing options.
-        """
         self.config = config
-        random.seed(42)
         self.logger = logging.getLogger(__name__)
 
     def process(self):
         self.logger.info("Processing user inputs...")
 
         # Sample input texts from the input file
-        input_samples = self.sample_from_input_file()
+        raw_input_data = sample_from_input_file(self.config, self.config.base_config.random_seed)
+        input_texts = [entry["text"] for entry in raw_input_data]
 
         # Handle N-shot prompting
-        n_shot_prompting = self.config.base_config.get("n_shot_prompting", 0)
+        n_shot_prompting = self.config.base_config.n_shot_prompting
         n_shot_history = []  # Default to an empty list if not used
 
         if n_shot_prompting > 0:
@@ -32,33 +26,17 @@ class PreProcessor:
 
         # Store results
         preprocessed_data = {
-            "input_samples": input_samples,
+            "input_texts": input_texts,
             "n_shot_history": n_shot_history
         }
 
-        return preprocessed_data
-
-    def sample_from_input_file(self): 
-        user_inputs_file = load_input_file(self.config.base_config.get("user_inputs_file"))
-        user_input_texts = [entry["text"] for entry in user_inputs_file]
-
-        do_random_sample = self.config.base_config.get("random_sample", False)
-        num_samples = self.config.base_config.get("num_samples", len(user_input_texts))  # Default to full dataset
-
-        if num_samples > len(user_input_texts):
-            self.logger.warning(f"Requested {num_samples} samples, but only {len(user_input_texts)} available. Using all available samples.")
-            num_samples = len(user_input_texts)
-
-        if do_random_sample:
-            return random.sample(user_input_texts, num_samples)
-        else:
-            return user_input_texts[:num_samples]  # Select first N samples if not random
+        return raw_input_data, preprocessed_data
 
     def n_shot_prompt_history(self):
         """
         Constructs n-shot examples as a list of (user prompt, assistant response) pairs.
         """
-        n = self.config.base_config.get("n_shot_prompting", 0)
+        n = self.config.base_config.n_shot_prompting
 
         json_schema_string = json.dumps(JSON_SCHEMA, indent=2)
         user_prompt = (
@@ -84,7 +62,7 @@ class PreProcessor:
 
         # Handle case where `n` exceeds available statements
         n = min(n, len(statements_json_content))
-        if n < self.config.base_config.get("n_shot_prompting", 0):
+        if n < self.config.base_config.n_shot_prompting:
             self.logger.warning(f"Requested {n} samples, but only {len(statements_json_content)} are available. Using {n} available statements.")
 
         # Sample `n` statements ONCE to be used for ALL input samples

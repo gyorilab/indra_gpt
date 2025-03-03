@@ -1,1 +1,1 @@
-from statement_extraction_pipeline import StatementExtractionPipeline
+from .statement_extraction_pipeline import StatementExtractionPipeline

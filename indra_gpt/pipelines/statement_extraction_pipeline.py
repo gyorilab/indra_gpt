@@ -18,27 +18,17 @@ class StatementExtractionPipeline:
         Returns the processed results.
         """
         self.logger.info("Starting preprocessing step...")
-        preprocessed_data = self.pre_processor.process()
+        raw_input_data, preprocessed_data = self.pre_processor.process()
 
         self.logger.info("Running LLM-based statement extraction...")
-        generated_results = self.generator.generate(preprocessed_data)
+        raw_responses, extracted_statement_json_objects = self.generator.generate(preprocessed_data)
 
         self.logger.info("Post-processing extracted statements...")
-        processed_results = self.post_processor.process(generated_results)
+        processed_results = self.post_processor.process(extracted_statement_json_objects)
 
-        return preprocessed_data, generated_results, processed_results
+        return raw_input_data, preprocessed_data, raw_responses, extracted_statement_json_objects, processed_results
 
-    def save_results(self, output_file, preprocessed_data, generated_results, processed_results):
-        """
-        Saves the overall results, including the input, generated output, and the processed output,
-        into a pickle file at the specified output path.
-
-        Parameters:
-        - output_file (str or Path): Path to the output file.
-        - preprocessed_data (list): Preprocessed input data.
-        - generated_results (list): Raw generated responses from the model.
-        - processed_results (list): Post-processed INDRA statements.
-        """
+    def save_results(self, output_file, raw_input_data, preprocessed_data, raw_responses, extracted_statement_json_objects, processed_results):
         try:
             # Ensure the output directory exists
             output_path = Path(output_file)
@@ -46,8 +36,10 @@ class StatementExtractionPipeline:
 
             # Structure the results
             results_dict = {
+                "raw_input_data": raw_input_data,
                 "preprocessed_data": preprocessed_data,
-                "generated_results": generated_results,
+                "raw_responses": raw_responses,
+                "extracted_statement_json_objects": extracted_statement_json_objects,
                 "processed_results": processed_results
             }
 
@@ -65,8 +57,9 @@ class StatementExtractionPipeline:
         """
         Runs the full pipeline and saves the extracted statements to a file.
         """
-        preprocessed_data, generated_results, processed_results = self.run()
+        raw_input_data, preprocessed_data, raw_responses, extracted_statement_json_objects, processed_results = self.run()
+        raw_responses = str(raw_responses)
 
         self.logger.info(f"Saving results to {output_file}...")
-        self.save_results(output_file, preprocessed_data, generated_results, processed_results)
+        self.save_results(output_file, raw_input_data, preprocessed_data, raw_responses, extracted_statement_json_objects, processed_results)
         self.logger.info("Pipeline execution completed successfully.")

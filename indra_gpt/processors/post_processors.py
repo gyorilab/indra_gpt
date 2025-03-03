@@ -5,53 +5,38 @@ from indra.tools import assemble_corpus as ac
 import io
 from indra.statements.io import stmts_from_json
 from indra.preassembler.grounding_mapper.gilda import ground_statements
-from indra_gpt.util.util import load_input_file
+from indra_gpt.util.util import sample_from_input_file
 from indra_gpt.configs import PostProcessingConfig
 
 class PostProcessor:
     def __init__(self, config: PostProcessingConfig):
-        """
-        Initializes the post-processing module with the given configuration.
-
-        Parameters:
-        - config (PostProcessingConfig): Configuration for post-processing options.
-        """
         self.config = config
         self.logger = logging.getLogger(__name__)
 
     def process(self, generated_responses):
-        """
-        Applies post-processing transformations to generated statements.
-
-        Parameters:
-        - generated_statements (list): The raw extracted statements from the generator.
-
-        Returns:
-        - processed_statements (list): A list of processed INDRA statements.
-        """
         self.logger.info("Starting post-processing of extracted statements...")
 
-        user_inputs_file = load_input_file(self.config.base_config["user_inputs_file"])
-        texts = [entry["text"] for entry in user_inputs_file]
-        pmids = [entry["pmid"] for entry in user_inputs_file]
+        input_samples = sample_from_input_file(self.config, self.config.base_config.random_seed)
+        input_texts = [entry["text"] for entry in input_samples]
+        input_pmids = [entry["pmid"] for entry in input_samples]
 
         # Check for mismatch in input texts and generated responses
-        if len(generated_responses) != len(texts):
+        if len(generated_responses) != len(input_texts):
             raise ValueError(
                 f"Mismatch in generated responses and input texts: "
-                f"{len(generated_responses)} responses vs {len(texts)} input texts."
+                f"{len(generated_responses)} responses vs {len(input_texts)} input texts."
             )
         # Ensure pmids are available and correctly sized
-        if pmids and len(pmids) != len(texts):
+        if input_pmids and len(input_pmids) != len(input_texts):
             self.logger.warning(
-                f"PMID count ({len(pmids)}) does not match input text count ({len(texts)}). "
+                f"PMID count ({len(input_pmids)}) does not match input text count ({len(input_texts)}). "
                 "Proceeding without PMIDs where missing."
             )
 
         processed_stmts_json_list = []
         for i, response in enumerate(generated_responses):
-            text = texts[i]
-            pmid = pmids[i] if pmids else "Not provided"
+            text = input_texts[i]
+            pmid = input_pmids[i] if input_pmids else "Not provided"
             try:
                 # 1. Convert to json object if it is a string
                 if isinstance(response, str):
@@ -62,7 +47,8 @@ class PostProcessor:
                 else: 
                     stmt_json_response = response
                 # 2. If the JSON object contains a list of statements under the "statements" key,
-                # retrieve the value.
+                # retrieve the value. This is currently specifically for the case
+                # of openai chat completions for structured output mode using a specific schema. 
                 if stmt_json_response.get("statements"):
                     stmts_json = stmt_json_response["statements"]
                 else:
@@ -114,7 +100,7 @@ class PostProcessor:
             "text": original_input_text,
             "pmid": pmid,
             "source_api": "indra_gpt",
-            "annotations": {"indra_gpt_config": config.base_config}
+            "annotations": {"indra_gpt_config": config.base_config.__dict__}
         }
 
         # Check if "evidence" exists and is a list
@@ -171,7 +157,6 @@ class PostProcessor:
         # Close the StringIO object
         log_capture_string.close()
         
-        # If `stmts_from_json` returns an empty list but there were errors, return two copies of the log output
         if not result and log_output:
             return log_output  
         

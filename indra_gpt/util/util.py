@@ -2,6 +2,25 @@ import json
 from typing import Union
 from indra_gpt.resources.constants import INPUT_DEFAULT
 import copy
+import random
+import logging
+logger = logging.getLogger(__name__)
+
+def sample_from_input_file(config, random_seed=42): 
+    random.seed(random_seed)
+    user_inputs = load_input_file(config.base_config.user_inputs_file)
+
+    do_random_sample = config.base_config.random_sample
+    num_samples = config.base_config.num_samples
+
+    if num_samples > len(user_inputs):
+        logger.warning(f"Requested {num_samples} samples, but only {len(user_inputs)} available. Using all available samples.")
+        num_samples = len(user_inputs)
+
+    if do_random_sample:
+        return random.sample(user_inputs, num_samples)
+    else:
+        return user_inputs[:num_samples]  # Select first N samples if not random
 
 def load_input_file(input_file_path: str):
     if input_file_path is None:

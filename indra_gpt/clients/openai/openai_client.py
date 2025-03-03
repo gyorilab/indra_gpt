@@ -87,7 +87,7 @@ class OpenAIClient:
         return response  # Return the last response if retries exhausted
 
     def get_response(self, chat_prompt, chat_history=None, max_tokens=9000):
-        feedback_iterations = self.config.feedback_refinement_iterations
+        self_correction_iterations = self.config.self_correction_iterations
 
         if chat_history is None:
             chat_history = []
@@ -99,7 +99,7 @@ class OpenAIClient:
         generated_response = response.choices[0].message.content
 
         # Perform iterative refinement if needed
-        for _ in range(feedback_iterations):
+        for _ in range(self_correction_iterations):
             refinement_prompt = {
                 "role": "user",
                 "content": (
@@ -114,20 +114,30 @@ class OpenAIClient:
             messages.append(refinement_prompt)
 
             # Generate refined response
-            response = self.make_api_call(messages, max_tokens)
-            generated_response = response.choices[0].message.content  # Update latest response
+            raw_response = self.make_api_call(messages, max_tokens)
+            logger.debug(f"Raw Response from OpenAI: {raw_response}")
+            response_content = raw_response.choices[0].message.content  # Update latest response
 
-        return generated_response  # Return final refined response
+        return raw_response, response_content  # Return final refined response
 
 
-    def generate_statement_json_objects(self, preprocessed_data):
-        input_texts = preprocessed_data["input_samples"]
+    def generate(self, preprocessed_data):
+        input_texts = preprocessed_data["input_texts"]
         n_shot_history = preprocessed_data["n_shot_history"]
-        generated_statement_json_objects = []
+        flat_n_shot_history = [msg for pair in n_shot_history for msg in pair]
+
+        extracted_statement_json_objects = []
+        raw_responses = []
         for input_text in tqdm(input_texts, desc="Extracting", unit="statement"):
             chat_prompt = self.get_chat_prompt(input_text)
-            chat_history = n_shot_history
-            response = self.get_response(chat_prompt, chat_history, max_tokens=9000)
-            generated_json_object = response.choices[0].message.content
-            generated_statement_json_objects.append(generated_json_object)
-        return generated_statement_json_objects
+            chat_history = flat_n_shot_history
+            raw_response, response_content = self.get_response(chat_prompt, chat_history, max_tokens=9000)
+            raw_responses.append(raw_response)
+            extracted_statement_json_objects.append(response_content)
+        return raw_responses, extracted_statement_json_objects
+    
+    def generate_statement_json_objects(self, preprocessed_data):
+        return self.generate(preprocessed_data)[1]
+    
+    def generate_raw_responses(self, preprocessed_data):
+        return self.generate(preprocessed_data)[0]
