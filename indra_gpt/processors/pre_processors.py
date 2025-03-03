@@ -25,7 +25,7 @@ class PreProcessor:
 
         # Handle N-shot prompting
         n_shot_prompting = self.config.base_config.get("n_shot_prompting", 0)
-        n_shot_history = ""  # Default empty history
+        n_shot_history = []  # Default to an empty list if not used
 
         if n_shot_prompting > 0:
             n_shot_history = self.n_shot_prompt_history()
@@ -55,16 +55,25 @@ class PreProcessor:
             return user_input_texts[:num_samples]  # Select first N samples if not random
 
     def n_shot_prompt_history(self):
+        """
+        Constructs n-shot examples as a list of (user prompt, assistant response) pairs.
+        """
         n = self.config.base_config.get("n_shot_prompting", 0)
 
-        json_schema_string = json.dumps(JSON_SCHEMA)
-        schema_prompt = (
-            "Read the following JSON schema for a statement object:\n\n```json\n"
-            + json_schema_string + "\n```\n\n"
+        json_schema_string = json.dumps(JSON_SCHEMA, indent=2)
+        user_prompt = (
+            "Read the following JSON schema for a statement "
+            "object:\n\n```json\n"
+            + json_schema_string
+            + "\n```\n\nExtract the relation from the following sentence and put it in a JSON object matching the schema above. "
+            "The JSON object needs to be able to pass validation against the schema. If the statement type is 'RegulateActivity', "
+            "list it as either 'Activation' or 'Inhibition'. If the statement type is 'RegulateAmount', list it as either 'IncreaseAmount' "
+            "or 'DecreaseAmount'. Only respond with the JSON object.\n\nSentence: "
         )
-        reduced_prompt = (
+
+        reduced_user_prompt = (
             "Extract the relation from the following sentence and put it in a JSON object "
-            "matching the schema above. The JSON object needs to be able to pass validation against the schema. "
+            "matching the provided schema. The JSON object needs to be able to pass validation against the schema. "
             "If the statement type is 'RegulateActivity', list it as either 'Activation' or 'Inhibition'. If "
             "the statement type is 'RegulateAmount', list it as either 'IncreaseAmount' or 'DecreaseAmount'. "
             "Only respond with the JSON object.\n\nSentence: "
@@ -74,9 +83,9 @@ class PreProcessor:
             statements_json_content = json.load(f)
 
         # Handle case where `n` exceeds available statements
-        if n > len(statements_json_content):
-            self.logger.warning(f"Requested {n} samples, but only {len(statements_json_content)} are available. Using all available statements.")
-            n = len(statements_json_content)
+        n = min(n, len(statements_json_content))
+        if n < self.config.base_config.get("n_shot_prompting", 0):
+            self.logger.warning(f"Requested {n} samples, but only {len(statements_json_content)} are available. Using {n} available statements.")
 
         # Sample `n` statements ONCE to be used for ALL input samples
         history_sample_json_stmts = random.sample(statements_json_content, n)
@@ -85,9 +94,19 @@ class PreProcessor:
         self.logger.info(f"Generating {n}-shot prompt history using {len(history_sample_json_stmts)} examples.")
 
         # Construct history prompt
-        history_prompts = [reduced_prompt + sample["evidence"][0]["text"] for sample in history_sample_json_stmts]
+        history_prompt_response_pairs = []
+        for i, sample_json_stmt in enumerate(history_sample_json_stmts):
+            assistant_response = json.dumps(sample_json_stmt)  # Convert to JSON format
 
-        # Combine into final history data (reused for each input sample)
-        full_history = schema_prompt + "\n".join(history_prompts)
+            if i == 0:
+                history_prompt_response_pairs.append(
+                    ({"role": "user", "content": user_prompt + sample_json_stmt["evidence"][0]["text"]},
+                     {"role": "assistant", "content": assistant_response})
+                )
+            else:
+                history_prompt_response_pairs.append(
+                    ({"role": "user", "content": reduced_user_prompt + sample_json_stmt["evidence"][0]["text"]},
+                     {"role": "assistant", "content": assistant_response})
+                )
 
-        return full_history
+        return history_prompt_response_pairs
