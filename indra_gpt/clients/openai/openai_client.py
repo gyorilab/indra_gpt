@@ -1,23 +1,15 @@
-from indra_gpt.clients.client_interface import ClientInterface
-import openai
-
 import logging
 from time import sleep
 import json
-from pathlib import Path
 import time
 from openai import OpenAI
 from indra.config import IndraConfigError, get_config
-from indra_gpt.resources.constants import OUTPUT_DIR, JSON_SCHEMA, OUTPUT_DEFAULT, SCHEMA_STRUCTURED_OUTPUT_PATH
+from indra_gpt.resources.constants import OUTPUT_DIR, JSON_SCHEMA, SCHEMA_STRUCTURED_OUTPUT_PATH
 import random
 from tqdm import tqdm
-from tqdm.contrib.logging import logging_redirect_tqdm
 from indra_gpt.util.util import merge_allOf
-from indra.statements.io import stmt_from_json
-import pandas as pd
-from json import JSONDecodeError
+from indra_gpt.configs import GenerationConfig
 
-from indra_gpt.post_process.post_processor import PostProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -31,18 +23,9 @@ except IndraConfigError as err:
 
 client = OpenAI(api_key=api_key, organization=organization)
 
-class OpenAIClient(ClientInterface):
-    def __init__(self, **kwargs):
-        self.client = client
-        self.statements_file_json = kwargs.get("statements_file_json")
-        self.model = kwargs.get("model")
-        self.iterations = kwargs.get("iterations")
-        self.output_file = kwargs.get("output_file")
-        self.verbose = kwargs.get("verbose")
-        self.batch_job = kwargs.get("batch_job")
-        self.batch_id = kwargs.get("batch_id")
-        self.structured_output = kwargs.get("structured_output")
-        self.random_sample = kwargs.get("random_sample")
+class OpenAIClient:
+    def __init__(self, config: GenerationConfig):
+        self.config = config
     
     def get_input_json_objects(self):
         with open(self.statements_file_json, "r") as f:
@@ -191,215 +174,13 @@ class OpenAIClient(ClientInterface):
             print(f"Response:\n---------\n{response}\n---------\n\n")
         return response
 
-    def send_batch_inference(self, original_statement_json_objects, chat_prompts, chat_histories, max_tokens=1):
-        batch_requests = []
-        if self.structured_output:
-            with open(SCHEMA_STRUCTURED_OUTPUT_PATH) as file:
-                schema = json.load(file)
-            post_processed_schema = merge_allOf(schema, schema)
-
-        for i, (chat_prompt, chat_history) in enumerate(zip(chat_prompts, chat_histories)):
-            messages = chat_history + [chat_prompt]
-            if self.structured_output:
-                batch_requests.append(
-                    {
-                        "custom_id": f"request-{i}",
-                        "method": "POST",
-                        "url": "/v1/chat/completions",
-                        "body": {
-                            "model": self.model,
-                            "messages": [chat_prompt],
-                            "max_tokens": max_tokens,
-                            "response_format":{
-                                "type": "json_schema", 
-                                "json_schema": {
-                                    "name": "indra_statement_json",
-                                    "strict": True, 
-                                    "schema": post_processed_schema
-                                }
-                            }
-                        }
-                    }
-                )
-            else:
-                batch_requests.append(
-                    {
-                        "custom_id": f"request-{i}",
-                        "method": "POST",
-                        "url": "/v1/chat/completions",
-                        "body": {
-                            "model": self.model,
-                            "messages": messages,
-                            "max_tokens": max_tokens
-                        }
-                    }
-                )
-        # Make a temporary directory in the directory one level above the directory of this file
-        batches_dir_path = OUTPUT_DIR / "batches"
-        batches_dir_path.mkdir(parents=True, exist_ok=True)  # Create the parent directory if it doesn't exist
-        # Write the batch requests to a file
-        tmp_batch_input_file_path = batches_dir_path / "batch_input.jsonl"
-        with open(tmp_batch_input_file_path, "w") as f:
-            for request in batch_requests:
-                f.write(json.dumps(request) + "\n")
-        # Upload the batch file to OpenAI
-        batch_input_file = client.files.create(
-            file=open(tmp_batch_input_file_path, "rb"),
-            purpose="batch"
-        )
-        # delete the temporary file
-        tmp_batch_input_file_path.unlink()
-        # Create the batch job using the uploaded file
-        batch_input_file_id = batch_input_file.id
-        client.batches.create(
-            input_file_id=batch_input_file_id,
-            endpoint="/v1/chat/completions",
-            completion_window="24h",
-            metadata={
-                "description": "nightly eval job"
-            }
-        )
-        # Retrieve batch ID
-        batch_id = client.batches.list().data[0].to_dict()['id']
-        # Make a batch input directory, where the batch input and output files are both stored
-        batch_dir_path = batches_dir_path / batch_id
-        batch_dir_path.mkdir(parents=True, exist_ok=True)
-        # Write the batch requests to a file to keep track of the input
-        batch_input_file_path = batch_dir_path / "batch_input.jsonl"
-        with open(batch_input_file_path, "w") as f:
-            for request in batch_requests:
-                f.write(json.dumps(request) + "\n")
-        # Write the original json statements to a file to keep track of the input
-        original_json_statements_path = batch_dir_path / "original_statements.jsonl"
-        with open(original_json_statements_path, "w") as f:
-            for statement in original_statement_json_objects:
-                f.write(json.dumps(statement) + "\n")
-        # Also add a txt file with when this batch was created
-        current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        with open(batch_dir_path / "metadata.txt", "w") as f:
-            f.write(f"Batch created at time: {current_time}\n")
-            f.write(f"Batch ID: {batch_id}\n")
-
-        return batch_id
-    
-    def get_response_batch_inference(self, batch_id):
-        try:
-            batch = client.batches.retrieve(batch_id)
-            logger.info("Fetched data for batch id {batch_id})")
-            status = batch.to_dict()['status']
-            if status == "completed":
-                batch_output_file_id = batch.to_dict()['output_file_id']
-                # Assuming file_response_text contains the string with multiple JSON objects
-                file_response_text = client.files.content(batch_output_file_id).text
-                # Split the response into lines and load each line as a JSON object
-                batch_response = []
-                for line in file_response_text.splitlines():
-                    if line.strip():  # Skip empty lines
-                        batch_response.append(json.loads(line))                
-            else:
-                logger.info(f"Batch job info: {batch}")
-                batch_response = None
-        except Exception as e:
-            logger.error(f"Error getting batch replies: {e}")
-            batch_response = None
-        return batch_response
-
-    def generate_statement_json_objects(self, original_statement_json_objects):
-        get_json_object_map = self.get_json_object_map(original_statement_json_objects)
+    def generate_statement_json_objects(self, preprocessed_data: List(str)):
         generated_statement_json_objects = []
-
-        if self.batch_id:
-            batch_response = self.get_response_batch_inference(self.batch_id)
-            if batch_response:
-                for response in batch_response:
-                    generated_json_object = response['response']['body']['choices'][0]['message']['content']
-                    generated_statement_json_objects.append(generated_json_object)
-                return generated_statement_json_objects
-            else:
-                logger.info("No results to save. Please check the status of the batch job.")
-                return None
-            
-        elif self.batch_job:
-            chat_prompts = []
-            chat_histories = []
-            for original_statement_json_object in original_statement_json_objects:
-                chat_prompt = self.get_chat_prompt(original_statement_json_object)
-                samples = self.get_samples(get_json_object_map, original_statement_json_object["matches_hash"])
-                chat_history = self.get_chat_history(samples)
-                chat_prompts.append(chat_prompt)
-                chat_histories.append(chat_history)
-            batch_id = self.send_batch_inference(original_statement_json_objects, chat_prompts, chat_histories, max_tokens=9000)
-            logger.info(f"Batch job submitted with ID: {batch_id}")
-            logger.info("Please check the status of the batch job later.")
-            return None
-        
-        else:
-            for matches_hash in tqdm(get_json_object_map.keys(), desc="Extracting", unit="statement"):
-                original_statement_json_object = get_json_object_map[matches_hash]
-                samples = self.get_samples(get_json_object_map, matches_hash)
-                chat_prompt = self.get_chat_prompt(original_statement_json_object)
-                chat_history = self.get_chat_history(samples)
-                response = self.get_response_single_inference(chat_prompt, chat_history, max_tokens=9000)
-                generated_json_object = response.choices[0].message.content
-                generated_statement_json_objects.append(generated_json_object)
-            return generated_statement_json_objects
-
-    def get_results_df(self, original_statement_json_objects, generated_statement_json_objects):
-        if self.batch_id:
-            # Read the jsonl file containing the original statements
-            original_json_statements_path = OUTPUT_DIR / "batches" / self.batch_id / "original_statements.jsonl"
-            with open(original_json_statements_path, "r") as f:
-                original_statement_json_objects = [json.loads(line) for line in f]
-
-        if original_statement_json_objects is None: 
-            raise ValueError("original_statement_json_objects must be provided if batch_id is not set.")
-        
-        input_texts = self.get_input_texts(original_statement_json_objects)
-        original_statements = [stmt_from_json(stmt_json) for stmt_json in original_statement_json_objects]
-
-        extracted_statements = []
-        config = {
-            "model": self.model,
-            "num_samples": self.iterations,
-            "structured_output": self.structured_output,
-            "random_sample": self.random_sample,
-            "grounding_strategy": "gilda"
-        }
-
-        post_processor = PostProcessor(config)
-        input_texts = [post_processor.get_input_text_from_original_statement_json(x) for x in original_statement_json_objects]
-        pmids = [post_processor.get_pmid_from_original_statement_json(x) for x in original_statement_json_objects]
-        for generated_statement_json_object, input_text, pmid in zip(generated_statement_json_objects, input_texts, pmids):
-            try: 
-                if self.structured_output: # output is a json object with property 'statements' which is a list of statements
-                    stmts_json = json.loads(generated_statement_json_object)['statements']
-                    post_processed_stmts_json = [post_processor.post_process_extracted_statement_json(stmt_json, input_text, pmid, update_evidence=True) for stmt_json in stmts_json]
-                    stmts_indra = [stmt_from_json(x) for x in post_processed_stmts_json]
-                    extracted_statements.append(str(stmts_indra))
-                else:   # output is a single json object of a statement
-                    stmt_json = json.loads(generated_statement_json_object)                    
-                    post_processed_stmt_json = post_processor.post_process_extracted_statement_json(stmt_json, input_text, pmid, update_evidence=True)
-                    stmt_indra = stmt_from_json(post_processed_stmt_json)
-                    extracted_statements.append(str(stmt_indra))
-            except (JSONDecodeError, IndexError, TypeError) as e:
-                logger.error(f"Error extracting statement: {e}")
-                extracted_statements.append(f"Error: {e}")
-
-        result_df = pd.DataFrame(
-            {
-                "input_text": input_texts,
-                "original_statement_json": original_statement_json_objects,
-                "generated_statement_json": generated_statement_json_objects,
-                "original_statement": original_statements,
-                "generated_statement": extracted_statements
-            }
-        )
-        return result_df
-
-    def save_results_df(self, results_df):
-        if self.batch_id and self.output_file == OUTPUT_DEFAULT:
-            self.output_file = OUTPUT_DIR / "batches" / self.batch_id / "extraction_results.tsv"
-        else:
-            self.output_file.parent.mkdir(parents=True, exist_ok=True)
-        results_df.to_csv(self.output_file, sep="\t", index=False)
-        logger.info(f"Results saved to {self.output_file}")
+        for input_text in tqdm(preprocessed_data, desc="Extracting", unit="statement"):
+            samples = self.get_samples()
+            chat_prompt = self.get_chat_prompt(input_text)
+            chat_history = self.get_chat_history(samples)
+            response = self.get_response_single_inference(chat_prompt, chat_history, max_tokens=9000)
+            generated_json_object = response.choices[0].message.content
+            generated_statement_json_objects.append(generated_json_object)
+        return generated_statement_json_objects

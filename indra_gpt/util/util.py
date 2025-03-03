@@ -1,4 +1,58 @@
+import json
+from typing import Union
+from indra_gpt.resources.constants import INPUT_DEFAULT
 import copy
+
+def load_input_file(input_file_path: str):
+    if input_file_path is None:
+        with open(INPUT_DEFAULT, encoding="utf-8") as f:
+            benchmark_corpus = json.load(f)
+            formatted_input_file = []
+            for json_stmt in benchmark_corpus:
+                input_text = get_input_text_from_original_statement_json(json_stmt)
+                pmid = get_pmid_from_original_statement_json(json_stmt)
+                formatted_input_file.append({"text": input_text, "pmid": pmid})
+        return formatted_input_file
+
+    # Load TSV file
+    elif input_file_path.endswith('.tsv'):
+        with open(input_file_path, encoding="utf-8") as f:
+            formatted_input_file = []
+            for line in f:
+                if not line.strip():  # Skip empty lines
+                    continue
+                parts = line.strip().split('\t')
+                if len(parts) != 2:  # Ensure exactly 2 columns
+                    raise ValueError(f"Invalid TSV format in line: {line.strip()}")
+                text, pmid = parts
+                formatted_input_file.append({"text": text, "pmid": pmid})
+
+    # Load JSON file
+    elif input_file_path.endswith('.json'):
+        with open(input_file_path, encoding="utf-8") as f:
+            formatted_input_file = json.load(f)
+
+    else:
+        raise ValueError(f"Invalid input file format: {input_file_path}")
+
+    return formatted_input_file
+        
+
+def get_input_text_from_original_statement_json(original_statement_json_object: Union[str, dict]):
+    if isinstance(original_statement_json_object, str):
+        try:
+            original_statement_json_object = json.loads(original_statement_json_object)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON string provided: {original_statement_json_object}") from e
+    return original_statement_json_object["evidence"][0]["text"]
+
+def get_pmid_from_original_statement_json(original_statement_json_object: Union[str, dict]):
+    if isinstance(original_statement_json_object, str):
+        try: 
+            original_statement_json_object = json.loads(original_statement_json_object)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON string provided: {original_statement_json_object}") from e
+    return original_statement_json_object["evidence"][0]["pmid"]
 
 #################################
 

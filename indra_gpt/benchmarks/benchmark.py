@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 
 from indra.preassembler.grounding_mapper.gilda import ground_statements
-from indra_gpt.post_process.post_processor import PostProcessor
+from indra_gpt.post_process.post_process import PostProcessor
 
 import logging
 logger = logging.getLogger(__name__)

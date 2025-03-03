@@ -1,46 +1,29 @@
 import logging
-from pathlib import Path
 import argparse
 
 from indra_gpt.resources.constants import OUTPUT_DEFAULT
-from indra_gpt.api.api import generate_statements
-from indra_gpt.config import ConfigManager
-from indra_gpt.util.util import save_results
-
+from indra_gpt.configs import BaseConfig, PreProcessingConfig, GenerationConfig, PostProcessingConfig
+from indra_gpt.processors import PreProcessor, Generator, PostProcessor
+from indra_gpt.pipelines import StatementExtractionPipeline
 
 logger = logging.getLogger(__name__)
 
 def main(**kwargs):
-    # Initialize configuration objects
-    preprocessing_config = PreProcessingConfig({
-        "user_inputs_file": kwargs["user_inputs_file"], 
-        "num_samples": kwargs["num_samples"],
-        "random_sample": kwargs["random_sample"],
-        "n_shot_prompting": kwargs["n_shot_prompting"],
-        "user_input_refinement_strat": kwargs["user_input_refinement_strat"]
-    })
-
-    generation_config = GenerationConfig({
-        "model": kwargs["model"],
-        "structured_output": kwargs["structured_output"],
-        "feedback_refinement_iterations": kwargs["feedback_refinement_iterations"],
-        "batch_job": kwargs["batch_job"],
-        "batch_id": kwargs["batch_id"], 
-    })
-
-    postprocessing_config = PostProcessingConfig({
-        "grounding": kwargs["grounding"]
-    })
+    base_config = BaseConfig(kwargs)
+    preprocessing_config = PreProcessingConfig(base_config)
+    generation_config = GenerationConfig(base_config)
+    postprocessing_config = PostProcessingConfig(base_config)
 
     # Instantiate processing objects
     pre_processor = PreProcessor(preprocessing_config)
+    generator = Generator(generation_config)
     post_processor = PostProcessor(postprocessing_config)
 
-    # Generate responses using preprocessing and generation settings
-    generated_responses = generate_responses(generation_config, pre_processor)
+    # pipe the processing objects
+    pipeline = StatementExtractionPipeline(pre_processor, generator, post_processor)
 
-    # Save results with the correct configurations
-    save_results(kwargs["output_file"], generated_responses, post_processor)
+    # Run the pipeline and save the results
+    pipeline.run_and_save_results(kwargs["output_file"])
 
 if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(description="Script for running structured knowledge extraction.")
@@ -50,7 +33,7 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Path to the file containing user inputs for inference. Format can be either: "
-            "(1) a txt file where each line is an input text, or "
+            "(1) a tsv with two columns 'text' and 'pmid', or "
             "(2) a JSON file with a list of input texts in [{'text': 'input text', 'pmid': 'pmid'}] format. "
             "If not provided, input texts will be extracted from the benchmark corpus."
     )
@@ -70,18 +53,7 @@ if __name__ == "__main__":
         "--output_file", 
         type=str, 
         default=OUTPUT_DEFAULT.as_posix(),
-        help=f"Path to save the output TSV file. Default: {OUTPUT_DEFAULT.as_posix()}."
-    )
-    arg_parser.add_argument(
-        "--batch_job", "-b",
-        action="store_true",
-        help="Enable batch job mode to process requests asynchronously to the OpenAI API."
-    )
-    arg_parser.add_argument(
-        "--batch_id", 
-        type=str, 
-        default=None,
-        help="Provide a string for the batch job ID to retrieve batch results."
+        help=f"Path to save the output pkl file. Default: {OUTPUT_DEFAULT.as_posix()}."
     )
     ##### arguments for the model and generation strategy settings #####
     arg_parser.add_argument(
@@ -101,12 +73,6 @@ if __name__ == "__main__":
         default=0, 
         help="Number of example input-output pairs to include for few-shot prompting. "
          "A value of 0 results in zero-shot prompting."
-    )
-    arg_parser.add_argument(
-        "--user_input_refinement_strat", 
-        type=str, 
-        default="default", 
-        help="User input preprocessing strategy: 'default' or 'summarize'."
     )
     arg_parser.add_argument(
         "--feedback_refinement_iterations", 
