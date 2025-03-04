@@ -74,6 +74,7 @@ class OpenAIClient:
                         frequency_penalty=0.0,
                         presence_penalty=0.0,
                         messages=messages,
+                        response_format={ "type": "json_object" }
                     )
                 return response  # If successful, return the response immediately
 
@@ -96,29 +97,40 @@ class OpenAIClient:
 
         # Generate initial response
         response = self.make_api_call(messages, max_tokens)
-        generated_response = response.choices[0].message.content
+        response_content = response.choices[0].message.content
 
+        if self_correction_iterations == 0:
+            return response_content  # No refinement needed
+        
         # Perform iterative refinement if needed
         for _ in range(self_correction_iterations):
             refinement_prompt = {
                 "role": "user",
                 "content": (
-                    "Take a look at the response you just generated and the JSON schema provided. "
-                    "If you detect any errors or missing elements, fix these errors and re-generate the response.\n\n"
-                    "Previous Response:\n" + generated_response
+                    "Take a close look at the response you just generated and the JSON schema provided. "
+                    "If you detect any errors or missing elements, fix these errors and re-generate the response. "
+                    "One tip: Don't extract more information than what is provided in the sentence. "
+                    "Strictly respond with the JSON output without any added comments.\n\n"
+                    "Previous Response:\n" + response_content
                 )
             }
 
             # Append previous response and refinement instruction
-            messages.append({"role": "assistant", "content": generated_response})
+            messages.append({"role": "assistant", "content": response_content})
             messages.append(refinement_prompt)
 
             # Generate refined response
             raw_response = self.make_api_call(messages, max_tokens)
             logger.debug(f"Raw Response from OpenAI: {raw_response}")
-            response_content = raw_response.choices[0].message.content  # Update latest response
 
-        return raw_response, response_content  # Return final refined response
+            new_response_content = raw_response.choices[0].message.content  # Update latest response
+
+            # Stop iteration early if no further changes are needed
+            if new_response_content == response_content:
+                break
+
+            response_content = new_response_content
+        return response_content  # Return final refined response
 
 
     def generate(self, preprocessed_data):
@@ -127,17 +139,9 @@ class OpenAIClient:
         flat_n_shot_history = [msg for pair in n_shot_history for msg in pair]
 
         extracted_statement_json_objects = []
-        raw_responses = []
         for input_text in tqdm(input_texts, desc="Extracting", unit="statement"):
             chat_prompt = self.get_chat_prompt(input_text)
             chat_history = flat_n_shot_history
-            raw_response, response_content = self.get_response(chat_prompt, chat_history, max_tokens=9000)
-            raw_responses.append(raw_response)
+            response_content = self.get_response(chat_prompt, chat_history, max_tokens=9000)
             extracted_statement_json_objects.append(response_content)
-        return raw_responses, extracted_statement_json_objects
-    
-    def generate_statement_json_objects(self, preprocessed_data):
-        return self.generate(preprocessed_data)[1]
-    
-    def generate_raw_responses(self, preprocessed_data):
-        return self.generate(preprocessed_data)[0]
+        return extracted_statement_json_objects

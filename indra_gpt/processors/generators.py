@@ -30,14 +30,6 @@ class Generator:
         # Instantiate the appropriate model client dynamically
         client = MODEL_CLIENTS[model](self.config)
 
-        raw_responses, extracted_statement_json_objects = client.generate(preprocessed_data)
+        extracted_statement_json_objects = client.generate(preprocessed_data)
         
-        return raw_responses, extracted_statement_json_objects
-    
-    def generate_raw_response(self, preprocessed_data):
-        self.log_config()
-        model = self.validate_model()
-        # Instantiate the appropriate model client dynamically
-        client = MODEL_CLIENTS[model](self.config)
-        
-        return client.generate_raw_responses(preprocessed_data)
+        return extracted_statement_json_objects
