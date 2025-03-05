@@ -127,8 +127,13 @@ class PostProcessor:
         except Exception as e:
             stmts = []
         # 3. Run preassembly
-        stmts = ac.map_grounding(stmts)
-        stmts = ac.run_preassembly(stmts, return_toplevel=False)
+        try:
+            stmts = ac.map_grounding(stmts)
+            stmts = ac.run_preassembly(stmts, return_toplevel=False)
+        except Exception as e:
+            self.logger.error(f"Error running preassembly: {e} "
+                              f"Problematic statements: {stmts}")
+            stmts = []
         return stmts
     
     def capture_logs_from_stmts_json(self, stmts_json, on_missing_support='handle'):
