@@ -1,41 +1,65 @@
 import logging
 import pickle
 from pathlib import Path
+from typing import Any, Tuple, Dict, List
+from indra_gpt.processors import PreProcessor, Generator, PostProcessor
+from indra.statements import Statement
+
+logger = logging.getLogger(__name__)
+
 
 class StatementExtractionPipeline:
-    def __init__(self, pre_processor, generator, post_processor):
+    def __init__(self, 
+                 pre_processor: PreProcessor, 
+                 generator: Generator, 
+                 post_processor: PostProcessor) -> None:
         """
-        Initializes the pipeline with preprocessing, generation, and postprocessing components.
+        Initializes the pipeline with preprocessing, generation, 
+        and postprocessing components.
         """
         self.pre_processor = pre_processor
         self.generator = generator
         self.post_processor = post_processor
-        self.logger = logging.getLogger(__name__)
 
-    def run(self):
+    def run(self) -> Tuple[List[Dict[str, str]], 
+                           Dict[str, Any], 
+                           List[Dict[str, Any]], 
+                           List[Statement]]:
         """
-        Executes the entire extraction pipeline: preprocessing → generation → postprocessing.
+        Executes the entire extraction pipeline: preprocessing, generation,
+        and postprocessing.
         Returns the processed results.
         """
-        self.logger.info("Starting preprocessing step...")
+        logger.info("Starting preprocessing step...")
         raw_input_data, preprocessed_input_data = self.pre_processor.process()
 
-        self.logger.info("Running LLM-based statement extraction...")
+        logger.info("Running LLM-based statement extraction...")
         extracted_json_stmts = self.generator.generate(preprocessed_input_data)
 
-        self.logger.info("Post-processing extracted statements...")
+        logger.info("Post-processing extracted statements...")
         preassembled_stmts = self.post_processor.process(extracted_json_stmts)
 
-        return raw_input_data, preprocessed_input_data, extracted_json_stmts, preassembled_stmts
+        return (raw_input_data, 
+                preprocessed_input_data, 
+                extracted_json_stmts, 
+                preassembled_stmts)
 
-    def save_results(self, output_file, raw_input_data, preprocessed_input_data, extracted_json_stmts, preassembled_stmts):
+    def save_results(self, 
+                     output_file: str, 
+                     raw_input_data: List[Dict[str, str]], 
+                     preprocessed_input_data: Dict[str, Any],
+                     extracted_json_stmts: List[Dict[str, Any]], 
+                     preassembled_stmts: List[Statement]) -> None:
+        """
+        Saves the pipeline results to a file.
+        """
         try:
             # Ensure the output directory exists
             output_path = Path(output_file)
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
             # Structure the results
-            results_dict = {
+            results_dict: Dict[str, Any] = {
                 "raw_input_data": raw_input_data,
                 "preprocessed_input_data": preprocessed_input_data,
                 "extracted_json_stmts": extracted_json_stmts,
@@ -46,18 +70,21 @@ class StatementExtractionPipeline:
             with open(output_path, "wb") as f:
                 pickle.dump(results_dict, f)
 
-            self.logger.info(f"Results successfully saved to {output_path}")
+            logger.info(f"Results successfully saved to {output_path}")
 
         except Exception as e:
-            self.logger.error(f"Error saving results: {e}")
+            logger.error(f"Error saving results: {e}")
             raise RuntimeError("Failed to save results.") from e
 
-    def run_and_save_results(self, output_file):
+    def run_and_save_results(self, output_file: str) -> None:
         """
         Runs the full pipeline and saves the extracted statements to a file.
         """
-        raw_input_data, preprocessed_input_data, extracted_json_stmts, preassembled_stmts = self.run()
+        (raw_input_data, preprocessed_input_data, 
+         extracted_json_stmts, preassembled_stmts) = self.run()
 
-        self.logger.info(f"Saving results to {output_file}...")
-        self.save_results(output_file, raw_input_data, preprocessed_input_data, extracted_json_stmts, preassembled_stmts)
-        self.logger.info("Pipeline execution completed successfully.")
+        logger.info(f"Saving results to {output_file}...")
+        self.save_results(output_file, raw_input_data, 
+                          preprocessed_input_data, extracted_json_stmts, 
+                          preassembled_stmts)
+        logger.info("Pipeline execution completed successfully.")

@@ -17,8 +17,8 @@ class PostProcessor:
     def __init__(self, config: PostProcessorConfig) -> None:
         self.config = config
 
-    def process(self, generated_responses: List[Union[str, Dict[str, Any]]]
-                ) -> List[Any]:
+    def process(self, generated_responses: List[Dict[str, Any]]
+                ) -> List[Statement]:
         logger.info("Starting post-processing of extracted statements...")
 
         input_samples = sample_from_input_file(self.config,

@@ -30,7 +30,7 @@ class Generator:
             )
         return model
 
-    def generate(self, preprocessed_data: List[Dict[str, Any]]
+    def generate(self, preprocessed_data: Dict[str, Any]
                  ) -> List[Dict[str, Any]]:
         self.log_config()
         model = self.validate_model()
