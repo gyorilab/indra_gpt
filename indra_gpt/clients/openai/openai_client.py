@@ -143,7 +143,6 @@ class OpenAIClient:
                     "Previous Response:\n" + response_content
                 )
             }
-            print(type(refinement_prompt["content"]))
             messages.append({"role": "assistant", "content": response_content})
             messages.append(refinement_prompt)
 
