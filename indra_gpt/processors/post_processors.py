@@ -6,10 +6,10 @@ import io
 from indra.statements.io import stmts_from_json
 from indra.preassembler.grounding_mapper.gilda import ground_statements
 from indra_gpt.util.util import sample_from_input_file
-from indra_gpt.configs import PostProcessingConfig
+from indra_gpt.configs import PostProcessorConfig
 
 class PostProcessor:
-    def __init__(self, config: PostProcessingConfig):
+    def __init__(self, config: PostProcessorConfig):
         self.config = config
         self.logger = logging.getLogger(__name__)
 

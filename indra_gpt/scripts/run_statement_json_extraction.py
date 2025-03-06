@@ -1,18 +1,18 @@
+from typing import Any, Mapping
 import logging
 import argparse
-
 from indra_gpt.resources.constants import OUTPUT_DEFAULT
-from indra_gpt.configs import BaseConfig, PreProcessingConfig, GenerationConfig, PostProcessingConfig
+from indra_gpt.configs import BaseConfig, PreProcessorConfig, GenerationConfig, PostProcessorConfig
 from indra_gpt.processors import PreProcessor, Generator, PostProcessor
 from indra_gpt.pipelines import StatementExtractionPipeline
 
 logger = logging.getLogger(__name__)
 
-def main(**kwargs):
+def main(**kwargs: Mapping[str, Any]) -> None:
     base_config = BaseConfig(kwargs)
-    preprocessing_config = PreProcessingConfig(base_config)
+    preprocessing_config = PreProcessorConfig(base_config)
     generation_config = GenerationConfig(base_config)
-    postprocessing_config = PostProcessingConfig(base_config)
+    postprocessing_config = PostProcessorConfig(base_config)
 
     # Instantiate processing objects
     pre_processor = PreProcessor(preprocessing_config)
@@ -27,6 +27,7 @@ def main(**kwargs):
     logger.info("Running structured knowledge extraction pipeline...")
     pipeline.run_and_save_results(output_file)
 
+
 if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(description="Script for running structured knowledge extraction.")
     ##### arguments for the input and output files and job mode #####
@@ -36,7 +37,7 @@ if __name__ == "__main__":
         default=None,
         help="Path to the file containing user inputs for inference. Format can be either: "
             "(1) a tsv with two columns 'text' and 'pmid', or "
-            "(2) a JSON file with a list of input texts in [{'text': 'input text', 'pmid': 'pmid'}] format. "
+            "(2) a JSON file with a list of input texts in [{'text': 'input text', 'pmid': 'pmid'} ...] format. "
             "If not provided, input texts will be extracted from the benchmark corpus."
     )
     arg_parser.add_argument(

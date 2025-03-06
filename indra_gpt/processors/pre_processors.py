@@ -1,12 +1,12 @@
 import logging
 import json
 import random
-from indra_gpt.configs import PreProcessingConfig
+from indra_gpt.configs import PreProcessorConfig
 from indra_gpt.resources.constants import JSON_SCHEMA, INPUT_DEFAULT
 from indra_gpt.util.util import sample_from_input_file
 
 class PreProcessor:
-    def __init__(self, config: PreProcessingConfig):
+    def __init__(self, config: PreProcessorConfig):
         self.config = config
         self.logger = logging.getLogger(__name__)
 

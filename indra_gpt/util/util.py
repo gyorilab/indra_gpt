@@ -1,12 +1,19 @@
 import json
-from typing import Union
-from indra_gpt.resources.constants import INPUT_DEFAULT
 import copy
 import random
 import logging
+import csv
+from typing import Any, Union, List, Dict
+
+from indra_gpt.configs import ProcessorConfig
+from indra_gpt.resources.constants import INPUT_DEFAULT
+
 logger = logging.getLogger(__name__)
 
-def sample_from_input_file(config, random_seed=42): 
+def sample_from_input_file(
+    config: ProcessorConfig, random_seed: int = 42
+) -> List[Dict[str, str]]: 
+    """Samples input data from the given input file."""
     random.seed(random_seed)
     user_inputs = load_input_file(config.base_config.user_inputs_file)
 
@@ -14,81 +21,103 @@ def sample_from_input_file(config, random_seed=42):
     num_samples = config.base_config.num_samples
 
     if num_samples > len(user_inputs):
-        logger.warning(f"Requested {num_samples} samples, but only {len(user_inputs)} available. Using all available samples.")
+        logger.warning(
+            f"Requested {num_samples} samples, but only {len(user_inputs)} "
+            f"available. Using all available samples."
+        )
         num_samples = len(user_inputs)
 
-    if do_random_sample:
-        return random.sample(user_inputs, num_samples)
-    else:
-        return user_inputs[:num_samples]  # Select first N samples if not random
+    return (
+        random.sample(user_inputs, num_samples) 
+        if do_random_sample 
+        else user_inputs[:num_samples]
+    )
 
-def load_input_file(input_file_path: str):
+def load_input_file(input_file_path: str) -> List[Dict[str, str]]:
+    """Loads input data from a TSV or JSON file and returns a list of dictionaries."""
     if input_file_path is None:
         with open(INPUT_DEFAULT, encoding="utf-8") as f:
             benchmark_corpus = json.load(f)
-            formatted_input_file = []
-            for json_stmt in benchmark_corpus:
-                input_text = get_input_text_from_original_statement_json(json_stmt)
-                pmid = get_pmid_from_original_statement_json(json_stmt)
-                formatted_input_file.append({"text": input_text, "pmid": pmid})
-        return formatted_input_file
+            return [
+                {
+                    "text": get_input_text_from_original_statement_json(stmt),
+                    "pmid": get_pmid_from_original_statement_json(stmt),
+                }
+                for stmt in benchmark_corpus
+            ]
 
-    # Load TSV file
-    elif input_file_path.endswith('.tsv'):
+    elif input_file_path.endswith(".tsv"):
         with open(input_file_path, encoding="utf-8") as f:
+            reader = csv.reader(f, delimiter="\t")
             formatted_input_file = []
-            for line in f:
-                if not line.strip():  # Skip empty lines
-                    continue
-                parts = line.strip().split('\t')
-                if len(parts) != 2:  # Ensure exactly 2 columns
-                    raise ValueError(f"Invalid TSV format in line: {line.strip()}")
+            first_line = True
+
+            for parts in reader:
+                if len(parts) != 2:
+                    raise ValueError(f"Invalid TSV format in line: {parts}")
+
                 text, pmid = parts
+                text = text.strip('"')  # Remove quotes
+                pmid = pmid.strip()  # Remove extra spaces
+
+                if first_line and text.lower() == "text" and pmid.lower() == "pmid":
+                    first_line = False
+                    continue
+
                 formatted_input_file.append({"text": text, "pmid": pmid})
 
-    # Load JSON file
-    elif input_file_path.endswith('.json'):
+        return formatted_input_file
+
+    elif input_file_path.endswith(".json"):
         with open(input_file_path, encoding="utf-8") as f:
-            formatted_input_file = json.load(f)
+            return json.load(f)
 
-    else:
-        raise ValueError(f"Invalid input file format: {input_file_path}")
+    raise ValueError(f"Invalid input file format: {input_file_path}")
 
-    return formatted_input_file
-        
-
-def get_input_text_from_original_statement_json(original_statement_json_object: Union[str, dict]):
+def get_input_text_from_original_statement_json(
+    original_statement_json_object: Union[str, Dict[str, Any]]
+) -> str:
+    """Extracts the 'text' field from the given JSON object."""
     if isinstance(original_statement_json_object, str):
         try:
-            original_statement_json_object = json.loads(original_statement_json_object)
+            original_statement_json_object = json.loads(
+                original_statement_json_object
+            )
         except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON string provided: {original_statement_json_object}") from e
+            raise ValueError(
+                f"Invalid JSON string provided: {original_statement_json_object}"
+            ) from e
     return original_statement_json_object["evidence"][0]["text"]
 
-def get_pmid_from_original_statement_json(original_statement_json_object: Union[str, dict]):
+def get_pmid_from_original_statement_json(
+    original_statement_json_object: Union[str, Dict[str, Any]]
+) -> str:
+    """Extracts the 'pmid' field from the given JSON object."""
     if isinstance(original_statement_json_object, str):
         try: 
-            original_statement_json_object = json.loads(original_statement_json_object)
+            original_statement_json_object = json.loads(
+                original_statement_json_object
+            )
         except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON string provided: {original_statement_json_object}") from e
+            raise ValueError(
+                f"Invalid JSON string provided: {original_statement_json_object}"
+            ) from e
     return original_statement_json_object["evidence"][0]["pmid"]
 
-#################################
-
-def resolve_ref(schema, ref_path):
+def resolve_ref(
+    schema: Dict[str, Any], ref_path: str
+) -> Dict[str, Any]:
     """Helper function to resolve a $ref path in a JSON schema."""
     keys = ref_path.lstrip("#/").split("/")
     ref_obj = schema
     for key in keys:
         ref_obj = ref_obj.get(key, {})
-    return copy.deepcopy(ref_obj)  # Return a deep copy to prevent modifying the original schema
+    return copy.deepcopy(ref_obj)
 
-def merge_allOf(schema, root_schema):
-    """Recursively merges allOf definitions into their parent objects and removes allOf.
-       - Resolves $ref only if inside allOf
-       - Resolves nested allOf in properties, items, and definitions
-       - Does NOT resolve nested $ref inside resolved object
-    """
+def merge_allOf(
+    schema: Dict[str, Any], root_schema: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Recursively merges allOf definitions into their parent objects."""
     if isinstance(schema, dict):
         if "allOf" in schema:
             merged_schema = {}
@@ -97,32 +126,36 @@ def merge_allOf(schema, root_schema):
             for sub_schema in schema["allOf"]:
                 if "$ref" in sub_schema:
                     ref_obj = resolve_ref(root_schema, sub_schema["$ref"])
-                    sub_schema = ref_obj.copy()  # Use a copy to prevent modifying the root schema
+                    sub_schema = ref_obj.copy()
 
-                # Merge properties correctly
                 for key, value in sub_schema.items():
                     if key == "required":
                         required_fields.update(value)
-                    elif key in merged_schema and isinstance(merged_schema[key], dict) and isinstance(value, dict):
-                        merged_schema[key].update(value)  # Merge nested dictionaries (e.g., properties)
+                    elif (
+                        key in merged_schema
+                        and isinstance(merged_schema[key], dict)
+                        and isinstance(value, dict)
+                    ):
+                        merged_schema[key].update(value)
                     else:
-                        merged_schema[key] = value  # Overwrite other keys
+                        merged_schema[key] = value
 
-            merged_schema.pop("allOf", None)  # Remove allOf after merging
+            merged_schema.pop("allOf", None)
             if required_fields:
-                merged_schema["required"] = list(required_fields)  # Assign merged required fields
-            
+                merged_schema["required"] = list(required_fields)
+
             schema.clear()
             schema.update(merged_schema)
 
-        # Recursively process properties, items, and definitions **after merging**
         for key in ["properties", "items", "definitions"]:
             if key in schema and isinstance(schema[key], dict):
-                schema[key] = {k: merge_allOf(v, root_schema) for k, v in schema[key].items()}
+                schema[key] = {
+                    k: merge_allOf(v, root_schema) for k, v in schema[key].items()
+                }
 
         return schema
 
     elif isinstance(schema, list):
         return [merge_allOf(item, root_schema) for item in schema]
 
-    return schema  # Return primitive values unchanged
+    return schema
