@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import Any, Tuple, Dict, List
 from indra_gpt.processors import PreProcessor, Generator, PostProcessor
 from indra.statements import Statement
+from datetime import datetime
+
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +47,7 @@ class StatementExtractionPipeline:
                 preassembled_stmts)
 
     def save_results(self, 
-                     output_file: str, 
+                     output_folder: str, 
                      raw_input_data: List[Dict[str, str]], 
                      preprocessed_input_data: Dict[str, Any],
                      extracted_json_stmts: List[Dict[str, Any]], 
@@ -55,8 +57,8 @@ class StatementExtractionPipeline:
         """
         try:
             # Ensure the output directory exists
-            output_path = Path(output_file)
-            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path = Path(output_folder)
+            output_path.mkdir(parents=True, exist_ok=True)
 
             # Structure the results
             results_dict: Dict[str, Any] = {
@@ -67,10 +69,20 @@ class StatementExtractionPipeline:
             }
 
             # Save the results to a pickle file
-            with open(output_path, "wb") as f:
+            detailed_results_output_path = Path(output_folder) / f"detailed_extraction_results_{datetime.now().strftime('%Y-%m-%d')}.pkl"
+            with open(detailed_results_output_path, "wb") as f:
                 pickle.dump(results_dict, f)
+            logger.info(f"Detailed results successfully saved to {detailed_results_output_path}")
 
-            logger.info(f"Results successfully saved to {output_path}")
+            # Save just the flattened list of statements to a pickle file.
+            stmts_output_path = Path(output_folder) / f"extracted_statements_{datetime.now().strftime('%Y-%m-%d')}.pkl"
+            with open(stmts_output_path, "wb") as f:
+                # flatten the list of statements
+                stmts_flat_list = []
+                for stmts in preassembled_stmts:
+                    stmts_flat_list.extend(stmts)
+                pickle.dump(stmts_flat_list, f)
+            logger.info(f"Flattened statements successfully saved to {stmts_output_path}")
 
         except Exception as e:
             logger.error(f"Error saving results: {e}")

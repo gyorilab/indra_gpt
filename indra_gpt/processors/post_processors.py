@@ -4,11 +4,16 @@ import io
 from typing import List, Dict, Any, Union
 
 from indra.statements import get_all_descendants, Statement
-from indra.tools import assemble_corpus as ac
 from indra.statements.io import stmts_from_json
-from indra.preassembler.grounding_mapper.gilda import ground_statements
 from indra_gpt.util.util import sample_from_input_file
 from indra_gpt.configs import PostProcessorConfig
+
+from indra.statements import activity_types
+from indra.statements import RegulateActivity
+
+from indra.pipeline import register_pipeline
+from indra.tools import assemble_corpus as ac
+from indra.pipeline.pipeline import AssemblyPipeline
 
 logger = logging.getLogger(__name__)
 
@@ -22,45 +27,63 @@ class PostProcessor:
         logger.info("Starting post-processing of extracted statements...")
 
         input_samples = sample_from_input_file(self.config,
-                                               self.config.base_config.random_seed)
+                                            self.config.base_config.random_seed)
         input_texts = [entry["text"] for entry in input_samples]
         input_pmids = [entry["pmid"] for entry in input_samples]
 
         if len(generated_responses) != len(input_texts):
-            raise ValueError(f"Mismatch in generated responses and input texts: "
-                             f"{len(generated_responses)} responses vs {len(input_texts)} input texts.")
+            raise ValueError(f"Mismatch in generated responses and input "
+                             f"texts: {len(generated_responses)} responses "
+                             f"vs {len(input_texts)} input texts.")
 
         if input_pmids and len(input_pmids) != len(input_texts):
             logger.warning(f"PMID count ({len(input_pmids)}) does not match "
-                                f"input text count ({len(input_texts)}). Proceeding "
-                                "without PMIDs where missing.")
+                                f"input text count ({len(input_texts)}). "
+                                f"Proceeding without PMIDs where missing.")
+        stmts_json_list = self.post_process_json_stmts(generated_responses, 
+                                                  input_texts, input_pmids)
+        raw_stmts_list = [self.extract_stmts(stmts_json) for stmts_json in stmts_json_list]
+        preassembled_stmts = [self.preassembly_pipeline(stmts) 
+                              for stmts in raw_stmts_list]
 
+        logger.info(f"Completed post-processing: {len(preassembled_stmts)} "
+                    f"statements processed.")
+        return preassembled_stmts
+    
+    def post_process_json_stmts(self, 
+                            generated_responses: List[Dict[str, Any]], 
+                            input_texts: List[str], 
+                            input_pmids: List[str]) -> List[List[Statement]]:
         processed_stmts_json_list = []
         for i, response in enumerate(generated_responses):
             text = input_texts[i]
             pmid = input_pmids[i] if input_pmids else "Not provided"
             try:
                 stmt_json_response = self.parse_json_response(response)
-                stmts_json = self.extract_statements(stmt_json_response)
-                stmts_json = [self.map_stmt_class_name(stmt) for stmt in stmts_json]
-                stmts_json = [self.remove_empty_strings_and_lists(stmt) for stmt in stmts_json]
-                stmts_json = [self.update_evidence(stmt, text, pmid, self.config) for stmt in stmts_json]
+                stmts_json = self._get_stmts_json(stmt_json_response)
+                stmts_json = [self.map_stmt_class_name(stmt) 
+                              for stmt in stmts_json]
+                stmts_json = [self.remove_empty_strings_and_lists(stmt) 
+                              for stmt in stmts_json]
+                stmts_json = [self.update_evidence(stmt, text, pmid, self.config) 
+                              for stmt in stmts_json]
                 processed_stmts_json_list.append(stmts_json)
             except Exception as e:
-                logger.error(f"Error processing response: {response} | Error: {e}")
+                logger.error(f"Error processing response: {response} | "
+                             f"Error: {e}")
                 processed_stmts_json_list.append({"error": str(e)})
-
-        preassembled_statements = [self.preassemble_pipeline(stmt) for stmt in processed_stmts_json_list]
-        logger.info(f"Completed post-processing: {len(preassembled_statements)} statements processed.")
-        return preassembled_statements
+        return processed_stmts_json_list
 
     def map_stmt_class_name(self, stmt_json: Dict[str, Any]) -> Dict[str, Any]:
         stmt_classes = get_all_descendants(Statement)
-        stmt_mapping = {stmt_class.__name__.lower(): stmt_class.__name__ for stmt_class in stmt_classes}
-        stmt_json["type"] = stmt_mapping.get(stmt_json.get("type", "").lower(), stmt_json.get("type"))
+        stmt_mapping = {stmt_class.__name__.lower(): stmt_class.__name__ 
+                        for stmt_class in stmt_classes}
+        stmt_json["type"] = stmt_mapping.get(stmt_json.get("type", "").lower(), 
+                                             stmt_json.get("type"))
         return stmt_json
 
-    def remove_empty_strings_and_lists(self, d: Dict[str, Any]) -> Dict[str, Any]:
+    def remove_empty_strings_and_lists(self, d: Dict[str, Any]
+                                       ) -> Dict[str, Any]:
         for key, value in list(d.items()):
             if isinstance(value, dict):
                 self.remove_empty_strings_and_lists(value)
@@ -72,8 +95,11 @@ class PostProcessor:
                 del d[key]
         return d
 
-    def update_evidence(self, stmt_json: Dict[str, Any], original_input_text: str,
-                        pmid: str, config: PostProcessorConfig) -> Dict[str, Any]:
+    def update_evidence(self, 
+                        stmt_json: Dict[str, Any], 
+                        original_input_text: str,
+                        pmid: str, config: PostProcessorConfig
+                        ) -> Dict[str, Any]:
         actual_evidence = {
             "text": original_input_text,
             "pmid": pmid,
@@ -90,24 +116,33 @@ class PostProcessor:
 
         return stmt_json
 
-    def preassemble_pipeline(self, stmts_json: List[Dict[str, Any]]) -> Any:
-        stmts = self.capture_logs_from_stmts_json(stmts_json)
-        if not isinstance(stmts, list):
-            return stmts
-        try:
-            stmts = self.ground_statements(stmts, apply_grounding=self.config.grounding)
-        except Exception:
-            stmts = []
-        try:
-            stmts = ac.map_grounding(stmts)
-            stmts = ac.run_preassembly(stmts, return_toplevel=False)
-        except Exception as e:
-            logger.error(f"Error running preassembly: {e} Problematic statements: {stmts}")
-            stmts = []
-        return stmts
+    def preassembly_pipeline(self, stmts_in: List[Statement]) -> Any:
+        if not isinstance(stmts_in, list):
+            stmts_in = []
+        # Initialize an empty pipeline
+        pipeline = AssemblyPipeline()
 
-    def capture_logs_from_stmts_json(self, stmts_json: List[Dict[str, Any]],
-                                     on_missing_support: str = 'handle') -> Any:
+        # Add preprocessing steps
+        pipeline.append(ac.filter_no_hypothesis)
+        pipeline.append(ac.filter_no_negated)
+        pipeline.append(ac.map_grounding, use_adeft=True, gilda_mode="web")
+        pipeline.append(ac.filter_grounded_only)
+        pipeline.append(ac.filter_genes_only)
+        pipeline.append(ac.filter_human_only)
+        pipeline.append(PostProcessor.filter_no_RegulateActivity_invalid_activity)
+        pipeline.append(ac.run_preassembly, return_toplevel=False)
+
+        # Run the pipeline on the loaded statements
+        stmts_out = pipeline.run(stmts_in)
+
+        # Check results
+        print(f"Number of statements before processing: {len(stmts_in)}")
+        print(f"Number of statements after processing: {len(stmts_out)}")
+        return stmts_out
+
+    def extract_stmts(self, 
+                      stmts_json: List[Dict[str, Any]], 
+                      on_missing_support: str = 'handle') -> Any:
         log_capture_string = io.StringIO()
         logger = logging.getLogger("indra.statements.io")
         log_handler = logging.StreamHandler(log_capture_string)
@@ -115,7 +150,8 @@ class PostProcessor:
         logger.addHandler(log_handler)
 
         try:
-            result = stmts_from_json(stmts_json, on_missing_support=on_missing_support)
+            result = stmts_from_json(stmts_json, 
+                                     on_missing_support=on_missing_support)
         finally:
             logger.removeHandler(log_handler)
 
@@ -124,18 +160,8 @@ class PostProcessor:
 
         return result if result else log_output
 
-    def ground_statements(self, statements: List[Any], apply_grounding: bool = False) -> List[Any]:
-        grounding_strategy = "None"
-        if apply_grounding:
-            grounded_statements = ground_statements(statements)
-            grounding_strategy = "gilda"
-        else:
-            grounded_statements = statements
-        for stmt in grounded_statements:
-            stmt.evidence[0].annotations['grounding_strategy'] = grounding_strategy
-        return grounded_statements
-
-    def parse_json_response(self, response: Union[str, Dict[str, Any]]) -> Dict[str, Any]:
+    def parse_json_response(self, response: Union[str, Dict[str, Any]]
+                            ) -> Dict[str, Any]:
         if isinstance(response, str):
             try:
                 return json.loads(response)
@@ -143,7 +169,24 @@ class PostProcessor:
                 raise ValueError("Invalid JSON string provided.") from e
         return response
 
-    def extract_statements(self, stmt_json_response: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _get_stmts_json(self, stmt_json_response: Dict[str, Any]
+                        ) -> List[Dict[str, Any]]:
         if stmt_json_response.get("statements"):
             return stmt_json_response["statements"]
-        return stmt_json_response if isinstance(stmt_json_response, list) else [stmt_json_response]
+        if isinstance(stmt_json_response, list):
+            return stmt_json_response
+        else:
+            return [stmt_json_response]
+
+    @staticmethod
+    @register_pipeline
+    def filter_no_RegulateActivity_invalid_activity(stmts_in: List[Statement]
+                                                    ) -> List[Statement]:
+        stmts_out = []
+        for stmt in stmts_in:
+            if isinstance(stmt, RegulateActivity):
+                if stmt.obj_activity in activity_types:
+                    stmts_out.append(stmt)
+            else:
+                stmts_out.append(stmt)
+        return stmts_out

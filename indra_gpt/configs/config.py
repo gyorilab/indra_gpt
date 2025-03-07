@@ -6,7 +6,7 @@ class BaseConfig:
         self.num_samples = kwargs.get("num_samples")
         self.random_sample = kwargs.get("random_sample")
         self.random_seed = kwargs.get("random_seed")
-        self.output_file = kwargs.get("output_file")
+        self.output_folder = kwargs.get("output_folder")
         self.model = kwargs.get("model")
         self.structured_output = kwargs.get("structured_output")
         self.n_shot_prompting = kwargs.get("n_shot_prompting")

@@ -540,7 +540,7 @@
                         },
                         "negation": {
                             "type": "boolean",
-                            "description": "Specifies whether the statement is negated."
+                            "description": "Specifies whether the statement is a negation statement."
                         }
                     },
                     "required": ["hypothesis", "negation"],

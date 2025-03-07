@@ -1,7 +1,7 @@
 from typing import Any, Mapping
 import logging
 import argparse
-from indra_gpt.resources.constants import OUTPUT_DEFAULT
+from indra_gpt.resources.constants import OUTPUT_DIR
 from indra_gpt.configs import BaseConfig, PreProcessorConfig, GenerationConfig, PostProcessorConfig
 from indra_gpt.processors import PreProcessor, Generator, PostProcessor
 from indra_gpt.pipelines import StatementExtractionPipeline
@@ -23,9 +23,9 @@ def main(**kwargs: Mapping[str, Any]) -> None:
     pipeline = StatementExtractionPipeline(pre_processor, generator, post_processor)
 
     # Run the pipeline and save the results
-    output_file = kwargs.get("output_file", OUTPUT_DEFAULT.as_posix())
+    output_folder = kwargs.get("output_folder")
     logger.info("Running structured knowledge extraction pipeline...")
-    pipeline.run_and_save_results(output_file)
+    pipeline.run_and_save_results(output_folder)
 
 
 if __name__ == "__main__":
@@ -60,10 +60,11 @@ if __name__ == "__main__":
                "Default: 42.")
     )
     arg_parser.add_argument(
-        "--output_file", 
+        "--output_folder", 
         type=str, 
-        default=OUTPUT_DEFAULT.as_posix(),
-        help=f"Path to save the output pkl file. Default: {OUTPUT_DEFAULT.as_posix()}."
+        default= (OUTPUT_DIR / "extraction_results").as_posix(),
+        help=(f"Path to save the output results. "
+              f"Default: {(OUTPUT_DIR / 'extraction_results').as_posix()}.")
     )
     ##### arguments for the model and generation strategy settings #####
     arg_parser.add_argument(

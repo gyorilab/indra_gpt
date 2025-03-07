@@ -178,5 +178,4 @@ class OpenAIClient:
             )
             response_content = json.loads(response_content)
             extracted_statement_json_objects.append(response_content)
-
         return extracted_statement_json_objects
