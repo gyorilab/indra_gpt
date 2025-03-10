@@ -57,7 +57,7 @@ class StatementExtractionPipeline:
         """
         try:
             # Ensure the output directory exists
-            output_path = Path(output_folder)
+            output_path = Path(output_folder) / f"extraction_results_{datetime.now().strftime('%Y-%m-%d')}"
             output_path.mkdir(parents=True, exist_ok=True)
 
             # Structure the results
@@ -69,13 +69,13 @@ class StatementExtractionPipeline:
             }
 
             # Save the results to a pickle file
-            detailed_results_output_path = Path(output_folder) / f"detailed_extraction_results_{datetime.now().strftime('%Y-%m-%d')}.pkl"
+            detailed_results_output_path = Path(output_path) / f"detailed_extraction_results_{datetime.now().strftime('%Y-%m-%d')}.pkl"
             with open(detailed_results_output_path, "wb") as f:
                 pickle.dump(results_dict, f)
             logger.info(f"Detailed results successfully saved to {detailed_results_output_path}")
 
             # Save just the flattened list of statements to a pickle file.
-            stmts_output_path = Path(output_folder) / f"extracted_statements_{datetime.now().strftime('%Y-%m-%d')}.pkl"
+            stmts_output_path = Path(output_path) / f"extracted_statements_{datetime.now().strftime('%Y-%m-%d')}.pkl"
             with open(stmts_output_path, "wb") as f:
                 # flatten the list of statements
                 stmts_flat_list = []
@@ -88,15 +88,15 @@ class StatementExtractionPipeline:
             logger.error(f"Error saving results: {e}")
             raise RuntimeError("Failed to save results.") from e
 
-    def run_and_save_results(self, output_file: str) -> None:
+    def run_and_save_results(self, output_folder: str) -> None:
         """
         Runs the full pipeline and saves the extracted statements to a file.
         """
         (raw_input_data, preprocessed_input_data, 
          extracted_json_stmts, preassembled_stmts) = self.run()
 
-        logger.info(f"Saving results to {output_file}...")
-        self.save_results(output_file, raw_input_data, 
+        logger.info(f"Saving results to {output_folder}...")
+        self.save_results(output_folder, raw_input_data, 
                           preprocessed_input_data, extracted_json_stmts, 
                           preassembled_stmts)
         logger.info("Pipeline execution completed successfully.")

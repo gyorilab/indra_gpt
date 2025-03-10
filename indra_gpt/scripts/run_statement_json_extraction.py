@@ -96,6 +96,12 @@ if __name__ == "__main__":
         action="store_true",
         help="Enable grounding of extracted named entities."
     )
+    arg_parser.add_argument(
+        "--grounding_strategy",
+        type=str,
+        default="gilda",
+        help="Specify the grounding strategy to use. Default: 'gilda'."
+    )
 
     cli_args = arg_parser.parse_args()
     args_dict = vars(cli_args)

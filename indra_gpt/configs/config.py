@@ -2,16 +2,17 @@ from typing import Any, Mapping
 
 class BaseConfig:
     def __init__(self, kwargs: Mapping[str, Any]) -> None:
-        self.user_inputs_file = kwargs.get("user_inputs_file")
-        self.num_samples = kwargs.get("num_samples")
-        self.random_sample = kwargs.get("random_sample")
-        self.random_seed = kwargs.get("random_seed")
-        self.output_folder = kwargs.get("output_folder")
-        self.model = kwargs.get("model")
-        self.structured_output = kwargs.get("structured_output")
-        self.n_shot_prompting = kwargs.get("n_shot_prompting")
-        self.self_correction_iterations = kwargs.get("self_correction_iterations")
-        self.grounding = kwargs.get("grounding")
+        self.user_inputs_file = kwargs.get("user_inputs_file", None)
+        self.num_samples = kwargs.get("num_samples", None)
+        self.random_sample = kwargs.get("random_sample", None)
+        self.random_seed = kwargs.get("random_seed", None)    
+        self.output_folder = kwargs.get("output_folder", None)
+        self.model = kwargs.get("model", None)
+        self.structured_output = kwargs.get("structured_output", None)
+        self.n_shot_prompting = kwargs.get("n_shot_prompting", None)
+        self.self_correction_iterations = kwargs.get("self_correction_iterations", None)
+        self.grounding = kwargs.get("grounding", None)
+        self.grounding_strategy = kwargs.get("grounding_strategy", None)
 
 
 class ProcessorConfig:
@@ -43,3 +44,4 @@ class PostProcessorConfig(ProcessorConfig):
         super().__init__(base_config)
         
         self.grounding = base_config.grounding
+        self.grounding_strategy = base_config.grounding_strategy

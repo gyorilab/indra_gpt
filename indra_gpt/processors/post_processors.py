@@ -14,6 +14,7 @@ from indra.statements import RegulateActivity
 from indra.pipeline import register_pipeline
 from indra.tools import assemble_corpus as ac
 from indra.pipeline.pipeline import AssemblyPipeline
+from indra.preassembler.grounding_mapper.gilda import ground_statements
 
 logger = logging.getLogger(__name__)
 
@@ -125,7 +126,10 @@ class PostProcessor:
         # Add preprocessing steps
         pipeline.append(ac.filter_no_hypothesis)
         pipeline.append(ac.filter_no_negated)
-        pipeline.append(ac.map_grounding, use_adeft=True, gilda_mode="web")
+        pipeline.append(PostProcessor.custom_ground_statements, 
+                        self.config.grounding, 
+                        self.config.grounding_strategy)
+        #pipeline.append(ac.map_grounding, use_adeft=True, gilda_mode="web")
         pipeline.append(ac.filter_grounded_only)
         pipeline.append(ac.filter_genes_only)
         pipeline.append(ac.filter_human_only)
@@ -190,3 +194,22 @@ class PostProcessor:
             else:
                 stmts_out.append(stmt)
         return stmts_out
+    
+    @staticmethod
+    @register_pipeline
+    def custom_ground_statements(stmts_in: List[Statement],
+                          grounding: bool,
+                          grounding_strategy: str) -> List[Statement]:
+        stmts_out = []
+        if grounding:
+            if grounding_strategy == 'gilda':
+                stmts_out = ground_statements(stmts_in)
+            else:
+                raise ValueError(
+                    f"Invalid grounding strategy: {grounding_strategy}"
+                    f"Valid options are: ['gilda']"
+                )
+        else:
+            stmts_out = stmts_in
+        return stmts_out
+
