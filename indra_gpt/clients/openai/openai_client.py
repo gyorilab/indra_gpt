@@ -3,7 +3,9 @@ from time import sleep
 import json
 from openai import OpenAI
 from indra.config import IndraConfigError, get_config
-from indra_gpt.resources.constants import SCHEMA_STRUCTURED_OUTPUT_PATH
+from indra_gpt.resources.constants import (SCHEMA_STRUCTURED_OUTPUT_PATH, 
+                                           GENERIC_REFINEMENT_PROMPT,
+                                           STATEMENT_TYPE_REFINEMENT_PROMPT)
 from tqdm import tqdm
 from indra_gpt.util.util import merge_allOf
 from indra_gpt.configs import GenerationConfig
@@ -128,33 +130,39 @@ class OpenAIClient:
         if self_correction_iterations == 0:
             return response_content
 
+        # Generic self-correction loop
         for _ in range(self_correction_iterations):
+            messages.append({"role": "assistant", "content": response_content})
+
+            with open(GENERIC_REFINEMENT_PROMPT, "r", encoding="utf-8") as file:
+                refinement_prompt_text = file.read()
             refinement_prompt = {
                 "role": "user",
-                "content": (
-                    "Take a close look at the response you just "
-                    "generated and the JSON schema provided. "
-                    "If you detect any errors or missing elements, "
-                    "fix these errors and re-generate the response. "
-                    "One tip: Don't extract more information than what "
-                    "is provided in the sentence. "
-                    "Strictly respond with the JSON output without "
-                    "any added comments.\n\n"
-                    "Previous Response:\n" + response_content
-                )
+                "content": refinement_prompt_text
             }
-            messages.append({"role": "assistant", "content": response_content})
             messages.append(refinement_prompt)
 
             raw_response = self.make_api_call(messages, max_tokens)
             logger.debug(f"Raw Response from OpenAI: {raw_response}")
 
-            new_response_content = raw_response.choices[0].message.content
+            new_response = raw_response.choices[0].message.content
 
-            if new_response_content == response_content:
+            if new_response == response_content:
                 break
+            else:
+                response_content = new_response
+        # Statement type refinement
+        messages.append({"role": "assistant", "content": response_content})
+        with open(STATEMENT_TYPE_REFINEMENT_PROMPT, "r", encoding="utf-8") as file:
+            statement_type_fix_prompt_text = file.read()
 
-            response_content = new_response_content
+        statement_type_fix_prompt = {"role": "user", "content": statement_type_fix_prompt_text}
+        messages.append(statement_type_fix_prompt)
+
+        raw_response = self.make_api_call(messages, max_tokens)
+        logger.debug(f"Raw Response from OpenAI (Statement Type Fix): {raw_response}")
+
+        response_content = raw_response.choices[0].message.content
 
         return response_content
 
