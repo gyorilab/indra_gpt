@@ -1,0 +1,53 @@
+Here are the main types of errors in the extraction process:
+
+1. **Entity Boundaries:** This occurs when the boundaries of a named entity are incorrectly recognized. Example: “gap” is identified as an entity, whereas the actual entity in the sentence is “gap junction.” These errors often lead to incorrect grounding since the wrong string is used for grounding. To help correct entity boundaries, add the desired entity name inside square brackets, e.g., [gap junction].
+
+2. **Polarity:** This applies when the extracted statement has the wrong polarity, such as `Activation` instead of `Inhibition` or `Phosphorylation` instead of `Dephosphorylation.`  
+   *Example:*  
+   **Sentence:** "NDRG2 overexpression specifically inhibits SOCS1 phosphorylation."  
+   **Incorrect Statement:** `Phosphorylation(NDRG2(), SOCS1())`  
+   **Corrected Statement:** `Dephosphorylation(NDRG2(), SOCS1())`
+
+3. **No Relation:** The sentence does not imply a relationship between the agents in the extracted statement.  
+   *Example:*  
+   **Sentence:** "Triptolide inhibits NF-kappaB activation, Stat3 phosphorylation, and increases SOCS1 expression."  
+   **Incorrect Statement:** `Phosphorylation(STAT3(), SOCS1())`  
+   The sentence does not directly state that STAT3 phosphorylates SOCS1.
+
+4. **Wrong Relation Type:** The extracted statement type does not match the sentence's meaning.  
+   *Example:*  
+   **Sentence:** "We report the interaction between tacrolimus and chloramphenicol in a renal transplant recipient."  
+   **Incorrect Statement:** `Complex(tacrolimus(), chloramphenicol())`  
+   The sentence implies a drug interaction, not complex formation.
+
+5. **Activity vs. Amount:** The sentence describes regulation of **amount**, but the statement implies regulation of **activity**, or vice versa.  
+   *Example:*  
+   **Sentence:** "NFAT upregulates IL2."  
+   **Incorrect Statement:** `Activation(NFAT(), IL2())`  
+   **Corrected Statement:** `IncreaseAmount(NFAT(), IL2())`
+
+6. **Negative Result:** The extracted statement contradicts the meaning of the sentence due to negation.  
+   *Example:*  
+   **Sentence:** "CRAF, but not BRAF, phosphorylates MEK in NRAS-mutated cells."  
+   **Incorrect Statement:** `Phosphorylation(BRAF(), MEK())`  
+   The sentence explicitly negates BRAF's phosphorylation of MEK.
+
+7. **Hypothesis:** The sentence describes a hypothesis rather than a factual mechanism.  
+   *Example:*  
+   **Sentence:** "We tested whether EGFR activates ERK."  
+   **Incorrect Statement:** `Activation(EGFR(), ERK())`  
+   The sentence does not confirm activation but merely tests the possibility.
+
+8. **Agent Conditions:** Missing relevant conditions for an agent in the statement.  
+   *Example:*  
+   **Sentence:** "Mutant BRAF activates MEK."  
+   **Incorrect Statement:** `Activation(BRAF(), MEK())`  
+   **Corrected Statement:** `Activation(BRAF(mutant=True), MEK())`
+
+9. **Modification Site:** Missing or incorrect amino acid site in modification statements.  
+   *Example:*  
+   **Sentence:** "MAP2K1 phosphorylates MAPK1 at T185."  
+   **Incorrect Statement:** `Phosphorylation(MAP2K1(), MAPK1())`  
+   **Corrected Statement:** `Phosphorylation(MAP2K1(), MAPK1(T185))`
+
+Make sure to avoid these errors when refining extracted INDRA statements.

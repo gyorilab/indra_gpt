@@ -4,8 +4,10 @@ import json
 from openai import OpenAI
 from indra.config import IndraConfigError, get_config
 from indra_gpt.resources.constants import (SCHEMA_STRUCTURED_OUTPUT_PATH, 
+                                           USER_INIT_PROMPT_REDUCED,
                                            GENERIC_REFINEMENT_PROMPT,
-                                           STATEMENT_TYPE_REFINEMENT_PROMPT)
+                                           STATEMENT_TYPE_REFINEMENT_PROMPT,
+                                           ERROR_CONTEXT_PROMPT)
 from tqdm import tqdm
 from indra_gpt.util.util import merge_allOf
 from indra_gpt.configs import GenerationConfig
@@ -32,17 +34,8 @@ class OpenAIClient:
         """
         Constructs a user prompt for chat-based LLM inference.
         """
-        PROMPT_reduced = (
-            "Extract the relation from the following sentence and put it in a "
-            "JSON object matching the provided schema. The JSON object needs "
-            "to be able to pass a validation against the provided schema. If "
-            "the statement type is 'RegulateActivity', list it instead as "
-            "either 'Activation' or 'Inhibition'. If the statement type is "
-            "'RegulateAmount', list it instead as either 'IncreaseAmount' "
-            "or 'DecreaseAmount'. Only "
-            "respond with "
-            "the JSON object.\n\nSentence: "
-        )
+        with open(USER_INIT_PROMPT_REDUCED, "r", encoding="utf-8") as file:
+            PROMPT_reduced = file.read()
         prompt = PROMPT_reduced + input_text
         return {"role": "user", "content": prompt}
 
@@ -120,49 +113,64 @@ class OpenAIClient:
         """
         self_correction_iterations = self.config.self_correction_iterations
 
+        # Load refinement prompts once (reduce redundant I/O)
+        with open(GENERIC_REFINEMENT_PROMPT, "r", encoding="utf-8") as file:
+            generic_refinement_text = file.read()
+        with open(STATEMENT_TYPE_REFINEMENT_PROMPT, "r", encoding="utf-8") as file:
+            statement_type_fix_text = file.read()
+        with open(ERROR_CONTEXT_PROMPT, "r", encoding="utf-8") as file:
+            error_context_fix_text = file.read()
+
+        # Helper function to safely extract API response content
+        def extract_response_content(response):
+            try:
+                return (response.choices[0].message.content 
+                        if response and response.choices else "{}")
+            except (IndexError, AttributeError, KeyError):
+                logger.error(f"Malformed response: {response}")
+                return "{}"  # Return empty JSON object as fallback
+
         if chat_history is None:
             chat_history = []
-
+        
         messages = chat_history + [chat_prompt]
         response = self.make_api_call(messages, max_tokens)
-        response_content = response.choices[0].message.content
+        response_content = extract_response_content(response)
 
         if self_correction_iterations == 0:
             return response_content
 
         # Generic self-correction loop
+        messages.append({"role": "assistant", "content": response_content})
+        messages.append({"role": "user", "content": generic_refinement_text})
         for _ in range(self_correction_iterations):
-            messages.append({"role": "assistant", "content": response_content})
-
-            with open(GENERIC_REFINEMENT_PROMPT, "r", encoding="utf-8") as file:
-                refinement_prompt_text = file.read()
-            refinement_prompt = {
-                "role": "user",
-                "content": refinement_prompt_text
-            }
-            messages.append(refinement_prompt)
+            # Overwrite the assistant’s previous response (second to last message)
+            messages[-2] = {"role": "assistant", "content": response_content}
 
             raw_response = self.make_api_call(messages, max_tokens)
-            logger.debug(f"Raw Response from OpenAI: {raw_response}")
+            logger.debug(f"Raw Response from OpenAI (Refinement Loop): {raw_response}")
 
-            new_response = raw_response.choices[0].message.content
+            new_response = extract_response_content(raw_response)
 
             if new_response == response_content:
                 break
-            else:
-                response_content = new_response
+            response_content = new_response
+
         # Statement type refinement
         messages.append({"role": "assistant", "content": response_content})
-        with open(STATEMENT_TYPE_REFINEMENT_PROMPT, "r", encoding="utf-8") as file:
-            statement_type_fix_prompt_text = file.read()
-
-        statement_type_fix_prompt = {"role": "user", "content": statement_type_fix_prompt_text}
-        messages.append(statement_type_fix_prompt)
+        messages.append({"role": "user", "content": statement_type_fix_text})
 
         raw_response = self.make_api_call(messages, max_tokens)
         logger.debug(f"Raw Response from OpenAI (Statement Type Fix): {raw_response}")
+        response_content = extract_response_content(raw_response)
 
-        response_content = raw_response.choices[0].message.content
+        # Error Context Refinement
+        messages.append({"role": "assistant", "content": response_content})
+        messages.append({"role": "user", "content": error_context_fix_text})
+
+        raw_response = self.make_api_call(messages, max_tokens)
+        logger.debug(f"Raw Response from OpenAI (Error Context Fix): {raw_response}")
+        response_content = extract_response_content(raw_response)
 
         return response_content
 

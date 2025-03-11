@@ -57,7 +57,7 @@ class StatementExtractionPipeline:
         """
         try:
             # Ensure the output directory exists
-            output_path = Path(output_folder) / f"extraction_results_{datetime.now().strftime('%Y-%m-%d')}"
+            output_path = Path(output_folder) / f"extraction_results_{datetime.now().strftime('%Y-%m-%d-%H')}"
             output_path.mkdir(parents=True, exist_ok=True)
 
             # Structure the results
@@ -69,13 +69,13 @@ class StatementExtractionPipeline:
             }
 
             # Save the results to a pickle file
-            detailed_results_output_path = Path(output_path) / f"detailed_extraction_results_{datetime.now().strftime('%Y-%m-%d')}.pkl"
+            detailed_results_output_path = Path(output_path) / f"detailed_extraction_results_{datetime.now().strftime('%Y-%m-%d-%H')}.pkl"
             with open(detailed_results_output_path, "wb") as f:
                 pickle.dump(results_dict, f)
             logger.info(f"Detailed results successfully saved to {detailed_results_output_path}")
 
             # Save just the flattened list of statements to a pickle file.
-            stmts_output_path = Path(output_path) / f"extracted_statements_{datetime.now().strftime('%Y-%m-%d')}.pkl"
+            stmts_output_path = Path(output_path) / f"extracted_statements_{datetime.now().strftime('%Y-%m-%d-%H')}.pkl"
             with open(stmts_output_path, "wb") as f:
                 # flatten the list of statements
                 stmts_flat_list = []
