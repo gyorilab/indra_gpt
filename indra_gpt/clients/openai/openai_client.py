@@ -100,6 +100,7 @@ class OpenAIClient:
 
     def get_response(
         self,
+        input_text: str,
         chat_prompt: Dict[str, str],
         chat_history: Optional[List[Dict[str, str]]] = None,
         max_tokens: int = 9000,
@@ -142,7 +143,13 @@ class OpenAIClient:
 
         # Generic self-correction loop
         messages.append({"role": "assistant", "content": response_content})
-        messages.append({"role": "user", "content": generic_refinement_text})
+        generic_refinement_prompt = {
+            "role": "user",
+            "content": (generic_refinement_text 
+                        + "\n\nAgain, for reference, here is the input sentence:\n" 
+                        + input_text)
+        }
+        messages.append(generic_refinement_prompt)
         for _ in range(self_correction_iterations):
             # Overwrite the assistant’s previous response (second to last message)
             messages[-2] = {"role": "assistant", "content": response_content}
@@ -158,7 +165,13 @@ class OpenAIClient:
 
         # Statement type refinement
         messages.append({"role": "assistant", "content": response_content})
-        messages.append({"role": "user", "content": statement_type_fix_text})
+        statement_type_refinement_prompt = {
+            "role": "user", 
+            "content": (statement_type_fix_text 
+                        + "\n\nAgain, for reference, here is the input sentence:\n" 
+                        + input_text)
+        }
+        messages.append(statement_type_refinement_prompt)
 
         raw_response = self.make_api_call(messages, max_tokens)
         logger.debug(f"Raw Response from OpenAI (Statement Type Fix): {raw_response}")
@@ -166,7 +179,13 @@ class OpenAIClient:
 
         # Error Context Refinement
         messages.append({"role": "assistant", "content": response_content})
-        messages.append({"role": "user", "content": error_context_fix_text})
+        error_context_prompt = {
+            "role": "user", 
+            "content": (error_context_fix_text
+                        + "\n\nAgain, for reference, here is the input sentence:\n" 
+                        + input_text)
+        }
+        messages.append(error_context_prompt)
 
         raw_response = self.make_api_call(messages, max_tokens)
         logger.debug(f"Raw Response from OpenAI (Error Context Fix): {raw_response}")
@@ -190,7 +209,10 @@ class OpenAIClient:
             chat_prompt = self.get_chat_prompt(input_text)
             chat_history = flat_n_shot_history
             response_content = self.get_response(
-                chat_prompt, chat_history, max_tokens=9000
+                input_text,
+                chat_prompt, 
+                chat_history, 
+                max_tokens=9000
             )
             response_content = json.loads(response_content)
             extracted_statement_json_objects.append(response_content)
