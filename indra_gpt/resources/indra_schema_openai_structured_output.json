@@ -474,7 +474,8 @@
                             }
                         },
                         {"type": "null"}
-                    ]
+                    ],
+                    "description": "Statements that this Statement supports."
                 },
                 "supported_by": {
                     "anyOf": [
@@ -485,7 +486,8 @@
                             }
                         },
                         {"type": "null"}
-                    ]
+                    ],
+                    "description": "Statements supported by this statement."
                 }
             },
             "required": ["evidence", "id", "supports", "supported_by"],
@@ -541,9 +543,13 @@
                         "negation": {
                             "type": "boolean",
                             "description": "Specifies whether the statement is a negation statement."
+                        },
+                        "direct": {
+                            "type": "boolean",
+                            "description": "Specifies whether the statement is a direct causal relationship or not."
                         }
                     },
-                    "required": ["hypothesis", "negation"],
+                    "required": ["hypothesis", "negation", "direct"],
                     "additionalProperties": false
                 }
             },

@@ -92,7 +92,10 @@ class PostProcessor:
                 for item in value:
                     if isinstance(item, dict):
                         self.remove_empty_strings_and_lists(item)
-            if value in [None, "", [], {}]:
+            if value in [None, [], {}]:
+                del d[key]
+            if (isinstance(value, str) and 
+                value.lower().strip() in ["", "none", "null", "unknown", "na"]):
                 del d[key]
         return d
 
@@ -112,6 +115,15 @@ class PostProcessor:
         if evidence_list:
             for evidence in evidence_list:
                 evidence.update(actual_evidence)
+                try:
+                    for key, val in evidence['epistemics'].items():
+                        if key in ['hypothesis', 'negation', 'direct']:
+                            evidence['epistemics'][key] = (val.lower() == 'true')
+                except Exception as e:
+                    logger.warning(
+                                f"Error updating epistemics in evidence: {e}, "
+                                f"Evidence: {evidence}"
+                            )
         else:
             stmt_json["evidence"] = [actual_evidence]
 
@@ -147,22 +159,17 @@ class PostProcessor:
     def extract_stmts(self, 
                       stmts_json: List[Dict[str, Any]], 
                       on_missing_support: str = 'handle') -> Any:
-        log_capture_string = io.StringIO()
-        logger = logging.getLogger("indra.statements.io")
-        log_handler = logging.StreamHandler(log_capture_string)
-        log_handler.setLevel(logging.WARNING)
-        logger.addHandler(log_handler)
-
-        try:
-            result = stmts_from_json(stmts_json, 
-                                     on_missing_support=on_missing_support)
-        finally:
-            logger.removeHandler(log_handler)
-
-        log_output = log_capture_string.getvalue().strip()
-        log_capture_string.close()
-
-        return result if result else log_output
+        result = []
+        for stmt_json in stmts_json:
+            try:
+                stmt = stmts_from_json([stmt_json], 
+                                        on_missing_support=on_missing_support)
+                result += stmt
+            except Exception as e:
+                logger.warning(f"Error extracting statement: {stmt_json} | "
+                                f"Error: {e}")
+                result += []
+        return result 
 
     def parse_json_response(self, response: Union[str, Dict[str, Any]]
                             ) -> Dict[str, Any]:
