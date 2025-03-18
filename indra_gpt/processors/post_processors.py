@@ -15,6 +15,7 @@ from indra.pipeline import register_pipeline
 from indra.tools import assemble_corpus as ac
 from indra.pipeline.pipeline import AssemblyPipeline
 from indra.preassembler.grounding_mapper.gilda import ground_statements
+import copy
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,9 @@ class PostProcessor:
 
     def process(self, generated_responses: List[Dict[str, Any]]
                 ) -> List[Statement]:
+        # Create a deep copy of the generated responses to avoid modifying the
+        # original list.
+        generated_responses = copy.deepcopy(generated_responses)
         logger.info("Starting post-processing of extracted statements...")
 
         input_samples = sample_from_input_file(self.config,
@@ -118,7 +122,8 @@ class PostProcessor:
                 try:
                     for key, val in evidence['epistemics'].items():
                         if key in ['hypothesis', 'negation', 'direct']:
-                            evidence['epistemics'][key] = (val.lower() == 'true')
+                            if isinstance(val, str):
+                                evidence['epistemics'][key] = (val.lower() == 'true')
                 except Exception as e:
                     logger.warning(
                                 f"Error updating epistemics in evidence: {e}, "

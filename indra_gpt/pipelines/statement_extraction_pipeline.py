@@ -37,7 +37,6 @@ class StatementExtractionPipeline:
 
         logger.info("Running LLM-based statement extraction...")
         extracted_json_stmts = self.generator.generate(preprocessed_input_data)
-
         logger.info("Post-processing extracted statements...")
         preassembled_stmts = self.post_processor.process(extracted_json_stmts)
 
