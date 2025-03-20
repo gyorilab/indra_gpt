@@ -4,7 +4,9 @@ import random
 from typing import Any, Dict, List, Tuple
 
 from indra_gpt.configs import PreProcessorConfig
-from indra_gpt.resources.constants import JSON_SCHEMA, INPUT_DEFAULT
+from indra_gpt.resources.constants import (JSON_SCHEMA, 
+                                           INPUT_DEFAULT,
+                                           SCHEMA_STRUCTURED_OUTPUT_PATH)
 from indra_gpt.util.util import sample_from_input_file
 
 logger = logging.getLogger(__name__)
@@ -55,8 +57,12 @@ class PreProcessor:
                 - A dictionary representing the assistant response
         """
         n = self.config.base_config.n_shot_prompting
-
-        json_schema_string = json.dumps(JSON_SCHEMA, indent=2)
+        if self.config.base_config.structured_output:
+            with open(SCHEMA_STRUCTURED_OUTPUT_PATH) as file:
+                json_schema = json.load(file)
+            json_schema_string = json.dumps(json_schema, indent=2)
+        else:
+            json_schema_string = json.dumps(JSON_SCHEMA, indent=2)
         user_prompt = (
             "Read the following JSON schema for a statement "
             "object:\n\n```json\n"

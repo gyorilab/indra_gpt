@@ -6,7 +6,7 @@ from indra_gpt.clients import OpenAIClient, AnthropicClient
 
 MODEL_CLIENTS: Dict[str, Type[OpenAIClient | AnthropicClient]] = {
     "gpt-4o-mini": OpenAIClient,
-    "claude-3-5-sonnet-latest": AnthropicClient,
+    "claude-3-5-haiku-latest": AnthropicClient,
 }
 
 logger = logging.getLogger(__name__)
