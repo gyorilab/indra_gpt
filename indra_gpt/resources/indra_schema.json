@@ -3,7 +3,7 @@
   "definitions": {
     "ModCondition": {
       "type": "object",
-      "description": "Mutation state of an amino acid position of an Agent.",
+      "description": "Post-translational modification state at an amino acid position.",
       "properties": {
         "mod_type": {
           "type": "string",
@@ -19,7 +19,7 @@
         },
         "is_modified": {
           "type": "boolean",
-          "description": "Specifies whether the modification is present or absent. Setting the flag specifies that the Agent with the ModCondition is unmodified at the site."
+          "description": "Specifies whether the modification is present or absent."
         }
       },
       "required": [
@@ -248,8 +248,24 @@
           "description": "Dictionary containing additional information on the context of the statement, e.g., species, cell line, tissue type, etc. The entries may vary depending on the source of the information."
         },
         "epistemics": {
-          "type": "object",
-          "description": "A dictionary describing various forms of epistemic certainty associated with the statement."
+            "type": "object",
+            "description": "A dictionary describing various forms of epistemic certainty associated with the statement.",
+            "properties": {
+                "hypothesis": {
+                    "type": "boolean",
+                    "description": "Specifies whether the statement is a hypothesis."
+                },
+                "negation": {
+                    "type": "boolean",
+                    "description": "Specifies whether the statement is a negation statement."
+                },
+                "direct": {
+                    "type": "boolean",
+                    "description": "Specifies whether the statement is a direct causal relationship or not."
+                }
+            },
+            "required": ["hypothesis", "negation"],
+            "additionalProperties": false
         }
       }
     },
@@ -271,13 +287,15 @@
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "description": "Statements that this Statement supports."
         },
         "supported_by": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "description": "Statements supported by this statement."
         }
       },
       "required": [

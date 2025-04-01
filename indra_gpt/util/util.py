@@ -1,60 +1,161 @@
-from indra.statements import get_all_descendants, Statement
+import json
+import copy
+import random
+import logging
+import csv
+from typing import Any, Union, List, Dict
 
+from indra_gpt.configs import ProcessorConfig
+from indra_gpt.resources.constants import INPUT_DEFAULT
 
-def trim_stmt_json(stmt):
-    """Function to get rid of irrelevant parts of the indra statement json
+logger = logging.getLogger(__name__)
 
-    Parameter
-    ---------
-    stmt : dict
-        The indra statement json object
+def sample_from_input_file(
+    config: ProcessorConfig, random_seed: int = 42
+) -> List[Dict[str, str]]: 
+    """Samples input data from the given input file."""
+    random.seed(random_seed)
+    user_inputs = load_input_file(config.base_config.user_inputs_file)
 
-    Returns
-    -------
-    dict
-        The indra statement json object with irrelevant parts removed
-    """
+    do_random_sample = config.base_config.random_sample
+    num_samples = config.base_config.num_samples
 
-    stmt["evidence"] = [{"text": stmt["evidence"][0].get("text")}]
+    if num_samples > len(user_inputs):
+        logger.warning(
+            f"Requested {num_samples} samples, but only {len(user_inputs)} "
+            f"available. Using all available samples."
+        )
+        num_samples = len(user_inputs)
 
-    del stmt["id"]
-    del stmt["matches_hash"]
+    return (
+        random.sample(user_inputs, num_samples) 
+        if do_random_sample 
+        else user_inputs[:num_samples]
+    )
 
-    if 'supports' in stmt:
-        del stmt['supports']
-    if 'supported_by' in stmt:
-        del stmt['supported_by']
+def load_input_file(input_file_path: str) -> List[Dict[str, str]]:
+    """Loads input data from a TSV or JSON file and returns a list of dictionaries."""
+    if input_file_path is None:
+        with open(INPUT_DEFAULT, encoding="utf-8") as f:
+            benchmark_corpus = json.load(f)
+            return [
+                {
+                    "text": get_input_text_from_original_statement_json(stmt),
+                    "pmid": get_pmid_from_original_statement_json(stmt),
+                }
+                for stmt in benchmark_corpus
+            ]
 
-    return stmt
+    elif input_file_path.endswith(".tsv"):
+        with open(input_file_path, encoding="utf-8") as f:
+            reader = csv.reader(f, delimiter="\t")
+            formatted_input_file = []
+            first_line = True
 
+            for parts in reader:
+                if len(parts) != 2:
+                    raise ValueError(f"Invalid TSV format in line: {parts}")
 
-def post_process_extracted_json(gpt_stmt_json):
-    """Function to post process the extracted json from chatGPT
+                text, pmid = parts
+                text = text.strip('"')  # Remove quotes
+                pmid = pmid.strip()  # Remove extra spaces
 
-    Parameters
-    ----------
-    gpt_stmt_json : dict
-        The extracted json from chatGPT
+                if first_line and text.lower() == "text" and pmid.lower() == "pmid":
+                    first_line = False
+                    continue
 
-    Returns
-    -------
-    dict
-        The post processed json or if there is a KeyError, the original json
-    """
-    try:
-        stmt_type = gpt_stmt_json["type"]
-        mapped_type = stmt_mapping.get(stmt_type.lower(), stmt_type)
-        gpt_stmt_json["type"] = mapped_type
-    except KeyError:
-        pass
+                formatted_input_file.append({"text": text, "pmid": pmid})
 
-    return gpt_stmt_json
+        return formatted_input_file
 
+    elif input_file_path.endswith(".json"):
+        with open(input_file_path, encoding="utf-8") as f:
+            return json.load(f)
 
-def _get_statement_mapping():
-    stmt_classes = get_all_descendants(Statement)
-    mapping = {stmt_class.__name__.lower(): stmt_class.__name__ for stmt_class in stmt_classes}
-    return mapping
+    raise ValueError(f"Invalid input file format: {input_file_path}")
 
+def get_input_text_from_original_statement_json(
+    original_statement_json_object: Union[str, Dict[str, Any]]
+) -> str:
+    """Extracts the 'text' field from the given JSON object."""
+    if isinstance(original_statement_json_object, str):
+        try:
+            original_statement_json_object = json.loads(
+                original_statement_json_object
+            )
+        except json.JSONDecodeError as e:
+            raise ValueError(
+                f"Invalid JSON string provided: {original_statement_json_object}"
+            ) from e
+    return original_statement_json_object["evidence"][0]["text"]
 
-stmt_mapping = _get_statement_mapping()
+def get_pmid_from_original_statement_json(
+    original_statement_json_object: Union[str, Dict[str, Any]]
+) -> str:
+    """Extracts the 'pmid' field from the given JSON object."""
+    if isinstance(original_statement_json_object, str):
+        try: 
+            original_statement_json_object = json.loads(
+                original_statement_json_object
+            )
+        except json.JSONDecodeError as e:
+            raise ValueError(
+                f"Invalid JSON string provided: {original_statement_json_object}"
+            ) from e
+    return original_statement_json_object["evidence"][0]["pmid"]
+
+def resolve_ref(
+    schema: Dict[str, Any], ref_path: str
+) -> Dict[str, Any]:
+    """Helper function to resolve a $ref path in a JSON schema."""
+    keys = ref_path.lstrip("#/").split("/")
+    ref_obj = schema
+    for key in keys:
+        ref_obj = ref_obj.get(key, {})
+    return copy.deepcopy(ref_obj)
+
+def merge_allOf(
+    schema: Dict[str, Any], root_schema: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Recursively merges allOf definitions into their parent objects."""
+    if isinstance(schema, dict):
+        if "allOf" in schema:
+            merged_schema = {}
+            required_fields = set()
+
+            for sub_schema in schema["allOf"]:
+                if "$ref" in sub_schema:
+                    ref_obj = resolve_ref(root_schema, sub_schema["$ref"])
+                    sub_schema = ref_obj.copy()
+
+                for key, value in sub_schema.items():
+                    if key == "required":
+                        required_fields.update(value)
+                    elif (
+                        key in merged_schema
+                        and isinstance(merged_schema[key], dict)
+                        and isinstance(value, dict)
+                    ):
+                        merged_schema[key].update(value)
+                    else:
+                        merged_schema[key] = value
+
+            merged_schema.pop("allOf", None)
+            if required_fields:
+                merged_schema["required"] = list(required_fields)
+
+            schema.clear()
+            schema.update(merged_schema)
+
+        for key in ["properties", "items", "definitions"]:
+            if key in schema and isinstance(schema[key], dict):
+                schema[key] = {
+                    k: merge_allOf(v, root_schema) for k, v in schema[key].items()
+                }
+
+        return schema
+
+    elif isinstance(schema, list):
+        return [merge_allOf(item, root_schema) for item in schema]
+
+    return schema

@@ -1,0 +1,473 @@
+id: http://w3id.org/ontogpt/indra_statements
+name: indra_statements
+title: INDRA statements template
+description: >-
+  A template used for extracting a list of INDRA statements.
+prefixes:
+  linkml: https://w3id.org/linkml/
+  GO: http://purl.obolibrary.org/obo/GO_
+default_prefix: indra_statements
+default_range: string
+
+imports:
+  - linkml:types
+  - core
+
+classes:
+  Statements:
+    tree_root: true
+    attributes:
+      regulate_activity_list: 
+        range: RegulateActivity
+        multivalued: true
+        description: >-
+          A semicolon-separated list of 'RegulateActivity' statements mentioned
+          in the input text.
+      modification_list:
+        range: Modification
+        multivalued: true
+        description: >-
+          A semicolon-separated list of 'Modification' statements mentioned
+          in the input text.
+      self_modification_list:
+        range: SelfModification
+        multivalued: true
+        description: >-
+          A semicolon-separated list of 'SelfModification' statements mentioned
+          in the input text.
+      active_form_list:
+        range: ActiveForm
+        multivalued: true
+        description: >-
+          A semicolon-separated list of 'ActiveForm' statements mentioned
+          in the input text.
+      gef_list:
+        range: Gef
+        multivalued: true
+        description: >-
+          A semicolon-separated list of 'Gef' statements mentioned
+          in the input text.
+      gap_list:
+        range: Gap
+        multivalued: true
+        description: >-
+          A semicolon-separated list of 'Gap' statements mentioned
+          in the input text.
+      complex_list:
+        range: Complex
+        multivalued: true
+        description: >-
+          A semicolon-separated list of 'Complex' statements mentioned
+          in the input text.
+      association_list:
+        range: Association
+        multivalued: true
+        description: >-
+          A semicolon-separated list of 'Association' statements mentioned
+          in the input text.
+      translocation_list:
+        range: Translocation
+        multivalued: true
+        description: >-
+          A semicolon-separated list of 'Translocation' statements mentioned
+          in the input text.
+      regulate_amount_list:
+        range: RegulateAmount
+        multivalued: true
+        description: >-
+          A semicolon-separated list of 'RegulateAmount' statements mentioned
+          in the input text.
+      conversion_list:
+        range: Conversion
+        multivalued: true
+        description: >-
+          A semicolon-separated list of 'Conversion' statements mentioned
+          in the input text.
+
+
+  RegulateActivity:
+    is_a: Statement
+    description: Regulation of activity (such as activation and inhibition).
+    attributes:
+      type: 
+        range: string
+        description: >-
+          The type of the statement.
+          The value must match the following regex pattern:
+          "^((Activation)|(Inhibition))$"
+      subj:
+        range: Agent
+        description: The agent responsible for the change in activity, i.e., the 'upstream' node.
+      obj:
+        range: Agent
+        description: The agent whose activity is influenced by the subject, i.e., the 'downstream' node.
+      obj_activity:
+        range: string
+        description: The activity of the obj Agent that is affected, e.g., its 'kinase' activity.
+
+  Modification:
+    is_a: Statement
+    description: Statement representing the modification of a protein.
+    attributes:
+      type:
+        range: string
+        description: >-
+          The type of the statement. 
+          The value must match the following regex pattern:
+          "^((Phosphorylation)|(Dephosphorylation)|(Ubiquitination)|
+          (Deubiquitination)|(Sumoylation)|(Desumoylation)|(Hydroxylation)|
+          (Dehydroxylation)|(Acetylation)|(Deacetylation)|(Glycosylation)|
+          (Deglycosylation)|(Farnesylation)|(Defarnesylation)|
+          (Geranylgeranylation)|(Degeranylgeranylation)|(Palmitoylation)|
+          (Depalmitoylation)|(Myristoylation)|(Demyristoylation)|(Ribosylation)|
+          (Deribosylation)|(Methylation)|(Demethylation))$"
+      enz:
+        range: Agent
+        description: The enzyme involved in the modification.
+      sub:
+        range: Agent
+        description: The substrate of the modification.
+      residue:
+        range: string
+        description: The amino acid residue being modified, or None if it is unknown or unspecified.
+      position:
+        range: string
+        description: The position of the modified amino acid, or None if it is unknown or unspecified.
+
+  SelfModification:
+    is_a: Statement
+    description: Statement representing the self-modification of a protein.
+    attributes:
+      type:
+        range: string
+        description: >-
+          The type of the statement. 
+          The value must match the following regex pattern:
+          "^((Autophosphorylation)|(Transphosphorylation))$"
+      enz:
+        range: Agent
+        description: The enzyme involved in the modification.
+      residue:
+        range: string
+        description: The amino acid residue being modified, or None if it is unknown or unspecified.
+      position:
+        range: string
+        description: The position of the modified amino acid, or None if it is unknown or unspecified.
+
+  ActiveForm:
+    is_a: Statement
+    description: >-
+      Specifies conditions causing an Agent to be active or inactive. 
+      Types of conditions influencing a specific type of biochemical activity can include modifications, bound Agents, and mutations.
+    attributes:
+      type:
+        range: string
+        description: >-
+          The type of the statement. 
+          The value must match the following regex pattern:
+          "^ActiveForm$"
+      agent:
+        range: Agent
+        description: >-
+          The Agent in a particular active or inactive state. 
+          The sets of ModConditions, BoundConditions, and MutConditions on the given Agent instance indicate the relevant conditions.
+      activity:
+        range: string
+        description: The type of activity influenced by the given set of conditions, e.g., 'kinase'.
+      is_active: 
+        range: string
+        description: >-
+          Whether the conditions are activating (True) or inactivating (False).
+          The value must match the following regex pattern:
+          "^((true)|(false))$"
+
+  Gef:
+    is_a: Statement
+    description: >-
+      Exchange of GTP for GDP on a small GTPase protein mediated by a GEF. 
+      Represents the generic process by which a guanosine exchange factor (GEF) catalyzes nucleotide exchange on a GTPase protein.
+    attributes:
+      type:
+        range: string
+        description: >-
+          The type of the statement.
+          The value must match the following regex pattern:
+          "^Gef$"
+      gef:
+        range: Agent
+        description: The guanosine exchange factor.
+      ras:
+        range: Agent
+        description: The GTPase protein.
+
+  Gap:
+    is_a: Statement
+    description: >-
+      Acceleration of a GTPase protein's GTP hydrolysis rate by a GAP. 
+      Represents the generic process by which a GTPase activating protein (GAP) catalyzes GTP hydrolysis by a particular small GTPase protein.
+    attributes:
+      type:
+        range: string
+        description: >-
+          The type of the statement.
+          The value must match the following regex pattern:
+          "^Gap$"
+      gap:
+        range: Agent
+        description: The GTPase activating protein.
+      ras:
+        range: Agent
+        description: The GTPase protein.
+
+  Complex:
+    is_a: Statement
+    description: A set of proteins observed to be in a complex.
+    attributes:
+      type:
+        range: string
+        description: >-
+          The type of the statement.
+          The value must match the following regex pattern:
+          "^((Complex)|(Association))$"
+      members:
+        range: Agent
+        multivalued: true
+        description: >-
+          A semicolon-separated list of 'Agent' mentioned in the input text.
+
+  Association:
+    is_a: Complex
+    description: A set of unordered concepts that are associated with each other.
+
+  Translocation:
+    is_a: Statement
+    description: The translocation of a molecular agent from one location to another.
+    attributes:
+      type:
+        range: string
+        description: >-
+          The type of the statement.
+          The value must match the following regex pattern:
+          "^Translocation$"
+      agent:
+        range: Agent
+        description: The agent which translocates.
+      from_location:
+        range: string
+        description: >-
+          The location from which the agent translocates. 
+          This must be a valid GO cellular component name (e.g. 'cytoplasm') or ID (e.g. 'GO:0005737').
+        id_prefixes:
+          - GO
+        annotations:
+          annotators: sqlite:obo:go
+      to_location:
+        range: string
+        description: >-
+          The location to which the agent translocates. 
+          This must be a valid GO cellular component name or ID.
+        id_prefixes:
+          - GO
+        annotations:
+          annotators: sqlite:obo:go
+
+  RegulateAmount:
+    is_a: Statement
+    description: Represents directed, two-element interactions.
+    attributes:
+      type:
+        range: string
+        description: >-
+          The type of the statement.
+          The value must match the following regex pattern:
+          "^((IncreaseAmount)|(DecreaseAmount))$"
+      sub:
+        range: Agent
+        description: The mediating protein.
+      obj:
+        range: Agent
+        description: The affected protein.
+
+  Conversion:
+    is_a: Statement
+    description: Conversion of molecular species mediated by a controller protein.
+    attributes:
+      type:
+        range: string
+        description: >-
+          The type of the statement.
+          The value must match the following regex pattern:
+          "^Conversion$"
+      subj:
+        range: Agent
+        description: The protein mediating the conversion.
+      obj_from:
+        range: Agent
+        multivalued: true
+        description: >-
+          A semicolon separated list of 'Agent', which are the molecular species being consumed by the conversion.
+      obj_to:
+        range: Agent
+        multivalued: true
+        description: >-
+          A semicolon separated list of 'Agent', which are the molecular species being created by the conversion.
+
+
+  Statement:
+    description: Abstract class from which the more concrete INDRA statements inherits from.
+    attributes:
+      evidence:
+        description: A semicolon separated list of 'Evidence' supporting this statement.
+        range: Evidence
+        multivalued: true
+      id:
+        description: Statement UUID. If not provided, use 'Unknown' or 'None'.
+        range: string
+      supports:
+        description: A semicolon separated list of statements that this statement supports.
+        range: string
+        multivalued: true
+      supported_by: 
+        description: A semicolon separated list of statements supported by this statement.
+        range: string
+        multivalued: true
+
+  Evidence:
+    description: Container for evidence supporting a given statement.
+    attributes:
+      text: 
+        description: The original input statement.
+        range: string
+      source_api:
+        description: String identifying the INDRA API used to capture the statement, e.g., 'trips', 'biopax', 'bel'.
+        range: string
+      pmid:
+        description: String indicating the Pubmed ID of the source of the statement.
+        range: string
+      source_id:
+        description: For statements drawn from databases, ID of the database entity corresponding to the statement.
+        range: string
+      epistemics:
+        description: A structured object containing epistemic certainty attributes for the statement.
+        range: Epistemics
+
+  Epistemics:
+    description: Describes various forms of epistemic certainty associated with the statement.
+    attributes:
+      hypothesis:
+        description: >-
+          Specifies whether the statement is a hypothesis. 
+          The value must match the following regex pattern:
+          "^((true)|(false))$"
+        range: string
+      negation:
+        description: >-
+          Specifies whether the statement is a negation statement.
+          The value must match the following regex pattern:
+          "^((true)|(false))$"
+        range: string
+      direct: 
+        description: >-
+          Specifies whether the statement is a direct causal relationship or not.
+          The value must match the following regex pattern:
+          "^((true)|(false))$"
+        range: string
+
+  Agent:
+    description: A molecular entity, e.g., a protein.
+    attributes:
+      name: 
+        description: The name of the agent, preferably a canonicalized name such as an HGNC gene name.
+        range: string
+      mods:
+        description: A semicolon separated list of modification state of the agent.
+        range: ModCondition
+        multivalued: true
+      mutations:
+        description: A semicolon separated list of amino acid mutations of the agent.
+        range: MutCondition
+        multivalued: true
+      bound_conditions:
+        description: A semicolon separated list of other agents bound to the agent in this context.
+        range: BoundCondition
+        multivalued: true
+      activity: 
+        description: Activity of the agent.
+        range: ActivityCondition
+      location: 
+        description: >-
+          Cellular location of the agent. 
+          Must be a valid name (e.g. 'nucleus') or identifier (e.g. 'GO:0005634') for a GO cellular compartment.
+        range: string
+        id_prefixes:
+          - GO
+        annotations:
+          annotators: sqlite:obo:go
+
+  ModCondition:
+    description: Mutation state of an amino acid position of an Agent.
+    attributes:
+      mod_type:
+        description: >-
+          The type of post-translational modification, e.g., 'phosphorylation'. 
+          Valid modification types currently include: 'phosphorylation', 'ubiquitination', 'sumoylation', 
+          'hydroxylation', and 'acetylation'.
+        range: string
+        pattern: "^(phosphorylation|ubiquitination|sumoylation|hydroxylation|acetylation)$"
+      residue:
+        description: >-
+          String indicating the modified amino acid, e.g., 'Y' or 'tyrosine'. 
+          If None, indicates that the residue at the modification site is unknown or unspecified.
+        range: string
+      position:
+        description: >-
+          String indicating the position of the modified amino acid, e.g., '202'. 
+          If None, indicates that the position is unknown or unspecified.
+        range: string
+      is_modified:
+        description: >- 
+          Specifies whether the modification is present or absent. 
+          Setting the flag specifies that the Agent with the ModCondition is unmodified at the site.
+          The value must match the following regex pattern:
+          "^((true)|(false))$"
+        range: string
+
+  MutCondition:
+    description: Mutation state of an amino acid position of an Agent.
+    attributes:
+      position:
+        description: Residue position of the mutation in the protein sequence.
+        range: string
+      residue_from:
+        description: Wild-type (unmodified) amino acid residue at the given position.
+        range: string
+      residue_to:
+        description: Amino acid at the position resulting from the mutation.
+        range: string
+
+  ActivityCondition:
+    description: An active or inactive state of a protein.
+    attributes:
+      activity_type:
+        description: >-
+          The type of activity, e.g. 'kinase'. The basic, unspecified molecular activity is represented as 'activity'. 
+          Examples of other activity types are 'kinase', 'phosphatase', 'catalytic', 'transcription', etc.
+        range: string
+      is_active: 
+        description: >-
+          Specifies whether the given activity type is present or absent.
+          The value must match the following regex pattern:
+          "^((true)|(false))$"
+        range: string
+
+  BoundCondition:
+    description: Identify Agents bound (or not bound) to a given Agent in a given context.
+    attributes:
+      agent: 
+        range: Agent
+      is_bound:
+        description: >-
+          Specifies whether the given Agent is bound or unbound in the current context.
+          The value must match the following regex pattern:
+          "^((true)|(false))$"
+        range: string
