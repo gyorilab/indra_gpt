@@ -3,7 +3,7 @@
   "definitions": {
     "ModCondition": {
       "type": "object",
-      "description": "Mutation state of an amino acid position of an Agent.",
+      "description": "Post-translational modification state at an amino acid position.",
       "properties": {
         "mod_type": {
           "type": "string",
@@ -19,7 +19,7 @@
         },
         "is_modified": {
           "type": "boolean",
-          "description": "Specifies whether the modification is present or absent. Setting the flag specifies that the Agent with the ModCondition is unmodified at the site."
+          "description": "Specifies whether the modification is present or absent."
         }
       },
       "required": [

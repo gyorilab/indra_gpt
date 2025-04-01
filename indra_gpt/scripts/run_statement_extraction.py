@@ -41,6 +41,13 @@ if __name__ == "__main__":
             "If not provided, input texts will be extracted from the benchmark corpus."
     )
     arg_parser.add_argument(
+        "--output_folder", 
+        type=str, 
+        default= (OUTPUT_DIR / "extraction_results").as_posix(),
+        help=(f"Path to save the output results. "
+              f"Default: {(OUTPUT_DIR / 'extraction_results').as_posix()}.")
+    )
+    arg_parser.add_argument(
         "--num_samples", "-n", 
         type=int, 
         default=5,
@@ -58,13 +65,6 @@ if __name__ == "__main__":
         default=42,
         help=("Random seed for sampling input texts. "
                "Default: 42.")
-    )
-    arg_parser.add_argument(
-        "--output_folder", 
-        type=str, 
-        default= (OUTPUT_DIR / "extraction_results").as_posix(),
-        help=(f"Path to save the output results. "
-              f"Default: {(OUTPUT_DIR / 'extraction_results').as_posix()}.")
     )
     ##### arguments for the model and generation strategy settings #####
     arg_parser.add_argument(

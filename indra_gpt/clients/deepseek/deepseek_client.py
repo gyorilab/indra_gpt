@@ -1,7 +1,7 @@
 import logging
 from time import sleep
 import json
-import anthropic
+from openai import OpenAI
 from indra.config import IndraConfigError, get_config
 from indra_gpt.resources.constants import (USER_INIT_PROMPT_REDUCED,
                                            GENERIC_REFINEMENT_PROMPT,
@@ -9,24 +9,21 @@ from indra_gpt.resources.constants import (USER_INIT_PROMPT_REDUCED,
                                            ERROR_CONTEXT_PROMPT,
                                            SCHEMA_STRUCTURED_OUTPUT_PATH,
                                            JSON_SCHEMA)
-from indra_gpt.util.util import merge_allOf
 from tqdm import tqdm
+from indra_gpt.util.util import merge_allOf
 from indra_gpt.configs import GenerationConfig
 from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
 try:
-    api_key = get_config("ANTHROPIC_API_KEY", failure_ok=False)
+    api_key = get_config("DEEPSEEK_API_KEY", failure_ok=False)
 except IndraConfigError as err:
     raise KeyError(
-        "Please set ANTHROPIC_API_KEY in the environment or in the indra config."
+        "Please set DEEPSEEK_API_KEY in the environment or in the indra config."
     ) from err
 
-client = anthropic.Anthropic(
-    # defaults to os.environ.get("ANTHROPIC_API_KEY")
-    api_key=api_key
-)
+client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
 
 with open(SCHEMA_STRUCTURED_OUTPUT_PATH) as file:
     schema = json.load(file)
@@ -41,7 +38,8 @@ with open(STATEMENT_TYPE_REFINEMENT_PROMPT, "r", encoding="utf-8") as file:
 with open(ERROR_CONTEXT_PROMPT, "r", encoding="utf-8") as file:
     error_context_correction_prefix = file.read()
 
-class AnthropicClient:
+
+class DeepSeekClient:
     def __init__(self, config: GenerationConfig) -> None:
         self.config = config
 
@@ -53,48 +51,33 @@ class AnthropicClient:
             PROMPT_reduced = file.read()
         prompt = PROMPT_reduced + input_text
         return {"role": "user", "content": prompt}
-    
+
     def make_api_call(
         self, 
         messages: List[Dict[str, str]], 
         max_tokens: int = 1, 
         retry_count: int = 3
     ) -> Any:
-        """
-        Makes an API call to Anthropic with retry logic.
-
-        Returns:
-            Response object from Anthropic API.
-        """
         retry_count = max(retry_count, 1)
         response = None
 
         for i in range(retry_count):
             try:
                 if self.config.structured_output:
-                    logger.info("Anthropic API uses tool calling which many "
-                                "not be as reliable for structured output.")
-                    response = client.messages.create(
-                        model=self.config.model,
-                        max_tokens=max_tokens,
-                        messages=messages,
-                        tools = [
-                            {
-                                "name": "get_indra_statements",
-                                "description": (
-                                    "This tool is used to generate "
-                                    "structured output from the input text."),
-                                "input_schema": post_processed_schema
-                            }    
-                        ]
-                    )
-                else:
-                    response = client.messages.create(
-                        model=self.config.model,
-                        max_tokens=max_tokens,
-                        messages=messages
-                    )
+                    logger.info("DeepSeek API does not currently have schema "
+                                "based structured output support. "
+                                "Using JSON output mode instead.")
                     
+                response = client.chat.completions.create(
+                        model=self.config.model,
+                        messages=messages,
+                        response_format={"type": "json_object"},
+                        temperature=0,
+                        max_tokens=max_tokens,
+                        top_p=1.0,
+                        frequency_penalty=0.0,
+                        presence_penalty=0.0
+                    )
                 return response
 
             except Exception as e:
@@ -107,9 +90,9 @@ class AnthropicClient:
                     sleep(5)
                 else:
                     raise e
-                
+
         return response
-    
+
     def get_response(
         self,
         input_text: str,
@@ -118,13 +101,6 @@ class AnthropicClient:
         max_tokens: int = 8192,
         refinement_steps: bool = False
     ) -> str:
-        """
-        Gets a response from Anthropic's chat model, with optional 
-        self-correction iterations.
-
-        Returns:
-            JSON-formatted response as a string.
-        """
         self_correction_iterations = self.config.self_correction_iterations
 
         if chat_history is None:
@@ -133,7 +109,7 @@ class AnthropicClient:
         messages = chat_history + [chat_prompt]
         response = self.make_api_call(messages, max_tokens)
         response_content = self._extract_response_content(response)
-        
+
         if self_correction_iterations == 0:
             return response_content
         else:
@@ -158,46 +134,34 @@ class AnthropicClient:
     
     def _extract_response_content(self, response):
         try:
-            if response and response.content and len(response.content) > 0:
-                text = ""
-                for block in response.content:
-                    if hasattr(block, '__class__') and block.__class__.__name__ == "ToolUseBlock":
-                        tool_input = block.input
-                        return json.dumps(tool_input)
-                    elif hasattr(block, '__class__') and block.__class__.__name__ == "TextBlock":
-                        text += block.text 
-                return text if text else json.dumps({})  
+            if response and response.choices[0].message.content \
+                and len(response.choices[0].message.content) > 0:
+                return response.choices[0].message.content
             else:
-                return json.dumps({}) 
+                return json.dumps({})  # Ensure a valid empty JSON object
         except Exception as e:
-            logger.error(f"Malformed response: {response} with error: {e}")
-            return json.dumps({})  
+            logger.error(f"Malformed response: {response}")
+            return json.dumps({})  # Ensure a valid empty JSON object
     
     def _self_correct(self,
                       response_content="{}",
                       max_tokens=8192,
                       input_text="",
                       self_correction_iterations=0):
-        # Generic self-correction loop        
+        # Generic self-correction loop
         for _ in range(self_correction_iterations):
-            if not self.config.structured_output:
-                content = (generic_refinement_prefix 
-                            + "\n\nSchema:\n"
-                            + json.dumps(JSON_SCHEMA, indent=2)
-                            + "\n\nInput text:\n"
-                            + input_text
-                            + "\n\nResponse:\n"
-                            + response_content)
-            else:
-                content = (generic_refinement_prefix 
-                            + "\n\nInput text:\n" 
-                            + input_text
-                            + "\n\nResponse:\n"
-                            + response_content)
+            content = (generic_refinement_prefix 
+                       + "\n\nSchema:\n"
+                       + json.dumps(JSON_SCHEMA, indent=2)
+                       + "\n\nInput text:\n"
+                       + input_text
+                       + "\n\nResponse:\n"
+                       + response_content)
             prompt = {
                 "role": "user",
                 "content": content
             }
+            
             try:
                 logger.info("Making API call for self-correction step.")
                 raw_response = self.make_api_call([prompt], max_tokens)
@@ -211,7 +175,6 @@ class AnthropicClient:
             if new_response == response_content:
                 break  # Stop refining if no changes occur
             response_content = new_response
-
         return response_content
 
     def _refinement_steps(self, 
@@ -230,12 +193,11 @@ class AnthropicClient:
                             + "\n\nResponse:\n"
                             + response_content)
             }
-            if not self.config.structured_output:
-                prompt['content'] += ("\n\nSchema:\n" +
-                                    json.dumps(JSON_SCHEMA, indent=2))
+            prompt['content'] += ("\n\nSchema:\n" +
+                                  json.dumps(JSON_SCHEMA, indent=2))
 
             raw_response = self.make_api_call([prompt], max_tokens)
-            logger.debug(f"Raw Response from OpenAI (Statement Type Fix): {raw_response}")
+            logger.debug(f"Raw Response from DeepSeek (Statement Type Fix): {raw_response}")
             response_content = self._extract_response_content(raw_response)
 
         return response_content

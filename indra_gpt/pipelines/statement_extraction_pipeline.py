@@ -26,7 +26,8 @@ class StatementExtractionPipeline:
     def run(self) -> Tuple[List[Dict[str, str]], 
                            Dict[str, Any], 
                            List[Dict[str, Any]], 
-                           List[Statement]]:
+                           List[List[Statement]],
+                           List[List[Statement]]]:
         """
         Executes the entire extraction pipeline: preprocessing, generation,
         and postprocessing.
@@ -38,19 +39,21 @@ class StatementExtractionPipeline:
         logger.info("Running LLM-based statement extraction...")
         extracted_json_stmts = self.generator.generate(preprocessed_input_data)
         logger.info("Post-processing extracted statements...")
-        preassembled_stmts = self.post_processor.process(extracted_json_stmts)
+        raw_stmts_list, preassembled_stmts_list = self.post_processor.process(extracted_json_stmts)
 
         return (raw_input_data, 
                 preprocessed_input_data, 
-                extracted_json_stmts, 
-                preassembled_stmts)
+                extracted_json_stmts,
+                raw_stmts_list,
+                preassembled_stmts_list)
 
     def save_results(self, 
                      output_folder: str, 
                      raw_input_data: List[Dict[str, str]], 
                      preprocessed_input_data: Dict[str, Any],
                      extracted_json_stmts: List[Dict[str, Any]], 
-                     preassembled_stmts: List[Statement]) -> None:
+                     raw_stmts_list: List[List[Statement]],
+                     preassembled_stmts_list: List[List[Statement]]) -> None:
         """
         Saves the pipeline results to a file.
         """
@@ -64,7 +67,8 @@ class StatementExtractionPipeline:
                 "raw_input_data": raw_input_data,
                 "preprocessed_input_data": preprocessed_input_data,
                 "extracted_json_stmts": extracted_json_stmts,
-                "preassembled_stmts": preassembled_stmts
+                "raw_stmts_list": raw_stmts_list,
+                "preassembled_stmts_list": preassembled_stmts_list
             }
 
             # Save the results to a pickle file
@@ -78,7 +82,7 @@ class StatementExtractionPipeline:
             with open(stmts_output_path, "wb") as f:
                 # flatten the list of statements
                 stmts_flat_list = []
-                for stmts in preassembled_stmts:
+                for stmts in preassembled_stmts_list:
                     stmts_flat_list.extend(stmts)
                 pickle.dump(stmts_flat_list, f)
             logger.info(f"Flattened statements successfully saved to {stmts_output_path}")
@@ -91,11 +95,17 @@ class StatementExtractionPipeline:
         """
         Runs the full pipeline and saves the extracted statements to a file.
         """
-        (raw_input_data, preprocessed_input_data, 
-         extracted_json_stmts, preassembled_stmts) = self.run()
+        (raw_input_data, 
+         preprocessed_input_data, 
+         extracted_json_stmts, 
+         raw_stmts_list,
+         preassembled_stmts_list) = self.run()
 
         logger.info(f"Saving results to {output_folder}...")
-        self.save_results(output_folder, raw_input_data, 
-                          preprocessed_input_data, extracted_json_stmts, 
-                          preassembled_stmts)
+        self.save_results(output_folder, 
+                          raw_input_data, 
+                          preprocessed_input_data, 
+                          extracted_json_stmts, 
+                          raw_stmts_list,
+                          preassembled_stmts_list)
         logger.info("Pipeline execution completed successfully.")

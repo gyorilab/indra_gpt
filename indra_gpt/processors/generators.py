@@ -2,11 +2,12 @@ import logging
 from typing import Dict, Type, Any, List
 
 from indra_gpt.configs import GenerationConfig
-from indra_gpt.clients import OpenAIClient, AnthropicClient
+from indra_gpt.clients import OpenAIClient, AnthropicClient, DeepSeekClient
 
 MODEL_CLIENTS: Dict[str, Type[OpenAIClient | AnthropicClient]] = {
     "gpt-4o-mini": OpenAIClient,
     "claude-3-5-haiku-latest": AnthropicClient,
+    "deepseek-chat": DeepSeekClient
 }
 
 logger = logging.getLogger(__name__)

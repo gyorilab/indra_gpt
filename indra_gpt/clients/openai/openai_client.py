@@ -82,17 +82,22 @@ class OpenAIClient:
                                 "schema": post_processed_schema,
                             },
                         },
-                    )
-                else:
-                    response = client.chat.completions.create(
-                        model=self.config.model,
                         temperature=0,
                         max_tokens=max_tokens,
                         top_p=1.0,
                         frequency_penalty=0.0,
-                        presence_penalty=0.0,
+                        presence_penalty=0.0
+                    )
+                else:
+                    response = client.chat.completions.create(
+                        model=self.config.model,
                         messages=messages,
                         response_format={"type": "json_object"},
+                        temperature=0,
+                        max_tokens=max_tokens,
+                        top_p=1.0,
+                        frequency_penalty=0.0,
+                        presence_penalty=0.0
                     )
                 return response
 
@@ -117,13 +122,6 @@ class OpenAIClient:
         max_tokens: int = 8192,
         refinement_steps: bool = False
     ) -> str:
-        """
-        Gets a response from Anthropic's chat model, with optional 
-        self-correction iterations.
-
-        Returns:
-            JSON-formatted response as a string.
-        """
         self_correction_iterations = self.config.self_correction_iterations
 
         if chat_history is None:
@@ -173,17 +171,24 @@ class OpenAIClient:
                       self_correction_iterations=0):
         # Generic self-correction loop
         for _ in range(self_correction_iterations):
-            prompt = {
-                "role": "user",
-                "content": (generic_refinement_prefix 
+            if not self.config.structured_output:
+                content = (generic_refinement_prefix 
+                            + "\n\nSchema:\n"
+                            + json.dumps(JSON_SCHEMA, indent=2)
+                            + "\n\nInput text:\n"
+                            + input_text
+                            + "\n\nResponse:\n"
+                            + response_content)
+            else:
+                content = (generic_refinement_prefix 
                             + "\n\nInput text:\n" 
                             + input_text
                             + "\n\nResponse:\n"
                             + response_content)
+            prompt = {
+                "role": "user",
+                "content": content
             }
-            if not self.config.structured_output:
-                prompt['content'] += ("\n\nSchema:\n" 
-                                      + json.dumps(JSON_SCHEMA, indent=2))
             try:
                 logger.info("Making API call for self-correction step.")
                 raw_response = self.make_api_call([prompt], max_tokens)

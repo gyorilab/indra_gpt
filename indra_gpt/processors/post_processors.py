@@ -4,6 +4,7 @@ import io
 from typing import List, Dict, Any, Union
 
 from indra.statements import get_all_descendants, Statement
+import indra.statements as ist
 from indra.statements.io import stmts_from_json
 from indra_gpt.util.util import sample_from_input_file
 from indra_gpt.configs import PostProcessorConfig
@@ -48,12 +49,14 @@ class PostProcessor:
         stmts_json_list = self.post_process_json_stmts(generated_responses, 
                                                   input_texts, input_pmids)
         raw_stmts_list = [self.extract_stmts(stmts_json) for stmts_json in stmts_json_list]
-        preassembled_stmts = [self.preassembly_pipeline(stmts) 
+        preassembled_stmts_list = [self.preassembly_pipeline(stmts) 
                               for stmts in raw_stmts_list]
-
-        logger.info(f"Completed post-processing: {len(preassembled_stmts)} "
-                    f"statements processed.")
-        return preassembled_stmts
+        num_raw_stmts = sum([len(stmts) for stmts in raw_stmts_list])
+        num_preassembled_stmts = sum([len(stmts) for stmts in preassembled_stmts_list])
+        logger.info("Completed post-processing. "
+                    f"Before preassembly: {num_raw_stmts} statements. "
+                    f"After preassembly: {num_preassembled_stmts} statements.")
+        return raw_stmts_list, preassembled_stmts_list
     
     def post_process_json_stmts(self, 
                             generated_responses: List[Dict[str, Any]], 
@@ -68,7 +71,7 @@ class PostProcessor:
                 stmts_json = self._get_stmts_json(stmt_json_response)
                 stmts_json = [self.map_stmt_class_name(stmt) 
                               for stmt in stmts_json]
-                stmts_json = [self.remove_empty_strings_and_lists(stmt) 
+                stmts_json = [self.remove_empty_values(stmt) 
                               for stmt in stmts_json]
                 stmts_json = [self.update_evidence(stmt, text, pmid, self.config) 
                               for stmt in stmts_json]
@@ -87,21 +90,36 @@ class PostProcessor:
                                              stmt_json.get("type"))
         return stmt_json
 
-    def remove_empty_strings_and_lists(self, d: Dict[str, Any]
-                                       ) -> Dict[str, Any]:
-        for key, value in list(d.items()):
-            if isinstance(value, dict):
-                self.remove_empty_strings_and_lists(value)
-            elif isinstance(value, list):
-                for item in value:
-                    if isinstance(item, dict):
-                        self.remove_empty_strings_and_lists(item)
-            if value in [None, [], {}]:
-                del d[key]
-            if (isinstance(value, str) and 
-                value.lower().strip() in ["", "none", "null", "unknown", "na"]):
-                del d[key]
-        return d
+    def _is_empty(self, value):
+        """
+        Determine if a value is considered empty.
+        """
+        empty_strings = {"", "none", "null", "unknown", "na"}
+        if value is None:
+            return True
+        if isinstance(value, str) and value.lower().strip() in empty_strings:
+            return True
+        if isinstance(value, (list, dict)) and len(value) == 0:
+            return True
+        return False
+
+    def remove_empty_values(self, data):
+
+        if isinstance(data, dict):
+            new_dict = {key: self.remove_empty_values(value) for key, value in data.items()}
+            return {key: value for key, value in new_dict.items() if not self._is_empty(value)}
+        
+        elif isinstance(data, list):
+            new_list = [self.remove_empty_values(item) for item in data]
+            return [item for item in new_list if not self._is_empty(item)]
+        
+        elif isinstance(data, str):
+            cleaned = data.lower().strip()
+            return None if cleaned in ["", "none", "null", "unknown", "na"] else data
+
+        else:
+            return data
+
 
     def update_evidence(self, 
                         stmt_json: Dict[str, Any], 
@@ -120,13 +138,15 @@ class PostProcessor:
             for evidence in evidence_list:
                 evidence.update(actual_evidence)
                 try:
-                    for key, val in evidence['epistemics'].items():
-                        if key in ['hypothesis', 'negation', 'direct']:
-                            if isinstance(val, str):
-                                evidence['epistemics'][key] = (val.lower() == 'true')
+                    if evidence.get('epistemics', None):
+                        for key, val in evidence['epistemics'].items():
+                            if key in ['hypothesis', 'negation', 'direct']:
+                                if isinstance(val, str):
+                                    evidence['epistemics'][key] = (val.lower() 
+                                                                   == 'true')
                 except Exception as e:
                     logger.warning(
-                                f"Error updating epistemics in evidence: {e}, "
+                                f"Problem updating epistemics in evidence: {e}, "
                                 f"Evidence: {evidence}"
                             )
         else:
@@ -150,15 +170,16 @@ class PostProcessor:
         pipeline.append(ac.filter_grounded_only)
         pipeline.append(ac.filter_genes_only)
         pipeline.append(ac.filter_human_only)
-        pipeline.append(PostProcessor.filter_no_RegulateActivity_invalid_activity)
+        pipeline.append(PostProcessor.filter_curation_supported_types)
+        pipeline.append(PostProcessor.filter_RegulateActivity_only_valid_activities)
         pipeline.append(ac.run_preassembly, return_toplevel=False)
 
         # Run the pipeline on the loaded statements
         stmts_out = pipeline.run(stmts_in)
 
         # Check results
-        print(f"Number of statements before processing: {len(stmts_in)}")
-        print(f"Number of statements after processing: {len(stmts_out)}")
+        logger.info(f"Number of statements before processing: {len(stmts_in)}")
+        logger.info(f"Number of statements after processing: {len(stmts_out)}")
         return stmts_out
 
     def extract_stmts(self, 
@@ -196,7 +217,28 @@ class PostProcessor:
 
     @staticmethod
     @register_pipeline
-    def filter_no_RegulateActivity_invalid_activity(stmts_in: List[Statement]
+    def filter_curation_supported_types(stmts_in):
+        stmts_out = []
+        for stmt in stmts_in:
+            stmt_class = type(stmt)
+            if ((issubclass(stmt_class, ist.Modification) and stmt_class is not ist.Modification) or
+                (issubclass(stmt_class, ist.RegulateAmount) and stmt_class is not ist.RegulateAmount) or
+                (issubclass(stmt_class, ist.RegulateActivity) and stmt_class is not ist.RegulateActivity) or
+                issubclass(stmt_class, ist.Autophosphorylation) or
+                issubclass(stmt_class, ist.Association) or
+                issubclass(stmt_class, ist.Complex) or
+                issubclass(stmt_class, ist.Influence) or
+                issubclass(stmt_class, ist.ActiveForm) or
+                issubclass(stmt_class, ist.Translocation) or
+                issubclass(stmt_class, ist.Gef) or
+                issubclass(stmt_class, ist.Gap) or
+                issubclass(stmt_class, ist.Conversion)):
+                stmts_out.append(stmt)
+        return stmts_out
+
+    @staticmethod
+    @register_pipeline
+    def filter_RegulateActivity_only_valid_activities(stmts_in: List[Statement]
                                                     ) -> List[Statement]:
         stmts_out = []
         for stmt in stmts_in:
@@ -215,13 +257,18 @@ class PostProcessor:
         stmts_out = []
         if grounding:
             if grounding_strategy == 'gilda':
+                stmts_in_num = len(stmts_in)
+                logger.info(f"Grounding {stmts_in_num} statements with GILDA...")
                 stmts_out = ground_statements(stmts_in)
+                stmts_out_num = len(stmts_out)
+                logger.info(f"Grounded {stmts_out_num} statements with GILDA.")
             else:
                 raise ValueError(
                     f"Invalid grounding strategy: {grounding_strategy}"
                     f"Valid options are: ['gilda']"
                 )
         else:
+            logger.info("Skipping grounding of statements with GILDA.")
             stmts_out = stmts_in
         return stmts_out
 
