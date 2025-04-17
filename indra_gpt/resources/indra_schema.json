@@ -141,87 +141,8 @@
         }
       },
       "required": [
-        "name",
-        "db_refs"
+        "name"
       ]
-    },
-    "Concept": {
-      "type": "object",
-      "description": "A concept/entity of interest that is the argument of a Statement",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "The name of the concept, possibly a canonicalized name."
-        },
-        "db_refs": {
-          "type": "object",
-          "description": "Dictionary of database identifiers associated with this concept."
-        }
-      },
-      "required": [
-        "name",
-        "db_refs"
-      ]
-    },
-    "Context": {
-      "type": "object",
-      "description": "The context in which a given Statement was reported.",
-      "properties": {
-        "type": {
-          "type": "string",
-          "pattern": "^((bio)|(world))$",
-          "description": "Either 'world' or 'bio', depending on the type of context being repersented."
-        }
-      }
-    },
-    "BioContext": {
-      "type": "object",
-      "description": "The biological context of a Statement.",
-      "properties": {
-        "type": {
-          "type": "string",
-          "pattern": "^bio$",
-          "description": "The type of context, in this case 'bio'."
-        },
-        "location": {
-          "$ref": "#/definitions/RefContext",
-          "description": "Cellular location, typically a sub-cellular compartment."
-        },
-        "cell_line": {
-          "$ref": "#/definitions/RefContext",
-          "description": "Cell line context, e.g., a specific cell line, like BT20."
-        },
-        "cell_type": {
-          "$ref": "#/definitions/RefContext",
-          "description": "Cell type context, broader than a cell line, like macrophage."
-        },
-        "organ": {
-          "$ref": "#/definitions/RefContext",
-          "description": "Organ context."
-        },
-        "disease": {
-          "$ref": "#/definitions/RefContext",
-          "description": "Disease context."
-        },
-        "species": {
-          "$ref": "#/definitions/RefContext",
-          "description": "Species context."
-        }
-      }
-    },
-    "RefContext": {
-      "type": "object",
-      "description": "Represents a context identified by name and grounding references.",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "The name associated with the context."
-        },
-        "db_refs": {
-          "type": "object",
-          "description": "Dictionary of database identifiers associated with this context."
-        }
-      }
     },
     "Evidence": {
       "type": "object",
@@ -264,8 +185,7 @@
                     "description": "Specifies whether the statement is a direct causal relationship or not."
                 }
             },
-            "required": ["hypothesis", "negation"],
-            "additionalProperties": false
+            "required": ["hypothesis", "negation", "direct"]
         }
       }
     },
@@ -297,10 +217,7 @@
           },
           "description": "Statements supported by this statement."
         }
-      },
-      "required": [
-        "id"
-      ]
+      }
     },
     "Modification": {
       "description": "Statement representing the modification of a protein.",
@@ -333,9 +250,7 @@
               "description": "The position of the modified amino acid, or None if it is unknown or unspecified."
             }
           },
-          "required": [
-            "type"
-          ]
+          "required": ["type", "enz", "sub"]
         }
       ]
     },
@@ -366,9 +281,7 @@
               "description": "The position of the modified amino acid, or None if it is unknown or unspecified."
             }
           },
-          "required": [
-            "type"
-          ]
+          "required": ["type", "enz"]
         }
       ]
     },
@@ -399,9 +312,7 @@
               "description": "The activity of the obj Agent that is affected, e.g., its 'kinase' activity."
             }
           },
-          "required": [
-            "type"
-          ]
+          "required": ["type", "subj", "obj"]
         }
       ]
     },
@@ -432,16 +343,12 @@
               "description": "Whether the conditions are activating (True) or inactivating (False)."
             }
           },
-          "required": [
-            "type",
-            "agent",
-            "activity"
-          ]
+          "required": ["type","agent","activity"]
         }
       ]
     },
     "Gef": {
-      "description": "Exchange of GTP for GDP on a small GTPase protein mediated by a GEF. Represents the generic process by which a guanosine exchange factor (GEF) catalyzes nucleotide exchange on a GTPase protein.",
+      "description": "Exchange of GTP for GDP on a small GTPase protein mediated by a GEF.",
       "allOf": [
         {
           "$ref": "#/definitions/Statement"
@@ -463,14 +370,12 @@
               "description": "The GTPase protein."
             }
           },
-          "required": [
-            "type"
-          ]
+          "required": ["type", "gef", "ras"]
         }
       ]
     },
     "Gap": {
-      "description": "Acceleration of a GTPase protein's GTP hydrolysis rate by a GAP. Represents the generic process by which a GTPase activating protein (GAP) catalyzes GTP hydrolysis by a particular small GTPase protein.",
+      "description": "Acceleration of a GTPase protein's GTP hydrolysis rate by a GAP.",
       "allOf": [
         {
           "$ref": "#/definitions/Statement"
@@ -492,9 +397,7 @@
               "description": "The GTPase protein."
             }
           },
-          "required": [
-            "type"
-          ]
+          "required": ["type", "gap", "ras"]
         }
       ]
     },
@@ -519,9 +422,7 @@
               }
             }
           },
-          "required": [
-            "type"
-          ]
+          "required": ["type", "members"]
         }
       ]
     },
@@ -562,7 +463,8 @@
           },
           "required": [
             "type",
-            "agent"
+            "agent",
+            "to_location"
           ]
         }
       ]
@@ -590,8 +492,7 @@
             }
           },
           "required": [
-            "type"
-          ]
+            "type", "subj", "obj"]
         }
       ]
     },
@@ -627,9 +528,7 @@
               "description": "The list of molecular species being created by the conversion."
             }
           },
-          "required": [
-            "type"
-          ]
+          "required": ["type", "obj_from", "obj_to"]
         }
       ]
     }
@@ -638,34 +537,48 @@
   "items": {
     "anyOf": [
       {
-        "$ref": "#/definitions/RegulateActivity"
+        "$ref": "#/definitions/RegulateActivity",
+        "description": "Statement representing the regulation of a protein's activity in a binary manner—either activation or inhibition."
       },
       {
-        "$ref": "#/definitions/Modification"
+        "$ref": "#/definitions/Modification",
+        "description": "Statement representing the modification of a protein."
       },
       {
-        "$ref": "#/definitions/SelfModification"
+        "$ref": "#/definitions/SelfModification",
+        "description": "Statement representing the self-modification of a protein."
       },
       {
-        "$ref": "#/definitions/ActiveForm"
+        "$ref": "#/definitions/ActiveForm",
+        "description": "Statement that specifies conditions causing an Agent to be active or inactive. Types of conditions influencing a specific type of biochemical activity can include modifications, bound Agents, and mutations."
       },
       {
-        "$ref": "#/definitions/Gef"
+        "$ref": "#/definitions/Gef",
+        "description": "Statement of the exchange of GTP for GDP on a small GTPase protein mediated by a GEF."
       },
       {
-        "$ref": "#/definitions/Gap"
+        "$ref": "#/definitions/Gap",
+        "description": "Statement of the acceleration of a GTPase protein's GTP hydrolysis rate by a GAP"
       },
       {
-        "$ref": "#/definitions/Complex"
+        "$ref": "#/definitions/Complex",
+        "description": "Statement of a set of proteins observed to be in a complex."
       },
       {
-        "$ref": "#/definitions/Association"
+        "$ref": "#/definitions/Association",
+        "description": "Statement of a set of unordered concepts that are associated with each other."
       },
       {
-        "$ref": "#/definitions/Translocation"
+        "$ref": "#/definitions/Translocation",
+        "description": "Statement of the translocation of a molecular agent from one location to another."
       },
       {
-        "$ref": "#/definitions/RegulateAmount"
+        "$ref": "#/definitions/RegulateAmount",
+        "description": "Statement of the regulation of the amount of a molecular agent (i.e. increase or decrease in amount) by another agent."
+      },
+      {
+        "$ref": "#/definitions/Conversion",
+        "description": "Statement of the conversion of molecular species mediated by a controller protein."
       }
     ]
   }
