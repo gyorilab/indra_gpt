@@ -21,8 +21,8 @@ class LitellmClient(LLMClient):
         self,
         custom_llm_provider: str = 'openai',
         api_key: str = None,
-        api_base: str = 'https://api.openai.com/v1',
-        model: str = 'gpt-4o-mini', 
+        api_base: str = None,
+        model: str = None, 
         max_tokens: int = 512,
         temperature: float = 0.7,
         **kwargs

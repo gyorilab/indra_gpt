@@ -42,14 +42,16 @@ class EndToEndExtractor:
             + "\n```\n\nExtract the relation from the following sentence and put it in a JSON object matching the schema above. "
             "The JSON object needs to be able to pass validation against the schema. If the statement type is 'RegulateActivity', "
             "list it as either 'Activation' or 'Inhibition'. If the statement type is 'RegulateAmount', list it as either 'IncreaseAmount' "
-            "or 'DecreaseAmount'. Only respond with the JSON object.\n\nSentence: "
+            "or 'DecreaseAmount'. Only respond with a JSON array of objects. Do not include any explanation or text outside the array. "
+            "Wrap even a single object in square brackets [ ].\n\nSentence: "
         )
         reduced_user_prompt = (
             "Extract the relation from the following sentence and put it in a JSON object "
             "matching the provided schema. The JSON object needs to be able to pass validation against the schema. "
             "If the statement type is 'RegulateActivity', list it as either 'Activation' or 'Inhibition'. If "
             "the statement type is 'RegulateAmount', list it as either 'IncreaseAmount' or 'DecreaseAmount'. "
-            "Only respond with the JSON object.\n\nSentence: "
+            "Only respond with a JSON array of objects. Do not include any explanation or text outside the array. "
+            "Wrap even a single object in square brackets [ ].\n\nSentence: "
         )
 
         # Construct history prompt
@@ -68,7 +70,7 @@ class EndToEndExtractor:
                 )
         return history
     
-    def extract(self, text):
+    def raw_extract(self, text):
         if self.llm is None:
             raise ValueError("LLM client is not initialized.")
 
@@ -79,7 +81,8 @@ class EndToEndExtractor:
             + "\n```\n\nExtract the relation from the following sentence and put it in a JSON object matching the schema above. "
             "The JSON object needs to be able to pass validation against the schema. If the statement type is 'RegulateActivity', "
             "list it as either 'Activation' or 'Inhibition'. If the statement type is 'RegulateAmount', list it as either 'IncreaseAmount' "
-            "or 'DecreaseAmount'. Only respond with the JSON object.\n\nSentence: "
+            "or 'DecreaseAmount'. Only respond with a JSON array of objects. Do not include any explanation or text outside the array. "
+            "Wrap even a single object in square brackets [ ].\n\nSentence: "
             + text
         )
 

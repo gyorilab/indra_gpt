@@ -1,5 +1,9 @@
+import json
 from indra_gpt.extractors.end_to_end.end_to_end_extractor import EndToEndExtractor
 # later: from extractors.recursive.recursive_extractor import RecursiveExtractor
+import logging
+
+logger = logging.getLogger(__name__)
 
 EXTRACTION_METHODS = {
     "end_to_end": EndToEndExtractor,
@@ -17,5 +21,5 @@ class Extractor:
             # If a class or object was passed directly
             self.extractor = extraction_method(llm_client, **kwargs)
 
-    def extract(self, text: str):
-        return self.extractor.extract(text)
+    def raw_extract(self, text: str):
+        return self.extractor.raw_extract(text)
