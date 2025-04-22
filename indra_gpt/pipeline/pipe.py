@@ -16,7 +16,7 @@ class ExtractionPipeline:
         self.postprocessor = postprocessor
 
     def preprocess(self):
-        return Pipe(lambda text: self.preprocessor.convert_to_ir(text))
+        return Pipe(lambda text: self.preprocessor.preprocess(text))
 
     def raw_extract(self):
         return Pipe(lambda ir: self.extractor.raw_extract(ir))

@@ -5,7 +5,7 @@ from indra.statements import stmts_from_json
 
 logger = logging.getLogger(__name__)
 
-class LLMToINDRAConverter:
+class JSONToINDRAConverter:
     def __init__(self, config: Optional[dict] = None):
         """
         Converter to postprocess LLM outputs and convert them into INDRA statements.
