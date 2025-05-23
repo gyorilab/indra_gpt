@@ -23,7 +23,7 @@ class LitellmClient(LLMClient):
         api_key: str = None,
         api_base: str = None,
         model: str = None, 
-        max_tokens: int = 512,
+        max_tokens: int = 2048,
         temperature: float = 0.7,
         **kwargs
     ):

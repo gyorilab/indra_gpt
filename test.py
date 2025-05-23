@@ -16,10 +16,14 @@ from indra_gpt.extractors.end_to_end.end_to_end_extractor import EndToEndExtract
 # Load data
 data_path = Path(__file__).parent / "indra_gpt" / "resources" / "indra_benchmark_corpus_all_correct.json"
 data = json.load(open(data_path))
-inputs = [(ev.get('text', ""), ev.get('pmid', '')) for stmt in data for ev in stmt['evidence']]
+inputs = [(ev.get('text', ""), ev.get('pmid', '')) for stmt in data for ev in stmt['evidence']][:10]
 
 # Model config
 model_config = {
+    "openai": {
+        "api_key": os.getenv("OPENAI_API_KEY"),
+        "model": "gpt-4o-mini"
+    },
     "ollama": {
         "api_key": None,
         "model": "llama3.2:latest",
@@ -27,11 +31,11 @@ model_config = {
     }
 }
 
-api_provider = "ollama"
+api_provider = "openai"
 llm_client = LLMClient(
     custom_llm_provider=api_provider,
     api_key=model_config[api_provider]["api_key"],
-    api_base=model_config[api_provider]["api_base"],
+    # api_base=model_config[api_provider]["api_base"],
     model=model_config[api_provider]["model"]
 )
 
