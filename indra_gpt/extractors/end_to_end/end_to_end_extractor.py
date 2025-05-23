@@ -79,7 +79,9 @@ class EndToEndExtractor:
             "The JSON object needs to be able to pass validation against the schema. If the statement type is 'RegulateActivity', "
             "list it as either 'Activation' or 'Inhibition'. If the statement type is 'RegulateAmount', list it as either 'IncreaseAmount' "
             "or 'DecreaseAmount'. Only respond with a JSON array of objects. Do not include any explanation or text outside the array. "
-            "Wrap even a single object in square brackets [ ].\n\nSentence: "
+            "Wrap even a single object in square brackets [ ]."
+            "Respond only with a valid JSON object. Do not include any Markdown formatting, explanations, or natural language before or after."
+            "\n\nSentence: "
             + text
         )
 
@@ -87,7 +89,7 @@ class EndToEndExtractor:
         history = self.get_history_examples(self.num_history_examples)
 
         # Call the LLM client
-        response = self.llm.call(prompt, history=history, response_format={"type": "json_object"})
+        response = self.llm.call(prompt, history=history)
         
         return response
 
