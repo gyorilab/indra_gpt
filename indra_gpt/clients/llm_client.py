@@ -35,7 +35,7 @@ class LitellmClient(LLMClient):
         self.temperature = temperature
         self.extra_params = kwargs
 
-    def call(self, prompt: str, history: list = None) -> str:
+    def call(self, prompt: str, history: list = None, **kwargs) -> str:
         messages = (history or []) + [{"role": "user", "content": prompt}]
         response = litellm.completion(
             custom_llm_provider=self.custom_llm_provider,
@@ -45,6 +45,6 @@ class LitellmClient(LLMClient):
             messages=messages,
             max_tokens=self.max_tokens,
             temperature=self.temperature,
-            **self.extra_params
+            **kwargs
         )
         return response.choices[0].message["content"]

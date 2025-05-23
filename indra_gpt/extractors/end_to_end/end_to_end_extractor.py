@@ -1,10 +1,7 @@
 import logging
-from time import sleep
 import json
 from indra_gpt.resources.constants import (INDRA_SCHEMA,
                                            INDRA_BENCHMARK_CORPUS_ALL_CORRECT)
-from tqdm import tqdm
-from typing import Dict, List
 import random
 
 logger = logging.getLogger(__name__)
@@ -90,7 +87,7 @@ class EndToEndExtractor:
         history = self.get_history_examples(self.num_history_examples)
 
         # Call the LLM client
-        response = self.llm.call(prompt, history=history)
+        response = self.llm.call(prompt, history=history, response_format={"type": "json_object"})
         
         return response
 
