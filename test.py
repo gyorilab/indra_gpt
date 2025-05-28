@@ -41,7 +41,6 @@ def benchmark_method(method_name, process_fn, inputs, logfile=None):
                 f"  Time: {elapsed_time:.2f}s \n"
                 f"  Speed: {secs_per_example:.2f} secs/example \n"
                 f"  Num Statements: {len(all_results)}\n"
-                f"  Statements: {all_results}\n"
             )
 
     return all_results
