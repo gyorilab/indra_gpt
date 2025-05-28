@@ -32,6 +32,7 @@ def prompt_parse_surface_epistemic_mode(text: str, schema: dict=EPISTEMIC_MODE_S
     - "The results show that X increases Y in T cells" → `"DECLARATIVE": "The results show that X increases Y in T cells"`
 
     Return your output as a valid JSON object that strictly conforms to the schema.
+    Respond only with a valid JSON object. Do not include any Markdown formatting, explanations, or natural language before or after.
 
     SCHEMA:
     {json.dumps(schema, indent=2)}
@@ -92,6 +93,7 @@ def prompt_parse_surface_logical_grouping(text: str, schema: dict=LOGICAL_COORDI
     `{{ "AND": ["Team of David and Sarah won three games", "Team of David and Sarah took home the trophy"] }}`
 
     Return your output as a valid JSON object that strictly conforms to the schema.
+    Respond only with a valid JSON object. Do not include any Markdown formatting, explanations, or natural language before or after.
 
     SCHEMA:
     {json.dumps(schema, indent=2)}
@@ -138,6 +140,7 @@ def prompt_parse_surface_logical_unary(text: str, schema: dict=LOGICAL_UNARY_SCH
     ⚠️ When in doubt or when structure is too complex to determine polarity, choose `"IDENTITY"`.
 
     Return a **single top-level JSON object** that strictly conforms to the schema.
+    Respond only with a valid JSON object. Do not include any Markdown formatting, explanations, or natural language before or after.
 
     SCHEMA:
     {json.dumps(schema, indent=2)}

@@ -1,5 +1,6 @@
 import json
 from indra_gpt.preprocessors.rec_logic_parser.parser import RecLogicParser
+from indra_gpt.preprocessors.rec_relation_parser.parser import RecRelationParser
 
 import logging
 
@@ -7,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 PREPROCESSING_METHODS = {
     "rec_logic_parser": RecLogicParser,
+    "rec_relation_parser": RecRelationParser,
 }
 
 class Preprocessor:

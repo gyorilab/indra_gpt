@@ -4,3 +4,4 @@ indra_gpt/.idea
 target
 .ipynb_checkpoints
 *.pyc
+__pycache__/

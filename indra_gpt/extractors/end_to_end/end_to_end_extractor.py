@@ -1,10 +1,7 @@
 import logging
-from time import sleep
 import json
 from indra_gpt.resources.constants import (INDRA_SCHEMA,
                                            INDRA_BENCHMARK_CORPUS_ALL_CORRECT)
-from tqdm import tqdm
-from typing import Dict, List
 import random
 
 logger = logging.getLogger(__name__)
@@ -82,7 +79,9 @@ class EndToEndExtractor:
             "The JSON object needs to be able to pass validation against the schema. If the statement type is 'RegulateActivity', "
             "list it as either 'Activation' or 'Inhibition'. If the statement type is 'RegulateAmount', list it as either 'IncreaseAmount' "
             "or 'DecreaseAmount'. Only respond with a JSON array of objects. Do not include any explanation or text outside the array. "
-            "Wrap even a single object in square brackets [ ].\n\nSentence: "
+            "Wrap even a single object in square brackets [ ]."
+            "Respond only with a valid JSON object. Do not include any Markdown formatting, explanations, or natural language before or after."
+            "\n\nSentence: "
             + text
         )
 

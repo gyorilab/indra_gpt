@@ -23,7 +23,7 @@ class LitellmClient(LLMClient):
         api_key: str = None,
         api_base: str = None,
         model: str = None, 
-        max_tokens: int = 512,
+        max_tokens: int = 2048,
         temperature: float = 0.7,
         **kwargs
     ):
@@ -35,7 +35,7 @@ class LitellmClient(LLMClient):
         self.temperature = temperature
         self.extra_params = kwargs
 
-    def call(self, prompt: str, history: list = None) -> str:
+    def call(self, prompt: str, history: list = None, **kwargs) -> str:
         messages = (history or []) + [{"role": "user", "content": prompt}]
         response = litellm.completion(
             custom_llm_provider=self.custom_llm_provider,
@@ -45,6 +45,6 @@ class LitellmClient(LLMClient):
             messages=messages,
             max_tokens=self.max_tokens,
             temperature=self.temperature,
-            **self.extra_params
+            **kwargs
         )
         return response.choices[0].message["content"]
