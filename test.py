@@ -77,6 +77,7 @@ def main(input_path, client, model, logfile=None, max_examples=10):
     def run_end_to_end(texts, pmids):
         all_stmts = []
         for text, pmid in tqdm(zip(texts, pmids), desc="Processing texts", total=len(texts)):
+            raw = None
             try:
                 raw = extractor.raw_extract(text)
                 stmts = postprocessor.convert_to_indra_stmts(raw, text, pmid)
@@ -87,17 +88,19 @@ def main(input_path, client, model, logfile=None, max_examples=10):
                 print(f"Raw extraction: {raw}\n")
                 all_stmts.extend([])
 
-        try:
-            print(f"Statments before preassembly: {all_stmts}\n")
-            preassembled_stmts = postprocessor.preassemble(all_stmts)
-        except Exception as e:
-            print(f"Error during preassembly: {e}\n")
-            preassembled_stmts = []
-        return preassembled_stmts
+        # try:
+        #     print(f"Statments before preassembly: {all_stmts}\n")
+        #     preassembled_stmts = postprocessor.preassemble(all_stmts)
+        # except Exception as e:
+        #     print(f"Error during preassembly: {e}\n")
+        #     preassembled_stmts = []
+        # return preassembled_stmts
+        return all_stmts
 
     def run_hybrid(texts, pmids):
         all_stmts = []
         for text, pmid in tqdm(zip(texts, pmids), desc="Processing texts", total=len(texts)):
+            raw = None
             try:
                 logic = rec_logic_preprocessor.preprocess(text)
                 raw = extractor.raw_extract(logic)
@@ -109,17 +112,12 @@ def main(input_path, client, model, logfile=None, max_examples=10):
                 print(f"Raw extraction: {raw}\n")
                 all_stmts.extend([])
 
-        try:
-            print(f"Statments before preassembly: {all_stmts}\n")
-            preassembled_stmts = postprocessor.preassemble(all_stmts)
-        except Exception as e:
-            print(f"Error during preassembly: {e}\n")
-            preassembled_stmts = []
-        return preassembled_stmts
+        return all_stmts
 
     def run_recursive(texts, pmids):
         all_stmts = []
         for text, pmid in tqdm(zip(texts, pmids), desc="Processing texts", total=len(texts)):
+            raw = None
             try:
                 logic = rec_logic_preprocessor.preprocess(text)
                 relation = rec_relation_preprocessor.preprocess(logic)
@@ -132,13 +130,7 @@ def main(input_path, client, model, logfile=None, max_examples=10):
                 print(f"Raw extraction: {raw}\n")
                 all_stmts.extend([])
 
-        try:
-            print(f"Statments before preassembly: {all_stmts}\n")
-            preassembled_stmts = postprocessor.preassemble(all_stmts)
-        except Exception as e:
-            print(f"Error during preassembly: {e}")
-            preassembled_stmts = []
-        return preassembled_stmts
+        return all_stmts
 
     # Load and process
     inputs = load_inputs(input_path, max_examples=max_examples)
