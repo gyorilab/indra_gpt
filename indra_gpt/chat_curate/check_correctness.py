@@ -6,6 +6,7 @@ from itertools import count
 from pathlib import Path
 from textwrap import dedent
 from time import sleep
+import os
 
 import biolookup
 import gilda
@@ -15,7 +16,7 @@ from indra.statements import default_ns_order
 from indra.statements.io import stmts_from_json_file
 from tqdm import tqdm
 
-from indra_gpt.api import run_openai_chat
+from indra_gpt.clients.llm_client import LitellmClient
 
 logger = logging.getLogger(__name__)
 
@@ -29,11 +30,24 @@ negative_examples_path = LOCAL_FILES.joinpath("negative_examples.tsv")
 
 default_prompt_template = """{examples}
 {query}Please answer with just 'Yes' or 'No'."""
-old_prompt = (
-    "You need to help me verify if a sentence I give you implies "
-    "a statement I give you. Provide a correct answer with a "
-    'simple yes or no. Sentence: "{check_sentence}" Statement: '
-    '"{check_eng_stmt}" Answer:'
+
+CURATION_TAGS_JSON_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "tag": {
+            "type": "string",
+            "description": "The curation tag indicating the classification of the sentence-statement pair."
+        },
+        "explanation": {"type": "string", "description": "An explanation for the curation tag."}
+    },
+    "required": ["tag", "explanation"],
+    "additionalProperties": False,
+    "description": "A JSON schema for the curation tags for the sentence-statement pair.",
+}
+
+llm_client = LitellmClient(
+    api_key=os.getenv("OPENAI_API_KEY"),
+    model="gpt-4o-mini"
 )
 
 
@@ -371,8 +385,8 @@ def generate_synonym_str(
         in_stmt = agent_info["syn_in_stmt"]
         synonyms = set(agent_info["synonyms"]) - {in_stmt}
         name = in_stmt or in_text
+        
         if len(synonyms) == 0 or name is None:
-            # No string to generate
             continue
 
         if include_def:
@@ -388,45 +402,25 @@ def generate_synonym_str(
                 else ""
             )
 
-        if in_text and in_stmt:
-            # 1. 'real' synonyms
-            if in_text != in_stmt:
-                syn_strs.append((in_stmt, in_text))
-            # 2. They are the same, no need to add a synonym
-            else:
-                continue
+        if in_text and in_stmt and in_text == in_stmt:
+            continue
         else:
-            # 3. In statement but not in text, continue
-            if in_text is None and in_stmt or in_text and in_stmt is None:
-                #  Use continue to test the assumption that chat-gpt gets
-                # more confused by listing synonyms that don't appear in the
-                # text
-                # continue
-
-                # List the synonyms to test the assumption that some of the
-                # synonyms are descriptive enough to clarify the meaning of
-                # the statement and text pair rather than confuse chat-gpt.
-                synonyms = list(synonyms)
-                if len(synonyms) == 1:
-                    synonyms = synonyms[0]
-                elif len(synonyms) == 2:
-                    synonyms = '"' + '" and "'.join(synonyms) + '"'
-                elif len(synonyms) > 2:
-                    synonyms = (
-                        '"'
-                        + '", "'.join(synonyms[:-1])
-                        + '", and "'
-                        + synonyms[-1]
-                        + '"'
-                    )
-                else:
-                    #
-                    pass
-                syn_strs.append((name, synonyms))
+            synonyms = list(synonyms)
+            if len(synonyms) == 1:
+                synonyms = synonyms[0]
+            elif len(synonyms) == 2:
+                synonyms = '"' + '" and "'.join(synonyms) + '"'
+            elif len(synonyms) > 2:
+                synonyms = (
+                    '"'
+                    + '", "'.join(synonyms[:-1])
+                    + '", and "'
+                    + synonyms[-1]
+                    + '"'
+                )
             else:
-                # 4. neither in text nor in statement (should already be
-                #    handled above)
-                continue
+                pass
+            syn_strs.append((name, synonyms))
 
     if len(syn_strs) == 1:
         _and = ""
@@ -777,7 +771,7 @@ def explain_negative_examples(
 
         # Run the chat completion
         try:
-            response = run_openai_chat(
+            response = llm_client.call(
                 prompt=prompt, max_tokens=max_tokens, strip=False
             )
         except Exception as e:
@@ -983,7 +977,7 @@ def run_stats(
         # Run the chat completion
         chat_qa = {"prompt": prompt, "tag": checker_dict["tag"]}
         try:
-            choice = run_openai_chat(
+            choice = llm_client.call(
                 prompt=prompt, max_tokens=max_tokens, debug=debug_print
             )
         except Exception as e:
@@ -1064,11 +1058,11 @@ def run_stats(
 
     return results_dict
 
-
 def generate_classifier_prompt(
     ev_text: str,
     eng_stmt: str,
     agent_info,
+    binary: bool = False,
     ignore_tags=None,
 ) -> str:
     """Generate a prompt for the classifier.
@@ -1081,6 +1075,8 @@ def generate_classifier_prompt(
         The English statement.
     agent_info :
         The agent info.
+    binary :
+        If True, we only consider the "correct" and "incorrect" tags.
     ignore_tags :
         The tags to ignore. Default: None.
 
@@ -1092,8 +1088,8 @@ def generate_classifier_prompt(
     """
     # Follows the tags available in the training data
     curation_tags = {
-        "other": "When no other tag is applicable, use this tag.",
-        "correct": "The statement is correct and is implied by the sentence.",
+        "correct": "The statement is implied by the sentence.",
+        "incorrect": "The statement is not implied by the sentence.",
         "no_relation": "This tag is applicable if the sentence does not "
         "imply a relationship between the agents appearing in "
         "the Statement.",
@@ -1135,6 +1131,7 @@ def generate_classifier_prompt(
         "attached to it, but the statement is otherwise "
         'correct. Example: sentence "Mutant BRAF '
         'activates MEK"; statement: "BRAF activates MEK".',
+        "other": "When no other tag is applicable, use this tag.",
     }
     prompt_templ = dedent(
         """
@@ -1144,18 +1141,31 @@ def generate_classifier_prompt(
     
     Please help me put the right tag to the following sentence - statement pair:
     
-    Sentence: {sentence}
-    Statement: {statement}
+    Sentence: 
+    {sentence}
+    Statement: 
+    {statement}
+
+    Additional Context:
     {synonyms}"""
     )
-    ignore_tags = ignore_tags or []
-    tag_desc = "\n".join(
-        [
-            f"{tag}: {description}"
-            for tag, description in curation_tags.items()
-            if tag not in ignore_tags
-        ]
-    )
+    if binary:
+        tag_desc = "\n".join(
+            [
+                f"{tag}: {description}"
+                for tag, description in curation_tags.items()
+                if tag in ["correct", "incorrect"]
+            ]
+        )
+    else:
+        ignore_tags = ignore_tags or []
+        tag_desc = "\n".join(
+            [
+                f"{tag}: {description}"
+                for tag, description in curation_tags.items()
+                if tag not in ignore_tags
+            ]
+        )
     synonyms = generate_synonym_str(agents_info=agent_info)
     prompt = prompt_templ.format(
         tag_descriptions=tag_desc,
@@ -1172,6 +1182,7 @@ def classify_statements(
     debug_print: bool = False,
     file_title: str = None,
     max_tokens: int = 100,
+    binary: bool = False,
     ignore_tags=None,
 ):
     """Classify statements according to the valid curation tags"""
@@ -1202,12 +1213,13 @@ def classify_statements(
             ev_text=text,
             eng_stmt=english,
             agent_info=agent_info,
+            binary=binary,
             ignore_tags=ignore_tags,
         )
 
         # Run the chat completion
         try:
-            response = run_openai_chat(
+            response = llm_client.call(
                 prompt=prompt, max_tokens=max_tokens, debug=debug_print
             )
         except Exception as e:
