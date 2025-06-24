@@ -6,7 +6,7 @@ conda activate indra_gpt
 
 python test.py \
     --input indra_gpt/resources/indra_benchmark_corpus_all_correct.json \
-    --client ollama \
-    --model llama3.2:latest \
+    --client openai \
+    --model gpt-4o-mini \
     --max_examples 100 \
     --logfile benchmark.log
