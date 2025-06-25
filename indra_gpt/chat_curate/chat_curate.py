@@ -45,7 +45,8 @@ CURATION_TAGS_JSON_SCHEMA = {
 
 llm_client = LitellmClient(
     api_key=os.getenv("OPENAI_API_KEY"),
-    model="gpt-4o-mini"
+    model="gpt-4o-mini",
+    response_format="json"
 )
 
 
@@ -792,19 +793,25 @@ def generate_tag_classifier_prompt(
     }
     prompt_templ = dedent(
         """
-    Here is a list of tags and descriptions describing how a sentence - statement pair can be classified:
-    
-    {tag_descriptions}
-    
-    Please help me put the right tag to the following sentence - statement pair:
-    
-    Sentence: 
-    {sentence}
-    Statement: 
-    {statement}
+        You are given a sentence and a candidate statement. Your task is to assign a curation tag indicating whether the statement is implied by the sentence.
 
-    Additional Context:
-    {synonyms}"""
+        Here is a list of available tags and their meanings:
+
+        {tag_descriptions}
+
+        Please read the following pair and choose the appropriate tag:
+
+        Sentence:
+        {sentence}
+
+        Statement:
+        {statement}
+
+        The following synonyms should be treated as equivalent when comparing entities or phrases:
+        {synonyms}
+
+        Only consider the information directly implied by the sentence (including definitions and synonyms). Do not assume unstated knowledge unless it logically follows.
+        """
     )
     if binary:
         tag_desc = "\n".join(
@@ -832,10 +839,12 @@ def generate_tag_classifier_prompt(
     )
     return prompt
 
-def check_correctness(indra_stmts, 
-                      pos_examples_path=positive_examples_path,
-                      neg_examples_path=negative_examples_path,
-                      n_examples=2):
+def chat_curate(indra_stmts, 
+                pos_examples_path=positive_examples_path,
+                neg_examples_path=negative_examples_path,
+                binary=False,
+                ignore_tags=['incorrect'],
+                n_examples=2):
     pos_examples = get_examples(examples_path=pos_examples_path, 
                                 n_examples=n_examples)
     neg_examples = get_examples(examples_path=neg_examples_path, 
@@ -843,7 +852,7 @@ def check_correctness(indra_stmts,
 
     stmts_curations = []
     for stmt in tqdm(indra_stmts, desc="Curating statements with chat curation"):
-        eng_stmt = EnglishAssembler([stmt]).make_model()
+        eng_stmt = str(stmt)# EnglishAssembler([stmt]).make_model()
         ag_list = stmt.agent_list()
         pa_hash = stmt.get_hash()
         stmt_curation = {"eng_stmt": eng_stmt, 
@@ -853,13 +862,22 @@ def check_correctness(indra_stmts,
         for ev in stmt.evidence:
             ev_text = ev.text
             agent_info = get_agent_info(ev_text, eng_stmt, ag_list)
-            prompt = generate_correctness_prompt(
-                query_sentence=ev_text, 
-                query_stmt=eng_stmt, 
-                query_agent_info=agent_info,
-                pos_ex_list=pos_examples,
-                neg_ex_list=neg_examples
-            )
+            if n_examples == 0:
+                prompt = generate_tag_classifier_prompt(
+                    ev_text=ev_text, 
+                    eng_stmt=eng_stmt, 
+                    agent_info=agent_info,
+                    binary=binary,
+                    ignore_tags=ignore_tags
+                )
+            else:
+                prompt = generate_correctness_prompt(
+                    query_sentence=ev_text, 
+                    query_stmt=eng_stmt, 
+                    query_agent_info=agent_info,
+                    pos_ex_list=pos_examples,
+                    neg_ex_list=neg_examples
+                )
             schema_wrapped_prompt = get_schema_wrapped_prompt(prompt, CURATION_TAGS_JSON_SCHEMA)
             raw_response = llm_client.call(schema_wrapped_prompt)
             try:

@@ -13,7 +13,7 @@ from indra.sources.indra_db_rest import get_curations, get_statements_by_hash
 logger = logging.getLogger(__name__)
 
 
-from indra_gpt.chat_curate.check_correctness import (
+from indra_gpt.chat_curate.chat_curate import (
     positive_examples_path,
     negative_examples_path,
     llm_client,
@@ -579,30 +579,32 @@ def curation_comparison_json(llm_curations: list):
         pa_hash = llm_curation['pa_hash']
         evidences_curations = llm_curation['evidences_curations']
         for ev_curation in evidences_curations:
-            ev_text = ev_curation['sentence']
-            source_hash = ev_curation['source_hash']
-            prompt = ev_curation['prompt']
-            ev_predicted_tag = ev_curation['json_response']['tag']
-            ev_predicted_tag_explanation = ev_curation['json_response']['explanation']
+            try:
+                ev_text = ev_curation['sentence']
+                source_hash = ev_curation['source_hash']
+                prompt = ev_curation['prompt']
+                ev_predicted_tag = ev_curation['json_response']['tag']
+                ev_predicted_tag_explanation = ev_curation['json_response']['explanation']
 
-            indra_curation = get_curations(pa_hash, source_hash)[0]
-            indra_curation['english'] = eng_stmt
-            indra_curation['source_hash'] = source_hash
-            indra_curation['text'] = ev_text #if not indra_curation['text'] else indra_curation['text']
-            indra_curation['prompt'] = prompt
-            indra_curation['raw_response'] = ev_curation['raw_response']
-            indra_curation['predicted_tag'] = ev_predicted_tag
-            indra_curation['predicted_tag_explanation'] = ev_predicted_tag_explanation
+                indra_curation = get_curations(pa_hash, source_hash)[0]
+                indra_curation['english'] = eng_stmt
+                indra_curation['source_hash'] = source_hash
+                indra_curation['text'] = ev_text #if not indra_curation['text'] else indra_curation['text']
+                indra_curation['prompt'] = prompt
+                indra_curation['raw_response'] = ev_curation['raw_response']
+                indra_curation['predicted_tag'] = ev_predicted_tag
+                indra_curation['predicted_tag_explanation'] = ev_predicted_tag_explanation
 
-            indra_curation = {
-                **{k: v for k, v in indra_curation.items() if k not in
-                ['english', 'text', 'tag', 'predicted_tag', 'predicted_tag_explanation']},
-                'english': indra_curation['english'],
-                'text': indra_curation['text'],
-                'tag': indra_curation['tag'],
-                'predicted_tag': indra_curation['predicted_tag'],
-                'predicted_tag_explanation': indra_curation['predicted_tag_explanation'],
-            }
-
+                indra_curation = {
+                    **{k: v for k, v in indra_curation.items() if k not in
+                    ['english', 'text', 'tag', 'predicted_tag', 'predicted_tag_explanation']},
+                    'english': indra_curation['english'],
+                    'text': indra_curation['text'],
+                    'tag': indra_curation['tag'],
+                    'predicted_tag': indra_curation['predicted_tag'],
+                    'predicted_tag_explanation': indra_curation['predicted_tag_explanation'],
+                }
+            except Exception as e:
+                logger.info(f"Error processing evidence curation: {e}")
             curation_comparison_json.append(indra_curation)
     return curation_comparison_json

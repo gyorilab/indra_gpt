@@ -8,7 +8,7 @@ def get_schema_wrapped_prompt(prompt, schema):
     wrapped_prompt =f"""
 Respond to the following prompt using the provided schema.
 The output response should be a valid JSON object that adheres to the schema.
-ONLY respond with the JSON object, do not add any formatting indicator or additional text.
+ONLY respond with the JSON object, do not add any formatting syntax or any additional commentary.
 
 SCHEMA:
 {schema}
