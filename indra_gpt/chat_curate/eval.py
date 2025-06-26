@@ -8,7 +8,7 @@ from time import sleep
 from collections import OrderedDict
 import logging
 
-from indra.sources.indra_db_rest import get_curations, get_statements_by_hash
+from indra.sources.indra_db_rest import get_curations
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,6 @@ from indra_gpt.chat_curate.chat_curate import (
     negative_examples_path,
     llm_client,
     generate_negative_expl_prompt,
-    generate_correctness_prompt,
     generate_tag_classifier_prompt,
     find_synonyms
 )
@@ -259,7 +258,7 @@ def run_stats(
             pos_examples = list(
                 map(
                     tuple,
-                    pos_df[["text", "english", "agent_info"]]
+                    pos_df[["text", "english", "agent_info", "tag"]]
                     .sample(n=n_pos_examples)
                     .values,
                 )
@@ -272,7 +271,7 @@ def run_stats(
             neg_examples = list(
                 map(
                     tuple,
-                    neg_df[["text", "english", "agent_info"]]
+                    neg_df[["text", "english", "agent_info", "tag"]]
                     .sample(n=n_neg_examples)
                     .values,
                 )
@@ -281,12 +280,13 @@ def run_stats(
             neg_examples = None
 
         # Generate the prompt
-        prompt = generate_correctness_prompt(
+        prompt = generate_tag_classifier_prompt(
             query_sentence=checker_dict["text"],
             query_stmt=checker_dict["english"],
             query_agent_info=checker_dict["agent_info"],
-            pos_ex_list=pos_examples,
-            neg_ex_list=neg_examples,
+            binary=True,
+            pos_examples=pos_examples,
+            neg_examples=neg_examples,
         )
 
         if not prompt:
@@ -574,7 +574,7 @@ def save_examples(training_data_df, correct: bool = True):
 
 def curation_comparison_json(llm_curations: list):
     curation_comparison_json = []
-    for llm_curation in llm_curations:
+    for llm_curation in tqdm(llm_curations, desc="Processing LLM curations"):
         eng_stmt = llm_curation['eng_stmt']
         pa_hash = llm_curation['pa_hash']
         evidences_curations = llm_curation['evidences_curations']
@@ -589,7 +589,7 @@ def curation_comparison_json(llm_curations: list):
                 indra_curation = get_curations(pa_hash, source_hash)[0]
                 indra_curation['english'] = eng_stmt
                 indra_curation['source_hash'] = source_hash
-                indra_curation['text'] = ev_text #if not indra_curation['text'] else indra_curation['text']
+                indra_curation['source_text'] = ev_text
                 indra_curation['prompt'] = prompt
                 indra_curation['raw_response'] = ev_curation['raw_response']
                 indra_curation['predicted_tag'] = ev_predicted_tag
@@ -604,7 +604,9 @@ def curation_comparison_json(llm_curations: list):
                     'predicted_tag': indra_curation['predicted_tag'],
                     'predicted_tag_explanation': indra_curation['predicted_tag_explanation'],
                 }
+                curation_comparison_json.append(indra_curation)
             except Exception as e:
-                logger.info(f"Error processing evidence curation: {e}")
-            curation_comparison_json.append(indra_curation)
+                logger.info(f"Error processing evidence curation: {e}"
+                            "skipping this curation")
+                continue
     return curation_comparison_json

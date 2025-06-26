@@ -50,14 +50,12 @@ llm_client = LitellmClient(
     response_format="json"
 )
 
-
 def get_ag_ns_id(db_refs, default):
     """Return a tuple of name space, id from an Agent's db_refs."""
     for ns in default_ns_order:
         if ns in db_refs:
             return ns, db_refs[ns]
     return "TEXT", db_refs.get("TEXT", default)
-
 
 def get_names_gilda(db_refs, name):
     """Get the names for a given db_refs dict using Gilda
@@ -81,7 +79,6 @@ def get_names_gilda(db_refs, name):
     if "TEXT" in db_refs and db_refs["TEXT"] not in synonyms:
         synonyms.append(db_refs["TEXT"])
     return synonyms
-
 
 def find_synonyms(
     ev_text: str,
@@ -169,7 +166,6 @@ def find_synonyms(
 
     return text_syn, eng_syn
 
-
 def get_agent_info(ev_text, english, ag_list, retry_count=3):
     """Get the synonyms and definitions for each agent
 
@@ -196,9 +192,24 @@ def get_agent_info(ev_text, english, ag_list, retry_count=3):
 
     # Loop over agents in the example
     for ag in ag_list:
+        # Skip agents that are None or have no db_refs
+        if not ag or not ag.db_refs:
+            logger.info(
+                f"Skipping agent {ag} with no db_refs or None value in "
+                "the agent list."
+            )
+            continue
+
         db_refs = ag.db_refs
         name = ag.name or ag.db_refs.get("TEXT")
-        curie = ":".join(ag.get_grounding())
+
+        try:
+            curie = ":".join(ag.get_grounding())
+        except Exception as e:
+            logger.info(
+                f"Skipping agent {ag} with no grounding: {e}"
+            )
+            continue
 
         # Get the synonyms for the agent
         synonyms = get_names_gilda(db_refs=db_refs, name=name)
@@ -237,7 +248,6 @@ def get_agent_info(ev_text, english, ag_list, retry_count=3):
         }
 
     return ag_info
-
 
 def get_create_training_set(
     curations_file: str = None,
@@ -343,7 +353,8 @@ def get_examples(examples_path: Path, n_examples: int):
         ev_text = row["text"]
         english = row["english"]
         agent_info = eval(row["agent_info"]) if row["agent_info"] else None
-        example = (ev_text, english, agent_info)
+        tag = row["tag"] if "tag" in row else None
+        example = (ev_text, english, agent_info, tag)
 
         examples.append(example)
     return examples
@@ -443,8 +454,7 @@ def generate_synonym_str(
 
     return def_str + syn_str
 
-
-def generate_example(sentence, statement, agents_info=None, index: int = None) -> str:
+def generate_example(sentence, statement, agents_info=None, tag=None, index: int = None) -> str:
     """Generate an example string
 
     Parameters
@@ -457,6 +467,8 @@ def generate_example(sentence, statement, agents_info=None, index: int = None) -
         A dict with agent info keyed by curie for each agent. Contains the
         name, synonyms, definition (if available), synonym used in text and
         synonym used in statement for each agent.
+    tag :
+        The curation tag for the example.
     index :
         If provided, is the index of the sentence and statement. If None,
         the index will not be included in the string.
@@ -470,22 +482,26 @@ def generate_example(sentence, statement, agents_info=None, index: int = None) -
     sent_str = "Sentence" + ix
     stmt_str = "Statement" + ix
 
-    example_template = '{sent_str}: "{sentence}"\n{stmt_str}: "{english}"{synonyms}\n'
+    example_template = """
+{sent_str}: "{sentence}"
+{stmt_str}: "{english}"
+{synonym_str}
+Tag: "{tag}"
+    """
     if agents_info:
-        syn_str = "\n" + generate_synonym_str(agents_info, index)
+        synonym_str = "\n" + generate_synonym_str(agents_info, index)
     else:
-        syn_str = "\n"
+        synonym_str = "\n"
     return (
         example_template.format(
             sent_str=sent_str,
             sentence=sentence,
             stmt_str=stmt_str,
             english=statement,
-            synonyms=syn_str,
+            synonym_str=synonym_str,
+            tag=tag,
         )
-        + "\n"
     )
-
 
 def generate_example_list(examples, correct: bool, indexer) -> str:
     """Generate a list of examples
@@ -506,194 +522,18 @@ def generate_example_list(examples, correct: bool, indexer) -> str:
     """
     pos_str = (
         "The following sentences are paired with statements that are "
-        "implied from their sentence:\n\n"
+        "implied from their sentence:\n"
     )
     neg_str = (
         "The following sentences do not imply the statements they "
-        "are paired with:\n\n"
+        "are paired with:\n"
     )
     template = pos_str if correct else neg_str
-    for sentence, statement, agents_info in examples:
+    for sentence, statement, agents_info, tag in examples:
         ix = next(indexer)
-        ex_str = generate_example(sentence, statement, agents_info, ix)
+        ex_str = generate_example(sentence, statement, agents_info, tag, ix)
         template += ex_str
     return template
-
-
-def generate_query_str(query_sentence, query_stmt, agents_info=None) -> str:
-    """Generate the query string for the prompt
-
-    Parameters
-    ----------
-    query_sentence :
-        The sentence to query.
-    query_stmt :
-        The english statement to query.
-    agents_info :
-        A dictionary keyed by curie with agent information for each agent
-        in the statement. Each agent dictionary has the name, synonyms,
-        definition (if available), synonym used in the sentence, and synonym
-        used in the statement.
-    """
-    query_str = (
-        "Is the following statement implied by the sentence "
-        "assuming the sentence and the statement follow the same "
-        "pattern as in the examples above?\n\n"
-    )
-    query_str += generate_example(query_sentence, query_stmt, agents_info)
-    return query_str
-
-
-def check_prompt_generation():
-    """Quickly test the prompt generation by calling this function"""
-    test_sentence1 = "a binds b and c in this text"
-    test_stmt1 = "A binds B and C"
-    test_synonyms1 = {
-        "A": {
-            "name": "a",
-            "definition": "a is a protein",
-            "synonyms": ["a", "A", "aa", "A-A"],
-            "syn_in_text": "a",
-            "syn_in_stmt": "A",
-        },
-        "B": {
-            "name": "b",
-            "definition": "b is a protein",
-            "synonyms": ["b", "B"],
-            "syn_in_text": "b",
-            "syn_in_stmt": "B",
-        },
-        "C": {
-            "name": "c",
-            "definition": "c is a protein",
-            "synonyms": ["c", "C"],
-            "syn_in_text": "c",
-            "syn_in_stmt": "C",
-        },
-    }
-
-    test_sentence2 = "C phosphorylates D in this text"
-    test_stmt2 = "C phosphorylates D"
-
-    test_sentence3 = "E deactivates f in this text"
-    test_stmt3 = "E activates F"
-    test_synonyms3 = {
-        "F": {
-            "name": "F",
-            "definition": "F is a small molecule",
-            "synonyms": ["f", "F", "ff", "F3"],
-            "syn_in_text": "f",
-            "syn_in_stmt": "F",
-        },
-    }
-
-    test_sentence4 = "X deactivates Y in this text"
-    test_stmt4 = "x deactivates Y"
-    test_synonyms4 = {
-        "x": {
-            "name": "X",
-            "definition": "X is a protein",
-            "synonyms": ["X", "x", "XX", "X1"],
-            "syn_in_text": "X",
-            "syn_in_stmt": "x",
-        },
-    }
-
-    test_query_sentence = "a inhibits b in this text"
-    test_query_stmt = "A inhibits B"
-    test_query_synonyms = {
-        "A": {
-            "name": "A",
-            "definition": "A is a protein",
-            "synonyms": ["a", "A", "a1"],
-            "syn_in_text": "a",
-            "syn_in_stmt": "A",
-        },
-        "B": {
-            "name": "B",
-            "definition": "B is a protein",
-            "synonyms": ["b", "B", "b1", "B1", "bb"],
-            "syn_in_text": "b",
-            "syn_in_stmt": "B",
-        },
-    }
-
-    pos_examples = [
-        (test_sentence1, test_stmt1, test_synonyms1),
-        (test_sentence2, test_stmt2, None),
-    ]
-    neg_examples = [
-        (test_sentence3, test_stmt3, test_synonyms3),
-        (test_sentence4, test_stmt4, test_synonyms4),
-    ]
-
-    test_prompt = generate_correctness_prompt(
-        query_sentence=test_query_sentence,
-        query_stmt=test_query_stmt,
-        pos_ex_list=pos_examples,
-        neg_ex_list=neg_examples,
-        query_agent_info=test_query_synonyms,
-    )
-    print(test_prompt)
-
-def generate_correctness_prompt(
-    query_sentence,
-    query_stmt,
-    query_agent_info=None,
-    pos_ex_list=None,
-    neg_ex_list=None
-):
-    """Generate a prompt for the given examples.
-
-    Parameters
-    ----------
-    query_sentence :
-        The sentence to query.
-    query_stmt :
-        The english statement to query.
-    pos_ex_list :
-        A list of tuples with (sentence, english_stmt, synonym_list)
-        for the examples to use in the prompt. The synonym list is assumed
-        to be a list of tuples with (synonym_in_sentence,
-        synonym_in_statement). Default: None.
-    neg_ex_list :
-        A list of tuples with (sentence, english_stmt, synonym_list)
-        for the examples to use in the prompt. The synonym list is assumed
-        to be a list of tuples with (synonym_in_sentence,
-        synonym_in_statement). Default: None.
-    query_agent_info :
-        A dict of agent info associated with the sentence - english statement
-        pair that is queried. Each entry is keyed by its curie and contains
-        name, synonym list and optionally a definition. Default: None.
-
-    Returns
-    -------
-    prompt :
-        The prompt string
-    """
-    # Get positive and negative examples
-    indexer = count(1)
-    if pos_ex_list is not None:
-        pos_ex_str = generate_example_list(pos_ex_list, correct=True, indexer=indexer)
-    else:
-        pos_ex_str = ""
-
-    if neg_ex_list is not None:
-        neg_ex_str = generate_example_list(neg_ex_list, correct=False, indexer=indexer)
-    else:
-        neg_ex_str = ""
-
-    examples_str = (
-        pos_ex_str + neg_ex_str + "\n=======\n" if pos_ex_str or neg_ex_str else ""
-    )
-
-    # Generate query string
-    query_str = generate_query_str(query_sentence, query_stmt, query_agent_info)
-
-    # Generate positive and negative examples
-    prmt = default_prompt_template.format(examples=examples_str, query=query_str)
-    return prmt
-
 
 def generate_negative_expl_prompt(
     query_text: str, query_stmt: str, query_agent_info
@@ -721,8 +561,11 @@ def generate_tag_classifier_prompt(
     ev_text: str,
     eng_stmt: str,
     agent_info,
-    binary: bool = False,
+    binary_classification: bool = False,
     ignore_tags=None,
+    pos_examples=None,
+    neg_examples=None,
+
 ) -> str:
     """Generate a prompt for the classifier.
 
@@ -792,6 +635,19 @@ def generate_tag_classifier_prompt(
         'activates MEK"; statement: "BRAF activates MEK".',
         "other": "When no other tag is applicable, use this tag.",
     }
+
+    # Get positive and negative examples
+    indexer = count(1)
+    if pos_examples is not None:
+        pos_ex_str = generate_example_list(pos_examples, correct=True, indexer=indexer)
+    else:
+        pos_ex_str = ""
+
+    if neg_examples is not None:
+        neg_ex_str = generate_example_list(neg_examples, correct=False, indexer=indexer)
+    else:
+        neg_ex_str = ""
+
     prompt_templ = dedent(
         """
         You are given a sentence and a candidate statement. Your task is to assign a curation tag indicating whether the statement is implied by the sentence.
@@ -799,6 +655,14 @@ def generate_tag_classifier_prompt(
         Here is a list of available tags and their meanings:
 
         {tag_descriptions}
+
+        Here are some examples of sentences and statements with their curation tags:
+
+        Positive examples:
+        {pos_ex_str}
+
+        Negative examples:
+        {neg_ex_str}
 
         Please read the following pair and choose the appropriate tag:
 
@@ -814,7 +678,7 @@ def generate_tag_classifier_prompt(
         Only consider the information directly implied by the sentence (including definitions and synonyms). Do not assume unstated knowledge unless it logically follows.
         """
     )
-    if binary:
+    if binary_classification:
         tag_desc = "\n".join(
             [
                 f"{tag}: {description}"
@@ -837,18 +701,21 @@ def generate_tag_classifier_prompt(
         sentence=ev_text,
         statement=eng_stmt,
         synonyms=synonyms,
+        pos_ex_str=pos_ex_str,
+        neg_ex_str=neg_ex_str
     )
     return prompt
 
 def chat_curate_stmt(stmt,
                      n_evidence_to_curate=None,
                      decision_threshold=None,
-                     binary=False,
+                     binary_classification=False,
                      ignore_tags=['incorrect'],
                      pos_examples=None,
                      neg_examples=None,
-                     n_fewshot_examples=0,):
-    eng_stmt = str(stmt) # or EnglishAssembler([stmt]).make_model()
+                     ):
+    eng_stmt = EnglishAssembler([stmt]).make_model()
+
     ag_list = stmt.agent_list()
     pa_hash = stmt.get_hash()
     all_evidences = stmt.evidence
@@ -868,47 +735,35 @@ def chat_curate_stmt(stmt,
 
     curated_tags = []
 
-    for ev in all_evidences:
+    for ev in curated_evs:
         ev_text = ev.text
+        if ev_text is None:
+            logger.info(f"Skipping evidence with no text for statement {pa_hash}: {ev}")
+            continue
         agent_info = get_agent_info(ev_text, eng_stmt, ag_list)
 
-        if ev in curated_evs:
-            # Generate prompt
-            if n_fewshot_examples == 0:
-                prompt = generate_tag_classifier_prompt(
-                    ev_text=ev_text,
-                    eng_stmt=eng_stmt,
-                    agent_info=agent_info,
-                    binary=binary,
-                    ignore_tags=ignore_tags
-                )
-            else:
-                prompt = generate_correctness_prompt(
-                    query_sentence=ev_text,
-                    query_stmt=eng_stmt,
-                    query_agent_info=agent_info,
-                    pos_ex_list=pos_examples,
-                    neg_ex_list=neg_examples
-                )
+        # Generate prompt
+        prompt = generate_tag_classifier_prompt(
+            ev_text=ev_text,
+            eng_stmt=eng_stmt,
+            agent_info=agent_info,
+            binary_classification=binary_classification,
+            ignore_tags=ignore_tags,
+            pos_examples=pos_examples,
+            neg_examples=neg_examples
+        )
 
-            # Wrap and send prompt
-            schema_wrapped_prompt = get_schema_wrapped_prompt(prompt, CURATION_TAGS_JSON_SCHEMA)
-            raw_response = llm_client.call(schema_wrapped_prompt)
-            try:
-                json_response = json.loads(raw_response)
-            except json.JSONDecodeError:
-                print(f"Error decoding JSON response: {raw_response}")
-                json_response = None
-
-            tag = json_response.get("tag") if json_response else None
-            curated_tags.append(tag)
-        else:
-            # Not curated — skip inference
-            tag = None
-            schema_wrapped_prompt = None
-            raw_response = None
+        # Wrap and send prompt
+        schema_wrapped_prompt = get_schema_wrapped_prompt(prompt, CURATION_TAGS_JSON_SCHEMA)
+        raw_response = llm_client.call(schema_wrapped_prompt)
+        try:
+            json_response = json.loads(raw_response)
+        except json.JSONDecodeError:
+            print(f"Error decoding JSON response: {raw_response}")
             json_response = None
 
+        tag = json_response.get("tag") if json_response else None
+        curated_tags.append(tag)
         stmt_curation['evidences_curations'].append({
             "sentence": ev_text,
             "source_hash": ev.source_hash,
@@ -922,20 +777,21 @@ def chat_curate_stmt(stmt,
     if decision_threshold is not None and curated_tags:
         num_correct = sum(1 for tag in curated_tags if tag == 'correct')
         prop_correct = num_correct / len(curated_tags)
+        stmt_curation['proportion_correct'] = round(prop_correct, 2)
         stmt_curation['overall_prediction'] = (
             'correct' if prop_correct >= decision_threshold else 'incorrect'
         )
-
     return stmt_curation
 
 def chat_curate_stmts(indra_stmts,
                       n_evidence_to_curate=5,
                       decision_threshold=0.5,
-                      binary=False,
+                      binary_classification=False,
                       ignore_tags=['incorrect'],
+                      n_fewshot_examples=0,
                       pos_examples_path=positive_examples_path,
                       neg_examples_path=negative_examples_path,
-                       n_fewshot_examples=0):
+                      ):
     pos_examples = get_examples(pos_examples_path, n_examples=n_fewshot_examples)
     neg_examples = get_examples(neg_examples_path, n_examples=n_fewshot_examples)
 
@@ -943,10 +799,10 @@ def chat_curate_stmts(indra_stmts,
         chat_curate_stmt(stmt,
                          n_evidence_to_curate=n_evidence_to_curate,
                          decision_threshold=decision_threshold,
-                         binary=binary,
+                         binary_classification=binary_classification,
                          ignore_tags=ignore_tags,
                          pos_examples=pos_examples,
                          neg_examples=neg_examples,
-                         n_fewshot_examples=n_fewshot_examples)
+        )               
         for stmt in tqdm(indra_stmts, desc="Curating statements with chat curation")
     ]
