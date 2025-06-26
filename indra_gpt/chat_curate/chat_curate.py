@@ -4,6 +4,7 @@ from collections import OrderedDict
 from itertools import count
 from pathlib import Path
 from textwrap import dedent
+import random
 import os
 
 import biolookup
@@ -839,45 +840,58 @@ def generate_tag_classifier_prompt(
     )
     return prompt
 
-def chat_curate(indra_stmts, 
-                pos_examples_path=positive_examples_path,
-                neg_examples_path=negative_examples_path,
-                binary=False,
-                ignore_tags=['incorrect'],
-                n_examples=2):
-    pos_examples = get_examples(examples_path=pos_examples_path, 
-                                n_examples=n_examples)
-    neg_examples = get_examples(examples_path=neg_examples_path, 
-                                n_examples=n_examples)
+def chat_curate_stmt(stmt,
+                     n_evidence_to_curate=None,
+                     decision_threshold=None,
+                     binary=False,
+                     ignore_tags=['incorrect'],
+                     pos_examples=None,
+                     neg_examples=None,
+                     n_fewshot_examples=0,):
+    eng_stmt = str(stmt) # or EnglishAssembler([stmt]).make_model()
+    ag_list = stmt.agent_list()
+    pa_hash = stmt.get_hash()
+    all_evidences = stmt.evidence
 
-    stmts_curations = []
-    for stmt in tqdm(indra_stmts, desc="Curating statements with chat curation"):
-        eng_stmt = str(stmt)# EnglishAssembler([stmt]).make_model()
-        ag_list = stmt.agent_list()
-        pa_hash = stmt.get_hash()
-        stmt_curation = {"eng_stmt": eng_stmt, 
-                        "pa_hash": pa_hash, 
-                        "evidences_curations": [],
-                        "predicted_tags": []}
-        for ev in stmt.evidence:
-            ev_text = ev.text
-            agent_info = get_agent_info(ev_text, eng_stmt, ag_list)
-            if n_examples == 0:
+    # Determine which evidences to curate
+    if n_evidence_to_curate is not None and n_evidence_to_curate < len(all_evidences):
+        curated_evs = set(random.sample(all_evidences, n_evidence_to_curate))
+    else:
+        curated_evs = set(all_evidences)
+
+    stmt_curation = {
+        "eng_stmt": eng_stmt,
+        "pa_hash": pa_hash,
+        "evidences_curations": [],
+        "predicted_tags": [],
+    }
+
+    curated_tags = []
+
+    for ev in all_evidences:
+        ev_text = ev.text
+        agent_info = get_agent_info(ev_text, eng_stmt, ag_list)
+
+        if ev in curated_evs:
+            # Generate prompt
+            if n_fewshot_examples == 0:
                 prompt = generate_tag_classifier_prompt(
-                    ev_text=ev_text, 
-                    eng_stmt=eng_stmt, 
+                    ev_text=ev_text,
+                    eng_stmt=eng_stmt,
                     agent_info=agent_info,
                     binary=binary,
                     ignore_tags=ignore_tags
                 )
             else:
                 prompt = generate_correctness_prompt(
-                    query_sentence=ev_text, 
-                    query_stmt=eng_stmt, 
+                    query_sentence=ev_text,
+                    query_stmt=eng_stmt,
                     query_agent_info=agent_info,
                     pos_ex_list=pos_examples,
                     neg_ex_list=neg_examples
                 )
+
+            # Wrap and send prompt
             schema_wrapped_prompt = get_schema_wrapped_prompt(prompt, CURATION_TAGS_JSON_SCHEMA)
             raw_response = llm_client.call(schema_wrapped_prompt)
             try:
@@ -886,14 +900,53 @@ def chat_curate(indra_stmts,
                 print(f"Error decoding JSON response: {raw_response}")
                 json_response = None
 
-            stmt_curation['evidences_curations'].append({
-                "sentence": ev_text,
-                "source_hash": ev.source_hash,
-                "prompt": schema_wrapped_prompt,
-                "raw_response": raw_response,
-                "json_response": json_response,
-            })
-            predicted_tag = json_response.get("tag") if json_response else None
-            stmt_curation['predicted_tags'].append(predicted_tag)
-        stmts_curations.append(stmt_curation)
-    return stmts_curations
+            tag = json_response.get("tag") if json_response else None
+            curated_tags.append(tag)
+        else:
+            # Not curated — skip inference
+            tag = None
+            schema_wrapped_prompt = None
+            raw_response = None
+            json_response = None
+
+        stmt_curation['evidences_curations'].append({
+            "sentence": ev_text,
+            "source_hash": ev.source_hash,
+            "prompt": schema_wrapped_prompt,
+            "raw_response": raw_response,
+            "json_response": json_response,
+        })
+        stmt_curation['predicted_tags'].append(tag)
+
+    # Optional overall prediction
+    if decision_threshold is not None and curated_tags:
+        num_correct = sum(1 for tag in curated_tags if tag == 'correct')
+        prop_correct = num_correct / len(curated_tags)
+        stmt_curation['overall_prediction'] = (
+            'correct' if prop_correct >= decision_threshold else 'incorrect'
+        )
+
+    return stmt_curation
+
+def chat_curate_stmts(indra_stmts,
+                      n_evidence_to_curate=5,
+                      decision_threshold=0.5,
+                      binary=False,
+                      ignore_tags=['incorrect'],
+                      pos_examples_path=positive_examples_path,
+                      neg_examples_path=negative_examples_path,
+                       n_fewshot_examples=0):
+    pos_examples = get_examples(pos_examples_path, n_examples=n_fewshot_examples)
+    neg_examples = get_examples(neg_examples_path, n_examples=n_fewshot_examples)
+
+    return [
+        chat_curate_stmt(stmt,
+                         n_evidence_to_curate=n_evidence_to_curate,
+                         decision_threshold=decision_threshold,
+                         binary=binary,
+                         ignore_tags=ignore_tags,
+                         pos_examples=pos_examples,
+                         neg_examples=neg_examples,
+                         n_fewshot_examples=n_fewshot_examples)
+        for stmt in tqdm(indra_stmts, desc="Curating statements with chat curation")
+    ]
