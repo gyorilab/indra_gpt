@@ -5,10 +5,11 @@ def get_schema_wrapped_prompt(prompt, schema):
     if isinstance(schema, dict):
         schema = json.dumps(schema, indent=2)
 
-    wrapped_prompt =f"""
+    wrapped_prompt = f"""
 Respond to the following prompt using the provided schema.
-The output response should be a valid JSON object that adheres to the schema.
-ONLY respond with the JSON object, do not add any formatting syntax or any additional commentary.
+The output response must be a **valid raw JSON object**, and must not include:
+- Markdown code blocks (no triple backticks)
+- Extra commentary, explanation, or formatting
 
 SCHEMA:
 {schema}

@@ -44,11 +44,6 @@ CURATION_TAGS_JSON_SCHEMA = {
     "description": "A JSON schema for the curation tags for the sentence-statement pair.",
 }
 
-llm_client = LitellmClient(
-    api_key=os.getenv("OPENAI_API_KEY"),
-    model="gpt-4o-mini",
-    response_format="json"
-)
 
 def get_ag_ns_id(db_refs, default):
     """Return a tuple of name space, id from an Agent's db_refs."""
@@ -656,15 +651,15 @@ def generate_tag_classifier_prompt(
 
         {tag_descriptions}
 
-        Here are some examples of sentences and statements with their curation tags:
+        Here are some examples of sentence-statement pairs with their corresponding tags:
 
-        Positive examples:
+        Positive examples (the statement is implied by the sentence):
         {pos_ex_str}
 
-        Negative examples:
+        Negative examples (the statement is not implied by the sentence):
         {neg_ex_str}
 
-        Please read the following pair and choose the appropriate tag:
+        Carefully read the following pair and choose the appropriate tag:
 
         Sentence:
         {sentence}
@@ -672,10 +667,18 @@ def generate_tag_classifier_prompt(
         Statement:
         {statement}
 
-        The following synonyms should be treated as equivalent when comparing entities or phrases:
+        Entity definitions and synonyms (if provided):
         {synonyms}
 
-        Only consider the information directly implied by the sentence (including definitions and synonyms). Do not assume unstated knowledge unless it logically follows.
+        Guidelines for assigning the tag:
+
+        - Only consider what is directly stated in the sentence, along with any provided definitions and synonyms.
+        - If the relationship expressed in the statement is synonymous with one explicitly stated in the sentence, the statement is considered implied.
+        - If the sentence discusses the **mechanism**, **specificity**, or **context** of a relationship, you may assume that the relationship itself is implied.
+        - Do not rely on external background knowledge unless the implication logically follows from the sentence.
+        - If the sentence expresses uncertainty about *how* something happens, but not *whether* it happens, the underlying relationship is still implied.
+
+        Respond only with the appropriate tag and a brief explanation in the required schema format.
         """
     )
     if binary_classification:
@@ -713,8 +716,10 @@ def chat_curate_stmt(stmt,
                      ignore_tags=['incorrect'],
                      pos_examples=None,
                      neg_examples=None,
+                     client=None,
                      ):
     eng_stmt = EnglishAssembler([stmt]).make_model()
+    indra_stmt_str = str(stmt)
 
     ag_list = stmt.agent_list()
     pa_hash = stmt.get_hash()
@@ -728,6 +733,7 @@ def chat_curate_stmt(stmt,
 
     stmt_curation = {
         "eng_stmt": eng_stmt,
+        "indra_stmt_str": indra_stmt_str,
         "pa_hash": pa_hash,
         "evidences_curations": [],
         "predicted_tags": [],
@@ -745,7 +751,7 @@ def chat_curate_stmt(stmt,
         # Generate prompt
         prompt = generate_tag_classifier_prompt(
             ev_text=ev_text,
-            eng_stmt=eng_stmt,
+            eng_stmt=f"English statement: {eng_stmt}\nINDRA statement: {indra_stmt_str}",
             agent_info=agent_info,
             binary_classification=binary_classification,
             ignore_tags=ignore_tags,
@@ -755,7 +761,7 @@ def chat_curate_stmt(stmt,
 
         # Wrap and send prompt
         schema_wrapped_prompt = get_schema_wrapped_prompt(prompt, CURATION_TAGS_JSON_SCHEMA)
-        raw_response = llm_client.call(schema_wrapped_prompt)
+        raw_response = client.call(schema_wrapped_prompt)
         try:
             json_response = json.loads(raw_response)
         except json.JSONDecodeError:
@@ -791,7 +797,15 @@ def chat_curate_stmts(indra_stmts,
                       n_fewshot_examples=0,
                       pos_examples_path=positive_examples_path,
                       neg_examples_path=negative_examples_path,
+                      model="gpt-4o-mini",
                       ):
+    
+    llm_client = LitellmClient(
+        api_key=os.getenv("OPENAI_API_KEY"),
+        model=model,
+        response_format="json"
+    )
+    
     pos_examples = get_examples(pos_examples_path, n_examples=n_fewshot_examples)
     neg_examples = get_examples(neg_examples_path, n_examples=n_fewshot_examples)
 
@@ -803,6 +817,7 @@ def chat_curate_stmts(indra_stmts,
                          ignore_tags=ignore_tags,
                          pos_examples=pos_examples,
                          neg_examples=neg_examples,
+                         client=llm_client,
         )               
         for stmt in tqdm(indra_stmts, desc="Curating statements with chat curation")
     ]

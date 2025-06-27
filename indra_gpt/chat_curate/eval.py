@@ -16,7 +16,6 @@ logger = logging.getLogger(__name__)
 from indra_gpt.chat_curate.chat_curate import (
     positive_examples_path,
     negative_examples_path,
-    llm_client,
     generate_negative_expl_prompt,
     generate_tag_classifier_prompt,
     find_synonyms
@@ -40,7 +39,8 @@ def explain_negative_examples(
     tag: str = None,
     n_iter: int = 10,
     max_tokens: int = 150,
-    output_dir: Path = None
+    output_dir: Path = None,
+    client=None
 ):
     """Submit statements curated as incorrect that asks why they are incorrect
 
@@ -89,7 +89,7 @@ def explain_negative_examples(
 
         # Run the chat completion
         try:
-            response = llm_client.call(
+            response = client.call(
                 prompt=prompt, max_tokens=max_tokens, strip=False
             )
         except Exception as e:
@@ -142,6 +142,7 @@ def run_stats(
     debug_print: bool = False,
     file_title: str = None,
     output_dir: Path = None,
+    client=None
 ):
     """Run chat completion with show-and-tell prompts.
 
@@ -296,7 +297,7 @@ def run_stats(
         # Run the chat completion
         chat_qa = {"prompt": prompt, "tag": checker_dict["tag"]}
         try:
-            choice = llm_client.call(
+            choice = client.call(
                 prompt=prompt, max_tokens=max_tokens, debug=debug_print
             )
         except Exception as e:
@@ -385,7 +386,8 @@ def classify_statements(
     max_tokens: int = 100,
     binary: bool = False,
     ignore_tags=None,
-    output_dir: Path = None
+    output_dir: Path = None,
+    client=None
 ):
     """Classify statements according to the valid curation tags"""
     start_dt = datetime.utcnow()
@@ -421,7 +423,7 @@ def classify_statements(
 
         # Run the chat completion
         try:
-            response = llm_client.call(
+            response = client.call(
                 prompt=prompt, max_tokens=max_tokens, debug=debug_print
             )
         except Exception as e:
@@ -572,7 +574,7 @@ def save_examples(training_data_df, correct: bool = True):
 
 #################################
 
-def curation_comparison_json(llm_curations: list):
+def curation_statement_evidence_pair_comparison_json(llm_curations: list):
     curation_comparison_json = []
     for llm_curation in tqdm(llm_curations, desc="Processing LLM curations"):
         eng_stmt = llm_curation['eng_stmt']
@@ -609,4 +611,25 @@ def curation_comparison_json(llm_curations: list):
                 logger.info(f"Error processing evidence curation: {e}"
                             "skipping this curation")
                 continue
+    return curation_comparison_json
+
+def curation_statement_comparison_json(llm_curations: list):
+    curation_comparison_json = []
+    for llm_curation in tqdm(llm_curations, desc="Processing LLM curations"):
+        try:
+            curation_comparison = {}
+            curation_comparison['eng_stmt'] = llm_curation['eng_stmt']
+            curation_comparison['pa_hash'] = llm_curation['pa_hash']
+            curation_comparison['llm_overall_prediction'] = llm_curation['overall_prediction']
+            stmt_curation = get_curations(llm_curation['pa_hash'])
+            curation_comparison['indra_curation'] = 'incorrect'
+            for ev_curation in stmt_curation:
+                if ev_curation['tag'] == 'correct':
+                    curation_comparison['indra_curation'] = 'correct'
+                    break
+            curation_comparison_json.append(curation_comparison)
+        except Exception as e:
+            logger.info(f"Error processing statement curation: {e}"
+                        "skipping this curation")
+            continue
     return curation_comparison_json
