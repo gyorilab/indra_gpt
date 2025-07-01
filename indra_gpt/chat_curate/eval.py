@@ -586,7 +586,7 @@ def curation_statement_evidence_pair_comparison_json(llm_curations: list):
                 source_hash = ev_curation['source_hash']
                 prompt = ev_curation['prompt']
                 ev_predicted_tag = ev_curation['json_response']['tag']
-                ev_predicted_tag_explanation = ev_curation['json_response']['explanation']
+                ev_predicted_tag_explanation = ev_curation['json_response'].get('explanation', '')
 
                 indra_curation = get_curations(pa_hash, source_hash)[0]
                 indra_curation['english'] = eng_stmt
@@ -613,23 +613,36 @@ def curation_statement_evidence_pair_comparison_json(llm_curations: list):
                 continue
     return curation_comparison_json
 
-def curation_statement_comparison_json(llm_curations: list):
+def curation_statement_comparison_json(llm_curations: dict):
     curation_comparison_json = []
-    for llm_curation in tqdm(llm_curations, desc="Processing LLM curations"):
+    pa_hashes_dict = llm_curations['pa_hashes_dict']
+    for pa_hash, item in tqdm(pa_hashes_dict.items(), desc="Processing LLM curations"):
         try:
-            curation_comparison = {}
-            curation_comparison['eng_stmt'] = llm_curation['eng_stmt']
-            curation_comparison['pa_hash'] = llm_curation['pa_hash']
-            curation_comparison['llm_overall_prediction'] = llm_curation['overall_prediction']
-            stmt_curation = get_curations(llm_curation['pa_hash'])
-            curation_comparison['indra_curation'] = 'incorrect'
+            curation_comparison = {
+                'english_stmt': item['english_stmt'],  # fixed key name
+                'pa_hash': pa_hash,
+                'llm_overall_prediction': item['overall_prediction'],
+                'llm_proportion_correct': item['proportion_correct'],
+                'num_evidences_curated': len(item['source_hashes_dict']),
+                'indra_curation': None
+            }
+
+            stmt_curation = get_curations(pa_hash)
+            if not stmt_curation:
+                logger.info(f"No curations found for pa_hash: {pa_hash}")
+                continue
+
             for ev_curation in stmt_curation:
+                # I.e. we assume a statement to be incorrect with respect to all its evidences
+                # Unless we encounter at least one evidence curation that is correct
+                curation_comparison['indra_curation'] = 'incorrect'
                 if ev_curation['tag'] == 'correct':
                     curation_comparison['indra_curation'] = 'correct'
                     break
+
             curation_comparison_json.append(curation_comparison)
         except Exception as e:
-            logger.info(f"Error processing statement curation: {e}"
-                        "skipping this curation")
+            logger.info(f"Error processing statement curation: {e} — skipping this curation")
             continue
+
     return curation_comparison_json

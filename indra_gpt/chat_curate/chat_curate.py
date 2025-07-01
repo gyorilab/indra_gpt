@@ -7,6 +7,8 @@ from textwrap import dedent
 import random
 import os
 from itertools import islice
+import time
+
 
 import tiktoken
 import biolookup
@@ -815,70 +817,81 @@ def generate_tag_classifier_prompt(
     )
     return prompt
 
-def chat_curate_stmt(stmt,
-                     n_evidence_to_curate=None,
-                     decision_threshold=None,
-                     binary_classification=False,
-                     ignore_tags=['incorrect'],
-                     pos_ex_str=None,
-                     neg_ex_str=None,
-                     schema_output_mode=False,
-                     client=None,
-                     ):
-    eng_stmt = EnglishAssembler([stmt]).make_model()
-    indra_stmt_str = str(stmt)
-
-    ag_list = stmt.agent_list()
-    pa_hash = stmt.get_hash()
-    all_evidences = stmt.evidence
-
-    # Determine which evidences to curate
-    if n_evidence_to_curate is not None and n_evidence_to_curate < len(all_evidences):
-        curated_evs = set(random.sample(all_evidences, n_evidence_to_curate))
+def chat_curate_stmt_ev_pair(stmt_source_pairs,
+                             binary_classification=False,
+                             ignore_tags=['incorrect'],
+                             n_fewshot_examples=1,
+                             get_ex_per_tag=True,
+                             pos_examples_path=POSITIVE_EXAMPLES_PATH,
+                             neg_examples_path=NEGATIVE_EXAMPLES_PATH,
+                             schema_output_mode=True,
+                             model="gpt-4o-mini"
+                            ):
+    # Create client
+    if schema_output_mode:
+        llm_client = LitellmClient(
+            api_key=os.getenv("OPENAI_API_KEY"),
+            model=model,
+            response_format="json"
+        )
     else:
-        curated_evs = set(all_evidences)
+        llm_client = LitellmClient(
+            api_key=os.getenv("OPENAI_API_KEY"),
+            model=model,
+            response_format="text"
+        )
+    # Create examples strings
+    pos_examples = get_examples(pos_examples_path, 
+                                n_examples=n_fewshot_examples, 
+                                binary_classification=binary_classification,
+                                get_ex_per_tag=get_ex_per_tag)
+    neg_examples = get_examples(neg_examples_path, 
+                                n_examples=n_fewshot_examples, 
+                                binary_classification=binary_classification,
+                                get_ex_per_tag=get_ex_per_tag)
+    indexer = count(1)
+    if pos_examples is not None:
+        pos_ex_str = generate_example_list(pos_examples, correct=True, indexer=indexer)
+    else:
+        pos_ex_str = ""
 
-    stmt_curation = {
-        "eng_stmt": eng_stmt,
-        "indra_stmt_str": indra_stmt_str,
-        "pa_hash": pa_hash,
-        "evidences_curations": [],
-        "predicted_tags": [],
-    }
+    if neg_examples is not None:
+        neg_ex_str = generate_example_list(neg_examples, correct=False, indexer=indexer)
+    else:
+        neg_ex_str = ""
 
-    curated_tags = []
-    import time
-    for ev in curated_evs:
-        ev_text = ev.text
+    # Generate prompt
+    results = []
+    for stmt, source_hash in tqdm(stmt_source_pairs, desc="Processing stmt-source pairs"):
+        pa_hash = stmt.get_hash()
+        eng_stmt = EnglishAssembler([stmt]).make_model()
+
+        ag_list = stmt.agent_list()
+        ev_text = None
+        for ev in stmt.evidence:
+            if ev.source_hash == source_hash:
+                ev_text = ev.text
+                break
         if ev_text is None:
-            logger.info(f"Skipping evidence with no text for statement {pa_hash}: {ev}")
-            continue
+            logger.info(f"Couldn't find evidence text for pa_hash {pa_hash} ")
+            return None
+        
         agent_info = get_agent_info(ev_text, eng_stmt, ag_list)
 
-        # Generate prompt
-        start_time = time.time()
         prompt = generate_tag_classifier_prompt(
             ev_text=ev_text,
-            eng_stmt=f"English statement: {eng_stmt}\nINDRA statement: {indra_stmt_str}",
+            eng_stmt=eng_stmt,
             agent_info=agent_info,
             binary_classification=binary_classification,
             ignore_tags=ignore_tags,
             pos_ex_str=pos_ex_str,
             neg_ex_str=neg_ex_str
         )
-        end_time = time.time()
-        logger.info(f"Prompt generation took {end_time - start_time:.2f} seconds")
 
-        # Wrap and send prompt
+        prompt = get_schema_wrapped_prompt(prompt, CURATION_TAGS_JSON_SCHEMA) if schema_output_mode else prompt
+
         if schema_output_mode:
-            schema_wrapped_prompt = get_schema_wrapped_prompt(prompt, CURATION_TAGS_JSON_SCHEMA)
-
-            start_time = time.time()
-            raw_response = client.call(schema_wrapped_prompt)
-            end_time = time.time()
-            logger.info(f"LLM call took {end_time - start_time:.2f} seconds")
-
-            used_prompt = schema_wrapped_prompt
+            raw_response = llm_client.call(prompt)
             try:
                 json_response = json.loads(raw_response)
                 tag = json_response.get("tag")
@@ -887,48 +900,19 @@ def chat_curate_stmt(stmt,
                 json_response = None
                 tag = None
         else:
-            # allowed_tags = (
-            #     ["correct", "incorrect"] if binary_classification else list(CURATION_TAGS.keys() - set(ignore_tags))
-            # )
-            # # Use tiktoken to get token IDs for the allowed tags
-            # encoding = tiktoken.encoding_for_model(client.model)
-            # logit_bias = {
-            #     token_id: 100
-            #     for tag in allowed_tags
-            #     for token_id in encoding.encode(tag)
-            # }
-
-            start_time = time.time()
-            raw_response = client.call(
-                prompt,
-                max_tokens=5
-            )
-            end_time = time.time()
-            logger.info(f"LLM call took {end_time - start_time:.2f} seconds")
-
-            used_prompt = prompt
+            raw_response = llm_client.call(prompt, max_tokens=5)
             tag = raw_response.strip().lower()
             json_response = {"tag": tag, "explanation": None}
+        
+        results.append({'statement': eng_stmt,
+                        'pa_hash': pa_hash,
+                        'evidence_text': ev_text,
+                        'source_hash': source_hash,
+                        'prompt': prompt,
+                        'raw_response': raw_response,
+                        'predicted_tag': tag})
+    return results
 
-        curated_tags.append(tag)
-        stmt_curation['evidences_curations'].append({
-            "sentence": ev_text,
-            "source_hash": ev.source_hash,
-            "prompt": used_prompt,
-            "raw_response": raw_response,
-            "json_response": json_response,
-        })
-        stmt_curation['predicted_tags'].append(tag)
-
-    # Optional overall prediction
-    if decision_threshold is not None and curated_tags:
-        num_correct = sum(1 for tag in curated_tags if tag == 'correct')
-        prop_correct = num_correct / len(curated_tags)
-        stmt_curation['proportion_correct'] = round(prop_correct, 2)
-        stmt_curation['overall_prediction'] = (
-            'correct' if prop_correct >= decision_threshold else 'incorrect'
-        )
-    return stmt_curation
 
 def chat_curate_stmts(indra_stmts,
                       n_evidence_to_curate=5,
@@ -942,7 +926,7 @@ def chat_curate_stmts(indra_stmts,
                       schema_output_mode=True,
                       model="gpt-4o-mini"
                       ):
-    
+    # Create client
     if schema_output_mode:
         llm_client = LitellmClient(
             api_key=os.getenv("OPENAI_API_KEY"),
@@ -956,6 +940,7 @@ def chat_curate_stmts(indra_stmts,
             response_format="text"
         )
 
+    # Create examples strings
     pos_examples = get_examples(pos_examples_path, 
                                 n_examples=n_fewshot_examples, 
                                 binary_classification=binary_classification,
@@ -965,7 +950,6 @@ def chat_curate_stmts(indra_stmts,
                                 binary_classification=binary_classification,
                                 get_ex_per_tag=get_ex_per_tag)
     
-        # Get positive and negative examples
     indexer = count(1)
     if pos_examples is not None:
         pos_ex_str = generate_example_list(pos_examples, correct=True, indexer=indexer)
@@ -977,18 +961,114 @@ def chat_curate_stmts(indra_stmts,
     else:
         neg_ex_str = ""
 
-    
+    # For each statement, sample evidence and create prompts for each statement-evidence pair
+    results_dict = {'pa_hashes_dict':{}}
+    for stmt in tqdm(indra_stmts, desc="Generating prompts..."):
+        pa_hash = stmt.get_hash()
+        eng_stmt = EnglishAssembler([stmt]).make_model()
 
-    return [
-        chat_curate_stmt(stmt,
-                         n_evidence_to_curate=n_evidence_to_curate,
-                         decision_threshold=decision_threshold,
-                         binary_classification=binary_classification,
-                         ignore_tags=ignore_tags,
-                         pos_ex_str=pos_ex_str,
-                         neg_ex_str=neg_ex_str,
-                         schema_output_mode=schema_output_mode,
-                         client=llm_client,
-        )               
-        for stmt in tqdm(indra_stmts, desc="Curating statements with chat curation")
-    ]
+        ag_list = stmt.agent_list()
+        all_evidences = stmt.evidence
+
+        # Determine which evidences to curate
+        if n_evidence_to_curate is not None and n_evidence_to_curate < len(all_evidences):
+            rng = random.Random(42)
+            curated_evs = set(rng.sample(all_evidences, n_evidence_to_curate))
+        else:
+            curated_evs = set(all_evidences)
+
+        results_dict['pa_hashes_dict'][pa_hash] = {'source_hashes_dict': {}}
+        results_dict['pa_hashes_dict'][pa_hash]['pa_hash'] = pa_hash
+        results_dict['pa_hashes_dict'][pa_hash]['english_stmt'] = eng_stmt
+        results_dict['pa_hashes_dict'][pa_hash]['indra_stmt'] = str(stmt)
+        for ev in curated_evs:
+            source_hash = ev.source_hash
+            ev_text = ev.text
+            if ev_text is None:
+                logger.info(f"Skipping evidence with no text for statement {pa_hash}: {ev}")
+                continue
+            agent_info = get_agent_info(ev_text, eng_stmt, ag_list)
+
+            # Generate prompt
+            prompt = generate_tag_classifier_prompt(
+                ev_text=ev_text,
+                eng_stmt=eng_stmt,
+                agent_info=agent_info,
+                binary_classification=binary_classification,
+                ignore_tags=ignore_tags,
+                pos_ex_str=pos_ex_str,
+                neg_ex_str=neg_ex_str
+            )
+            # Wrap and send prompt
+            used_prompt = get_schema_wrapped_prompt(prompt, CURATION_TAGS_JSON_SCHEMA) if schema_output_mode else prompt
+
+            results_dict['pa_hashes_dict'][pa_hash]['source_hashes_dict'][source_hash] = {
+                "sentence": ev_text,
+                "source_hash": source_hash,
+                "prompt": used_prompt,
+                "raw_response": None,
+                "json_response": None,
+                "tag": None
+            }
+
+
+    # Send prompts to the LLM
+    for pa_hash, item in tqdm(results_dict['pa_hashes_dict'].items(), desc="Sending prompts to LLM"):
+        for source_hash, ev_item in item['source_hashes_dict'].items():
+            prompt = ev_item['prompt']
+            if schema_output_mode:
+                raw_response = llm_client.call(prompt)
+                try:
+                    json_response = json.loads(raw_response)
+                    tag = json_response.get("tag")
+                except json.JSONDecodeError:
+                    print(f"JSON decoding failed: {raw_response}")
+                    json_response = None
+                    tag = None
+            else:
+                raw_response = llm_client.call(prompt, max_tokens=5)
+                tag = raw_response.strip().lower()
+                json_response = {"tag": tag, "explanation": None}
+
+            # Store the response
+            ev_item['raw_response'] = raw_response
+            ev_item['json_response'] = json_response
+            ev_item['tag'] = tag
+
+    # Aggregate predictions
+    for pa_hash, item in tqdm(results_dict['pa_hashes_dict'].items(), desc="Aggregating results"):
+        llm_curated_tags = []
+        for source_hash, ev_item in item['source_hashes_dict'].items():
+            tag = ev_item['tag']
+            llm_curated_tags.append(tag)
+
+        item['predicted_tags'] = llm_curated_tags
+        # Get overall prediction for a statement across all curated evidences
+        if llm_curated_tags:
+            num_correct = sum(1 for tag in llm_curated_tags if tag == 'correct')
+            prop_correct = num_correct / len(llm_curated_tags)
+            item['proportion_correct'] = round(prop_correct, 2)
+            item['overall_prediction'] = (
+                'correct' if prop_correct >= decision_threshold else 'incorrect'
+            )
+        else:
+            item['proportion_correct'] = None
+            item['overall_prediction'] = None
+
+    # Add config
+    config = {
+        "n_evidence_to_curate": n_evidence_to_curate,
+        "decision_threshold": decision_threshold,
+        "binary_classification": binary_classification,
+        "ignore_tags": ignore_tags,
+        "n_fewshot_examples": n_fewshot_examples,
+        "get_ex_per_tag": get_ex_per_tag,
+        "pos_examples_path": str(pos_examples_path),
+        "neg_examples_path": str(neg_examples_path),
+        "schema_output_mode": schema_output_mode,
+        "model": model
+    }
+    results_dict['config'] = config
+
+    return results_dict
+        
