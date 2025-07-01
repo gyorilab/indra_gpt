@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 from indra_gpt.chat_curate.chat_curate import (
-    positive_examples_path,
-    negative_examples_path,
+    POSITIVE_EXAMPLES_PATH,
+    NEGATIVE_EXAMPLES_PATH,
     generate_negative_expl_prompt,
     generate_tag_classifier_prompt,
     find_synonyms
@@ -205,14 +205,14 @@ def run_stats(
 
     # Get n positive examples
     if n_pos_examples > 0:
-        pos_df = _get_examples_df(positive_examples_path, n_pos_examples)
+        pos_df = _get_examples_df(POSITIVE_EXAMPLES_PATH, n_pos_examples)
         examples_ids.update(pos_df["id"].values)
     else:
         pos_df = None
 
     # Get n negative examples
     if n_neg_examples > 0:
-        neg_df = _get_examples_df(negative_examples_path, n_neg_examples)
+        neg_df = _get_examples_df(NEGATIVE_EXAMPLES_PATH, n_neg_examples)
         examples_ids.update(neg_df["id"].values)
     else:
         neg_df = None
@@ -225,7 +225,7 @@ def run_stats(
                 f"with tag '{neg_tag}' found. Creating more..."
             )
             save_examples(training_data_df, correct=False)
-            neg_df = _get_examples_df(negative_examples_path, n_neg_examples)
+            neg_df = _get_examples_df(NEGATIVE_EXAMPLES_PATH, n_neg_examples)
 
     n_iter = min(n_iter, training_data_df.shape[0] - len(examples_ids))
     previous_checks = set()
@@ -483,11 +483,11 @@ def save_examples(training_data_df, correct: bool = True):
     saved = []
     saved_tags = []
     if correct:
-        out_file = positive_examples_path
+        out_file = POSITIVE_EXAMPLES_PATH
         query_str = 'tag == "correct"'
 
     else:
-        out_file = negative_examples_path
+        out_file = NEGATIVE_EXAMPLES_PATH
         query_str = 'tag != "correct"'
 
     if out_file.exists():

@@ -6,7 +6,9 @@ from pathlib import Path
 from textwrap import dedent
 import random
 import os
+from itertools import islice
 
+import tiktoken
 import biolookup
 import gilda
 import pandas as pd
@@ -17,18 +19,68 @@ from tqdm import tqdm
 
 from indra_gpt.clients.llm_client import LitellmClient
 from indra_gpt.utils.prompt import get_schema_wrapped_prompt
+from indra.sources import indra_db_rest
+
 
 logger = logging.getLogger(__name__)
 
 
 HERE = Path(__file__).parent
 RESOURCES = HERE.parent.joinpath("resources")
-curation_training_data = RESOURCES.joinpath("training_data.tsv")
-positive_examples_path = RESOURCES.joinpath("positive_examples.tsv")
-negative_examples_path = RESOURCES.joinpath("negative_examples.tsv")
+CURATION_TRAINING_DATA = RESOURCES.joinpath("training_data.tsv")
+POSITIVE_EXAMPLES_PATH = RESOURCES.joinpath("positive_examples.tsv")
+NEGATIVE_EXAMPLES_PATH = RESOURCES.joinpath("negative_examples.tsv")
 
-default_prompt_template = """{examples}
+CURATION_TAGS = {
+    "correct": "The statement is implied by the sentence.",
+    "incorrect": "The statement is not implied by the sentence.",
+    "no_relation": "This tag is applicable if the sentence does not "
+    "imply a relationship between the agents appearing in "
+    "the Statement.",
+    "wrong_relation": "This tag is applicable if the sentence implies a "
+    "relationship between the entities appearing in "
+    "the statement but the type of statement is "
+    "inconsistent with the sentence.",
+    "mod_site": "This tag is applicable if an amino-acid site is missing "
+    "or is incorrect in a statement implying a modification, "
+    "but the statement is otherwise correct. Example: "
+    'sentence: "MAP2K1 phosphorylates MAPK1 at T185."; '
+    'statement: Statement: "Phosphorylation(MAP2K1(), '
+    'MAPK1())"',
+    "hypothesis": "This tag is applicable if the sentence describes a "
+    "hypothesis or an experiment or is otherwise "
+    "speculative, rather than a result or mechanism.",
+    "negative_result": "This tag is applicable if the sentence implies "
+    "the lack of or opposite of a relationship.",
+    "grounding": "This tag is applicable when one of the named entities "
+    "in the statement is assigned an incorrect database "
+    "identifier and therefore refers to the wrong entity.",
+    "entity_boundaries": "This tag is applicable when one of the named "
+    "entities in the statement is misidentified "
+    'from a too greedy match, e.g. "gap" vs "gap '
+    'junction", an ambiguous acronym, e.g. "IR" for '
+    'infrared radiation vs insulin receptor", or '
+    "similar.",
+    "act_vs_amt": "This tag is applicable when the sentence implies a "
+    "regulation of amount but the corresponding statement "
+    "implies regulation of activity or vice versa.",
+    "polarity": "This tag is applicable if a statement was correctly "
+    "extracted but for polarity of the statement, "
+    "e.g. Activation instead of Inhibition, "
+    "or Phosphorylation instead of Dephosphorylation.",
+    "agent_conditions": "This tag is applicable if one of the "
+    "named entities (i.e. agents) in the statement is "
+    "missing relevant conditions that are mentioned "
+    "in the sentence, or has incorrect conditions "
+    "attached to it, but the statement is otherwise "
+    'correct. Example: sentence "Mutant BRAF '
+    'activates MEK"; statement: "BRAF activates MEK".',
+    "other": "When no other tag is applicable, use this tag.",
+}
+
+DEFAULT_PROMPT_TEMPLATE = """{examples}
 {query}Please answer with just 'correct' or 'incorrect'."""
+
 
 CURATION_TAGS_JSON_SCHEMA = {
     "type": "object",
@@ -36,14 +88,105 @@ CURATION_TAGS_JSON_SCHEMA = {
         "tag": {
             "type": "string",
             "description": "The curation tag indicating the classification of the sentence-statement pair."
-        },
-        "explanation": {"type": "string", "description": "An explanation for the curation tag."}
+        }
     },
-    "required": ["tag", "explanation"],
+    "required": ["tag"],
     "additionalProperties": False,
     "description": "A JSON schema for the curation tags for the sentence-statement pair.",
 }
 
+def generate_examples(get_positive_examples=False,
+                      output_path=None,
+                      save_to_file=True):
+    negative_tag_set = set(CURATION_TAGS.keys()) - {"correct", "incorrect"}
+    
+    # Get and clean curations
+    curations = indra_db_rest.get_curations()
+    unique_curations = {c['pa_hash']: c for c in curations if 'pa_hash' in c and c['pa_hash'] is not None and c['source_hash'] is not None}
+    unique_curations_list = list(unique_curations.values())
+    unique_hashes = [c['pa_hash'] for c in unique_curations_list]
+    df_curations = pd.DataFrame(unique_curations_list)
+    df_curations['pa_hash'] = unique_hashes
+    df_curations.sort_values(by='date', ascending=False, inplace=True)
+    df_curations = df_curations.drop_duplicates(subset='pa_hash')
+
+    df_curations['english'] = None
+    df_curations['text'] = None
+    df_curations['agent_info'] = None
+
+    df_curations_sampled = df_curations.sample(n=min(1000, len(df_curations)), random_state=42)
+
+    sampled_hashes = df_curations_sampled['pa_hash'].tolist()
+    stmt_proc = indra_db_rest.get_statements_by_hash(sampled_hashes, ev_limit=10000)
+
+    stmt_map = {stmt.get_hash(): stmt for stmt in stmt_proc.statements}
+
+    df_curations = df_curations_sampled.copy()
+
+    failed_indices = []
+    for idx, row in tqdm(df_curations.iterrows(), total=len(df_curations), desc="Annotating curations"):
+        pa_hash = row['pa_hash']
+        stmt = stmt_map.get(pa_hash)
+
+        if not stmt:
+            failed_indices.append(idx)
+            continue
+
+        english = EnglishAssembler([stmt]).make_model()
+
+        # Try to match the source_hash
+        text = None
+        for ev in stmt.evidence:
+            if ev.source_hash == row['source_hash']:
+                text = ev.text
+                break
+        if text is None:
+            logger.info(
+                f"Could not find evidence text for pa_hash {pa_hash} "
+                f"and source_hash {row['source_hash']}"
+            )
+            failed_indices.append(idx)
+            continue
+
+        agent_info = get_agent_info(
+            ev_text=text,
+            english=english,
+            ag_list=stmt.agent_list()
+        )
+
+        df_curations.at[idx, 'english'] = english
+        df_curations.at[idx, 'text'] = text
+        df_curations.at[idx, 'agent_info'] = agent_info
+
+    # Drop failed rows
+    df_curations = df_curations.drop(index=failed_indices)
+
+    # Sampling
+    if get_positive_examples:
+        df_filtered = df_curations[df_curations['tag'] == 'correct']
+        df_result = df_filtered.sample(n=min(100, len(df_filtered)), random_state=42)
+
+        if save_to_file:
+            out_path = output_path or POSITIVE_EXAMPLES_PATH
+            df_result.to_csv(out_path, sep="\t", index=False)
+            logger.info(f"Saved {len(df_result)} positive examples to {out_path}")
+    
+    else:
+        samples = []
+        for tag in negative_tag_set:
+            tag_df = df_curations[df_curations['tag'] == tag]
+            tag_sample = tag_df.sample(n=min(50, len(tag_df)), random_state=42)
+            samples.append(tag_sample)
+            logger.info(f"Sampled {len(tag_sample)} examples for tag '{tag}'")
+        
+        df_result = pd.concat(samples, ignore_index=True)
+
+        if save_to_file:
+            out_path = output_path or NEGATIVE_EXAMPLES_PATH
+            df_result.to_csv(out_path, sep="\t", index=False)
+            logger.info(f"Saved {len(df_result)} negative examples to {out_path}")
+
+    return df_result
 
 def get_ag_ns_id(db_refs, default):
     """Return a tuple of name space, id from an Agent's db_refs."""
@@ -270,8 +413,8 @@ def get_create_training_set(
     pd.DataFrame
         A dataframe containing the training set.
     """
-    if curation_training_data.exists() and not refresh and not test:
-        df = pd.read_csv(curation_training_data, sep="\t")
+    if CURATION_TRAINING_DATA.exists() and not refresh and not test:
+        df = pd.read_csv(CURATION_TRAINING_DATA, sep="\t")
         if isinstance(df["agent_json_list"][0], str):
             logger.info(
                 "agent_json_list dtype is str, using eval to convert "
@@ -336,22 +479,42 @@ def get_create_training_set(
     # Save the training data
     df = pd.DataFrame(curation_data)
     if not test:
-        logger.info(f"Saving training data to {curation_training_data}")
-        df.to_csv(curation_training_data, sep="\t", index=False)
+        logger.info(f"Saving training data to {CURATION_TRAINING_DATA}")
+        df.to_csv(CURATION_TRAINING_DATA, sep="\t", index=False)
 
     return df
 
-def get_examples(examples_path: Path, n_examples: int):
-    df = pd.read_csv(examples_path, sep="\t").sample(n=n_examples, random_state=42)
-    examples = []
-    for ix, row in df.iterrows():
-        ev_text = row["text"]
-        english = row["english"]
-        agent_info = eval(row["agent_info"]) if row["agent_info"] else None
-        tag = row["tag"] if "tag" in row else None
-        example = (ev_text, english, agent_info, tag)
+def get_examples(examples_path: Path, 
+                 n_examples: int, 
+                 binary_classification: bool = False,
+                 get_ex_per_tag: bool = False):
+    df = pd.read_csv(examples_path, sep="\t")
 
-        examples.append(example)
+    examples = []
+
+    if get_ex_per_tag and "tag" in df.columns:
+        grouped = df.groupby("tag")
+        for tag, group in grouped:
+            sampled = group.sample(n=min(n_examples, len(group)), random_state=42)
+            for _, row in sampled.iterrows():
+                ev_text = row["text"]
+                english = row["english"]
+                agent_info = eval(row["agent_info"]) if row["agent_info"] else None
+                example = (ev_text, english, agent_info, tag)
+                examples.append(example)
+    else:
+        sampled = df.sample(n=n_examples, random_state=42)
+        for _, row in sampled.iterrows():
+            ev_text = row["text"]
+            english = row["english"]
+            agent_info = eval(row["agent_info"]) if row["agent_info"] else None
+            tag = row["tag"] if "tag" in row else None
+            example = (ev_text, english, agent_info, tag)
+            examples.append(example)
+
+    if binary_classification:
+        examples = [(ev_text, english, agent_info, 'incorrect') for ev_text, english, agent_info, tag in examples if tag != "correct"]
+
     return examples
 
 def generate_synonym_str(
@@ -372,11 +535,7 @@ def generate_synonym_str(
         If provided, is the index of the sentence and statement. If None,
         the index will not be included in the string.
     """
-    # Format the synonyms to something like:
-    # """The definition of {name1}{ex_str} is: "{definition1}".
-    # The definition of {name2}{ex_str} is: "{definition2}".
-    # The statement{ex_str} assumes that "{name1}" is the same as "{synonym1}"
-    # and "{name2}" is the same as "{synonym2}"."""
+
     index_str = f" in example {index}" if index is not None else ""
     def_fmt = 'The definition of {name}%s is: "{definition}".\n' % index_str
     syn_str_intro = (
@@ -524,10 +683,12 @@ def generate_example_list(examples, correct: bool, indexer) -> str:
         "are paired with:\n"
     )
     template = pos_str if correct else neg_str
+    
     for sentence, statement, agents_info, tag in examples:
         ix = next(indexer)
         ex_str = generate_example(sentence, statement, agents_info, tag, ix)
         template += ex_str
+
     return template
 
 def generate_negative_expl_prompt(
@@ -558,9 +719,8 @@ def generate_tag_classifier_prompt(
     agent_info,
     binary_classification: bool = False,
     ignore_tags=None,
-    pos_examples=None,
-    neg_examples=None,
-
+    pos_ex_str=None,
+    neg_ex_str=None
 ) -> str:
     """Generate a prompt for the classifier.
 
@@ -583,65 +743,6 @@ def generate_tag_classifier_prompt(
         The prompt as a string.
 
     """
-    # Follows the tags available in the training data
-    curation_tags = {
-        "correct": "The statement is implied by the sentence.",
-        "incorrect": "The statement is not implied by the sentence.",
-        "no_relation": "This tag is applicable if the sentence does not "
-        "imply a relationship between the agents appearing in "
-        "the Statement.",
-        "wrong_relation": "This tag is applicable if the sentence implies a "
-        "relationship between the entities appearing in "
-        "the statement but the type of statement is "
-        "inconsistent with the sentence.",
-        "mod_site": "This tag is applicable if an amino-acid site is missing "
-        "or is incorrect in a statement implying a modification, "
-        "but the statement is otherwise correct. Example: "
-        'sentence: "MAP2K1 phosphorylates MAPK1 at T185."; '
-        'statement: Statement: "Phosphorylation(MAP2K1(), '
-        'MAPK1())"',
-        "hypothesis": "This tag is applicable if the sentence describes a "
-        "hypothesis or an experiment or is otherwise "
-        "speculative, rather than a result or mechanism.",
-        "negative_result": "This tag is applicable if the sentence implies "
-        "the lack of or opposite of a relationship.",
-        "grounding": "This tag is applicable when one of the named entities "
-        "in the statement is assigned an incorrect database "
-        "identifier and therefore refers to the wrong entity.",
-        "entity_boundaries": "This tag is applicable when one of the named "
-        "entities in the statement is misidentified "
-        'from a too greedy match, e.g. "gap" vs "gap '
-        'junction", an ambiguous acronym, e.g. "IR" for '
-        'infrared radiation vs insulin receptor", or '
-        "similar.",
-        "act_vs_amt": "This tag is applicable when the sentence implies a "
-        "regulation of amount but the corresponding statement "
-        "implies regulation of activity or vice versa.",
-        "polarity": "This tag is applicable if a statement was correctly "
-        "extracted but for polarity of the statement, "
-        "e.g. Activation instead of Inhibition, "
-        "or Phosphorylation instead of Dephosphorylation.",
-        "agent_conditions": "This tag is applicable if one of the "
-        "named entities (i.e. agents) in the statement is "
-        "missing relevant conditions that are mentioned "
-        "in the sentence, or has incorrect conditions "
-        "attached to it, but the statement is otherwise "
-        'correct. Example: sentence "Mutant BRAF '
-        'activates MEK"; statement: "BRAF activates MEK".',
-        "other": "When no other tag is applicable, use this tag.",
-    }
-
-    # Get positive and negative examples
-    indexer = count(1)
-    if pos_examples is not None:
-        pos_ex_str = generate_example_list(pos_examples, correct=True, indexer=indexer)
-    else:
-        pos_ex_str = ""
-
-    if neg_examples is not None:
-        neg_ex_str = generate_example_list(neg_examples, correct=False, indexer=indexer)
-    else:
-        neg_ex_str = ""
 
     prompt_templ = dedent(
         """
@@ -678,29 +779,34 @@ def generate_tag_classifier_prompt(
         - Do not rely on external background knowledge unless the implication logically follows from the sentence.
         - If the sentence expresses uncertainty about *how* something happens, but not *whether* it happens, the underlying relationship is still implied.
 
-        Respond only with the appropriate tag and a brief explanation in the required schema format.
+        Tags to select from: {tags}
         """
     )
     if binary_classification:
         tag_desc = "\n".join(
             [
                 f"{tag}: {description}"
-                for tag, description in curation_tags.items()
+                for tag, description in CURATION_TAGS.items()
                 if tag in ["correct", "incorrect"]
             ]
         )
+        tags = ['correct', 'incorrect']
     else:
         ignore_tags = ignore_tags or []
         tag_desc = "\n".join(
             [
                 f"{tag}: {description}"
-                for tag, description in curation_tags.items()
+                for tag, description in CURATION_TAGS.items()
                 if tag not in ignore_tags
             ]
         )
+        tags = list(CURATION_TAGS.keys() - set(ignore_tags))
+
     synonyms = generate_synonym_str(agents_info=agent_info)
+
     prompt = prompt_templ.format(
         tag_descriptions=tag_desc,
+        tags=tags,
         sentence=ev_text,
         statement=eng_stmt,
         synonyms=synonyms,
@@ -714,8 +820,9 @@ def chat_curate_stmt(stmt,
                      decision_threshold=None,
                      binary_classification=False,
                      ignore_tags=['incorrect'],
-                     pos_examples=None,
-                     neg_examples=None,
+                     pos_ex_str=None,
+                     neg_ex_str=None,
+                     schema_output_mode=False,
                      client=None,
                      ):
     eng_stmt = EnglishAssembler([stmt]).make_model()
@@ -740,7 +847,7 @@ def chat_curate_stmt(stmt,
     }
 
     curated_tags = []
-
+    import time
     for ev in curated_evs:
         ev_text = ev.text
         if ev_text is None:
@@ -749,31 +856,65 @@ def chat_curate_stmt(stmt,
         agent_info = get_agent_info(ev_text, eng_stmt, ag_list)
 
         # Generate prompt
+        start_time = time.time()
         prompt = generate_tag_classifier_prompt(
             ev_text=ev_text,
             eng_stmt=f"English statement: {eng_stmt}\nINDRA statement: {indra_stmt_str}",
             agent_info=agent_info,
             binary_classification=binary_classification,
             ignore_tags=ignore_tags,
-            pos_examples=pos_examples,
-            neg_examples=neg_examples
+            pos_ex_str=pos_ex_str,
+            neg_ex_str=neg_ex_str
         )
+        end_time = time.time()
+        logger.info(f"Prompt generation took {end_time - start_time:.2f} seconds")
 
         # Wrap and send prompt
-        schema_wrapped_prompt = get_schema_wrapped_prompt(prompt, CURATION_TAGS_JSON_SCHEMA)
-        raw_response = client.call(schema_wrapped_prompt)
-        try:
-            json_response = json.loads(raw_response)
-        except json.JSONDecodeError:
-            print(f"Error decoding JSON response: {raw_response}")
-            json_response = None
+        if schema_output_mode:
+            schema_wrapped_prompt = get_schema_wrapped_prompt(prompt, CURATION_TAGS_JSON_SCHEMA)
 
-        tag = json_response.get("tag") if json_response else None
+            start_time = time.time()
+            raw_response = client.call(schema_wrapped_prompt)
+            end_time = time.time()
+            logger.info(f"LLM call took {end_time - start_time:.2f} seconds")
+
+            used_prompt = schema_wrapped_prompt
+            try:
+                json_response = json.loads(raw_response)
+                tag = json_response.get("tag")
+            except json.JSONDecodeError:
+                print(f"JSON decoding failed: {raw_response}")
+                json_response = None
+                tag = None
+        else:
+            # allowed_tags = (
+            #     ["correct", "incorrect"] if binary_classification else list(CURATION_TAGS.keys() - set(ignore_tags))
+            # )
+            # # Use tiktoken to get token IDs for the allowed tags
+            # encoding = tiktoken.encoding_for_model(client.model)
+            # logit_bias = {
+            #     token_id: 100
+            #     for tag in allowed_tags
+            #     for token_id in encoding.encode(tag)
+            # }
+
+            start_time = time.time()
+            raw_response = client.call(
+                prompt,
+                max_tokens=5
+            )
+            end_time = time.time()
+            logger.info(f"LLM call took {end_time - start_time:.2f} seconds")
+
+            used_prompt = prompt
+            tag = raw_response.strip().lower()
+            json_response = {"tag": tag, "explanation": None}
+
         curated_tags.append(tag)
         stmt_curation['evidences_curations'].append({
             "sentence": ev_text,
             "source_hash": ev.source_hash,
-            "prompt": schema_wrapped_prompt,
+            "prompt": used_prompt,
             "raw_response": raw_response,
             "json_response": json_response,
         })
@@ -794,20 +935,49 @@ def chat_curate_stmts(indra_stmts,
                       decision_threshold=0.5,
                       binary_classification=False,
                       ignore_tags=['incorrect'],
-                      n_fewshot_examples=0,
-                      pos_examples_path=positive_examples_path,
-                      neg_examples_path=negative_examples_path,
-                      model="gpt-4o-mini",
+                      n_fewshot_examples=1,
+                      get_ex_per_tag=True,
+                      pos_examples_path=POSITIVE_EXAMPLES_PATH,
+                      neg_examples_path=NEGATIVE_EXAMPLES_PATH,
+                      schema_output_mode=True,
+                      model="gpt-4o-mini"
                       ):
     
-    llm_client = LitellmClient(
-        api_key=os.getenv("OPENAI_API_KEY"),
-        model=model,
-        response_format="json"
-    )
+    if schema_output_mode:
+        llm_client = LitellmClient(
+            api_key=os.getenv("OPENAI_API_KEY"),
+            model=model,
+            response_format="json"
+        )
+    else:
+        llm_client = LitellmClient(
+            api_key=os.getenv("OPENAI_API_KEY"),
+            model=model,
+            response_format="text"
+        )
+
+    pos_examples = get_examples(pos_examples_path, 
+                                n_examples=n_fewshot_examples, 
+                                binary_classification=binary_classification,
+                                get_ex_per_tag=get_ex_per_tag)
+    neg_examples = get_examples(neg_examples_path, 
+                                n_examples=n_fewshot_examples, 
+                                binary_classification=binary_classification,
+                                get_ex_per_tag=get_ex_per_tag)
     
-    pos_examples = get_examples(pos_examples_path, n_examples=n_fewshot_examples)
-    neg_examples = get_examples(neg_examples_path, n_examples=n_fewshot_examples)
+        # Get positive and negative examples
+    indexer = count(1)
+    if pos_examples is not None:
+        pos_ex_str = generate_example_list(pos_examples, correct=True, indexer=indexer)
+    else:
+        pos_ex_str = ""
+
+    if neg_examples is not None:
+        neg_ex_str = generate_example_list(neg_examples, correct=False, indexer=indexer)
+    else:
+        neg_ex_str = ""
+
+    
 
     return [
         chat_curate_stmt(stmt,
@@ -815,8 +985,9 @@ def chat_curate_stmts(indra_stmts,
                          decision_threshold=decision_threshold,
                          binary_classification=binary_classification,
                          ignore_tags=ignore_tags,
-                         pos_examples=pos_examples,
-                         neg_examples=neg_examples,
+                         pos_ex_str=pos_ex_str,
+                         neg_ex_str=neg_ex_str,
+                         schema_output_mode=schema_output_mode,
                          client=llm_client,
         )               
         for stmt in tqdm(indra_stmts, desc="Curating statements with chat curation")

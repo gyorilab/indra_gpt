@@ -37,14 +37,19 @@ class LitellmClient(LLMClient):
 
     def call(self, prompt: str, history: list = None, **kwargs) -> str:
         messages = (history or []) + [{"role": "user", "content": prompt}]
+
+        # Override defaults with safe pop to avoid duplication
+        max_tokens = kwargs.pop("max_tokens", self.max_tokens)
+        temperature = kwargs.pop("temperature", self.temperature)
+
         response = litellm.completion(
             custom_llm_provider=self.custom_llm_provider,
             api_base=self.api_base,
             api_key=self.api_key,
             model=self.model,
             messages=messages,
-            max_tokens=self.max_tokens,
-            temperature=self.temperature,
-            **kwargs
+            max_tokens=max_tokens,
+            temperature=temperature,
+            **kwargs  # now safe
         )
         return response.choices[0].message["content"]
