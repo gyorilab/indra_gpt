@@ -98,6 +98,8 @@ CURATION_TAGS_JSON_SCHEMA = {
 }
 
 def generate_examples(get_positive_examples=False,
+                      get_negative_examples=False,
+                      sample_size=None,
                       output_path=None,
                       save_to_file=True):
     negative_tag_set = set(CURATION_TAGS.keys()) - {"correct", "incorrect"}
@@ -116,14 +118,25 @@ def generate_examples(get_positive_examples=False,
     df_curations['text'] = None
     df_curations['agent_info'] = None
 
-    df_curations_sampled = df_curations.sample(n=min(1000, len(df_curations)), random_state=42)
+    if sample_size is not None:
+        df_curations = df_curations.sample(n=min(sample_size, len(df_curations)), random_state=42)
 
-    sampled_hashes = df_curations_sampled['pa_hash'].tolist()
-    stmt_proc = indra_db_rest.get_statements_by_hash(sampled_hashes, ev_limit=10000)
+    sampled_hashes = df_curations['pa_hash'].tolist()
 
-    stmt_map = {stmt.get_hash(): stmt for stmt in stmt_proc.statements}
+    CHUNK_SIZE = 1000
+    stmts = []
+    for i in range(0, len(sampled_hashes), CHUNK_SIZE):
+        chunk = sampled_hashes[i:i + CHUNK_SIZE]
+        if i == 0:
+            logger.info(f"Fetching statements for {len(chunk)} hashes")
+        else:
+            logger.info(f"Fetching statements for {len(chunk)} more hashes")
+        # Fetch statements by hash
+        stmt_proc = indra_db_rest.get_statements_by_hash(chunk, ev_limit=1000)
+        stmts.extend(stmt_proc.statements)
+    stmt_map = {stmt.get_hash(): stmt for stmt in stmts}
 
-    df_curations = df_curations_sampled.copy()
+    df_curations = df_curations.copy()
 
     failed_indices = []
     for idx, row in tqdm(df_curations.iterrows(), total=len(df_curations), desc="Annotating curations"):
@@ -163,7 +176,6 @@ def generate_examples(get_positive_examples=False,
     # Drop failed rows
     df_curations = df_curations.drop(index=failed_indices)
 
-    # Sampling
     if get_positive_examples:
         df_filtered = df_curations[df_curations['tag'] == 'correct']
         df_result = df_filtered.sample(n=min(100, len(df_filtered)), random_state=42)
@@ -173,7 +185,7 @@ def generate_examples(get_positive_examples=False,
             df_result.to_csv(out_path, sep="\t", index=False)
             logger.info(f"Saved {len(df_result)} positive examples to {out_path}")
     
-    else:
+    if get_negative_examples:
         samples = []
         for tag in negative_tag_set:
             tag_df = df_curations[df_curations['tag'] == tag]
@@ -187,6 +199,12 @@ def generate_examples(get_positive_examples=False,
             out_path = output_path or NEGATIVE_EXAMPLES_PATH
             df_result.to_csv(out_path, sep="\t", index=False)
             logger.info(f"Saved {len(df_result)} negative examples to {out_path}")
+
+    if not get_positive_examples and not get_negative_examples:
+        df_result = df_curations
+        if save_to_file:
+            df_result.to_csv(output_path, sep="\t", index=False)
+            logger.info(f"Saved {len(df_result)} curations to {output_path}")
 
     return df_result
 
