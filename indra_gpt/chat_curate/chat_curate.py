@@ -9,7 +9,7 @@ import os
 from itertools import islice
 import time
 
-
+import psycopg2
 import tiktoken
 import biolookup
 import gilda
@@ -96,6 +96,7 @@ CURATION_TAGS_JSON_SCHEMA = {
     "additionalProperties": False,
     "description": "A JSON schema for the curation tags for the sentence-statement pair.",
 }
+
 
 def generate_examples(get_positive_examples=False,
                       get_negative_examples=False,
@@ -538,7 +539,10 @@ def get_examples(examples_path: Path,
     return examples
 
 def generate_synonym_str(
-    agents_info, include_def: bool = True, index: int = None
+    agents_info, 
+    include_def: bool = True, 
+    index: int = None,
+    definition_cache: dict = None
 ) -> str:
     """Generate a string with the list of synonyms
 
@@ -578,9 +582,13 @@ def generate_synonym_str(
             if agent_info["definition"]:
                 definition = agent_info["definition"]
             else:
-                res = biolookup.lookup(curie)
-                definition = res.get("definition", "")
-
+                definition = definition_cache.get(curie.lower(), "")
+                if not definition:
+                    try:
+                        res = biolookup.lookup(curie)
+                        definition = res.get("definition", "")
+                    except Exception as e:
+                        logger.warning(f"biolookup fallback failed for {curie}: {e}")
             def_str += (
                 def_fmt.format(name=in_stmt, definition=definition)
                 if definition
@@ -628,7 +636,7 @@ def generate_synonym_str(
 
     return def_str + syn_str
 
-def generate_example(sentence, statement, agents_info=None, tag=None, index: int = None) -> str:
+def generate_example(sentence, statement, agents_info=None, tag=None, index: int = None, definition_cache: dict = None) -> str:
     """Generate an example string
 
     Parameters
@@ -663,7 +671,7 @@ def generate_example(sentence, statement, agents_info=None, tag=None, index: int
 Tag: "{tag}"
     """
     if agents_info:
-        synonym_str = "\n" + generate_synonym_str(agents_info, index)
+        synonym_str = "\n" + generate_synonym_str(agents_info, index, definition_cache=definition_cache)
     else:
         synonym_str = "\n"
     return (
@@ -677,7 +685,7 @@ Tag: "{tag}"
         )
     )
 
-def generate_example_list(examples, correct: bool, indexer) -> str:
+def generate_example_list(examples, correct: bool, indexer, definition_cache=None) -> str:
     """Generate a list of examples
 
     Parameters
@@ -706,7 +714,7 @@ def generate_example_list(examples, correct: bool, indexer) -> str:
     
     for sentence, statement, agents_info, tag in examples:
         ix = next(indexer)
-        ex_str = generate_example(sentence, statement, agents_info, tag, ix)
+        ex_str = generate_example(sentence, statement, agents_info, tag, ix, definition_cache=definition_cache)
         template += ex_str
 
     return template
@@ -740,7 +748,8 @@ def generate_tag_classifier_prompt(
     binary_classification: bool = False,
     ignore_tags=None,
     pos_ex_str=None,
-    neg_ex_str=None
+    neg_ex_str=None,
+    definition_cache: dict = None
 ) -> str:
     """Generate a prompt for the classifier.
 
@@ -822,7 +831,7 @@ def generate_tag_classifier_prompt(
         )
         tags = list(CURATION_TAGS.keys() - set(ignore_tags))
 
-    synonyms = generate_synonym_str(agents_info=agent_info)
+    synonyms = generate_synonym_str(agents_info=agent_info, definition_cache=definition_cache)
 
     prompt = prompt_templ.format(
         tag_descriptions=tag_desc,
@@ -931,6 +940,28 @@ def chat_curate_stmt_ev_pair(stmt_source_pairs,
                         'predicted_tag': tag})
     return results
 
+def get_local_cache_definitions():
+    try:
+        conn = psycopg2.connect(
+            dbname="biolookup",
+            user=os.getenv("PGUSER", "postgres"),
+            password=os.getenv("PGPASSWORD"),
+            host=os.getenv("PGHOST", "localhost"),
+            port=int(os.getenv("PGPORT", 5432))
+        )
+        # Cache definitions for quick lookup
+        definition_cache = {}
+        with conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT prefix, identifier, definition FROM definitions")
+                for prefix, identifier, definition in cur.fetchall():
+                    key = f"{prefix}:{identifier}".lower()
+                    definition_cache[key] = definition
+        logger.info(f"Loaded {len(definition_cache)} definitions into cache.")
+    except Exception as e:
+        logger.warning(f"Failed to connect to local Postgres or load definitions: {e}")
+        definition_cache = {}  # fallback: leave empty so biolookup fallback will trigger
+    return definition_cache
 
 def chat_curate_stmts(indra_stmts,
                       n_evidence_to_curate=5,
@@ -958,6 +989,9 @@ def chat_curate_stmts(indra_stmts,
             response_format="text"
         )
 
+    # Get local cache definitions
+    definition_cache = get_local_cache_definitions()
+
     # Create examples strings
     pos_examples = get_examples(pos_examples_path, 
                                 n_examples=n_fewshot_examples, 
@@ -970,12 +1004,12 @@ def chat_curate_stmts(indra_stmts,
     
     indexer = count(1)
     if pos_examples is not None:
-        pos_ex_str = generate_example_list(pos_examples, correct=True, indexer=indexer)
+        pos_ex_str = generate_example_list(pos_examples, correct=True, indexer=indexer, definition_cache=definition_cache)
     else:
         pos_ex_str = ""
 
     if neg_examples is not None:
-        neg_ex_str = generate_example_list(neg_examples, correct=False, indexer=indexer)
+        neg_ex_str = generate_example_list(neg_examples, correct=False, indexer=indexer, definition_cache=definition_cache)
     else:
         neg_ex_str = ""
 
@@ -1015,7 +1049,8 @@ def chat_curate_stmts(indra_stmts,
                 binary_classification=binary_classification,
                 ignore_tags=ignore_tags,
                 pos_ex_str=pos_ex_str,
-                neg_ex_str=neg_ex_str
+                neg_ex_str=neg_ex_str,
+                definition_cache=definition_cache
             )
             # Wrap and send prompt
             used_prompt = get_schema_wrapped_prompt(prompt, CURATION_TAGS_JSON_SCHEMA) if schema_output_mode else prompt
@@ -1028,7 +1063,6 @@ def chat_curate_stmts(indra_stmts,
                 "json_response": None,
                 "tag": None
             }
-
 
     # Send prompts to the LLM
     for pa_hash, item in tqdm(results_dict['pa_hashes_dict'].items(), desc="Sending prompts to LLM"):

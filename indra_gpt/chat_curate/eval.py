@@ -22,7 +22,7 @@ from indra_gpt.chat_curate.chat_curate import (
 )
 
 HERE = Path(__file__).parent
-
+DATE_FORMAT = '%a, %d %b %Y %H:%M:%S %Z'
 
 def get_git_revision_hash() -> str:
     """Return the git revision hash."""
@@ -632,10 +632,26 @@ def curation_statement_comparison_json(llm_curations: dict):
                 logger.info(f"No curations found for pa_hash: {pa_hash}")
                 continue
 
-            for ev_curation in stmt_curation:
-                # I.e. we assume a statement to be incorrect with respect to all its evidences
-                # Unless we encounter at least one evidence curation that is correct
-                curation_comparison['indra_curation'] = 'incorrect'
+            # For each statement curation, if multiple curations exist
+            # for the same evidence, we use the latest one only.
+            stmt_curation_dict = {}
+            for curation in stmt_curation:
+                source_hash = curation['source_hash']
+                if source_hash not in stmt_curation_dict:
+                    stmt_curation_dict[source_hash] = curation
+                else:
+                    # Keep the latest curation based on the date
+                    existing_date = datetime.strptime(
+                        stmt_curation_dict[source_hash]['date'], DATE_FORMAT
+                    )
+                    new_date = datetime.strptime(curation['date'], DATE_FORMAT)
+                    if new_date > existing_date:
+                        stmt_curation_dict[source_hash] = curation
+
+            # A statement curation is considered correct if at least one
+            # evidence curation is correct.
+            curation_comparison['indra_curation'] = 'incorrect'
+            for ev_curation in stmt_curation_dict.values():
                 if ev_curation['tag'] == 'correct':
                     curation_comparison['indra_curation'] = 'correct'
                     break
