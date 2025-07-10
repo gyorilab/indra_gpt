@@ -1,7 +1,10 @@
 import json
 from typing import Type, Union, get_origin, get_args, List, Optional
 from pydantic import BaseModel, ValidationError
-from indra_gpt.extractors.recursive.generate_subschema_prompts import generate_span_extraction_prompt, prompt_boolean_normalization
+from indra_gpt.extractors.recursive.generate_subschema_prompts import (generate_span_extraction_prompt, 
+                                                                       prompt_boolean_normalization,
+                                                                       normalize_span_to_enum)
+
 from indra_gpt.extractors.recursive.indra_stmts_model import IndraStatements
 
 def unwrap_optional(annotation):
@@ -18,6 +21,14 @@ def is_pydantic_model(annotation):
     actual = unwrap_optional(annotation)
     return isinstance(actual, type) and issubclass(actual, BaseModel)
 
+def get_field_pattern_choices(field) -> Optional[List[str]]:
+    try:
+        pattern = field.metadata[0].pattern
+        raw = pattern.replace("^", "").replace("$", "").replace("(", "").replace(")", "")
+        choices = [s for s in raw.split("|") if s]
+        return choices
+    except Exception:
+        return None
 
 def recursive_extract(
     text: str,
@@ -25,6 +36,10 @@ def recursive_extract(
     model_cls: Type[BaseModel] = IndraStatements,
     path: str = ""
 ) -> Optional[BaseModel]:
+    
+    if not text.strip():
+        return None
+
     prompt = generate_span_extraction_prompt(model_cls, text)
     raw_output = llm_client.call(prompt)
 
@@ -83,10 +98,27 @@ def recursive_extract(
                 print(f"[UnexpectedType] Bool field {full_path} has type {type(span_values)}")
 
         else:
-            # Handle Optional[str] fields that return an empty string
             actual = unwrap_optional(annotation)
+
+            # Empty string → None
             if actual is str and isinstance(span_values, str) and span_values.strip() == "":
                 final_fields[field_name] = None
+
+            # Pattern normalization for Optional[str]
+            elif actual is str and isinstance(span_values, str):
+                pattern_choices = get_field_pattern_choices(field)
+                if pattern_choices:
+                    enum_prompt = normalize_span_to_enum(span_values, field_name, pattern_choices)
+                    enum_output_raw = llm_client.call(enum_prompt).strip()
+                    try:
+                        enum_output = json.loads(enum_output_raw)
+                        value = enum_output.get("value", "")
+                        final_fields[field_name] = value if value != "" else None
+                    except json.JSONDecodeError:
+                        print(f"[EnumParsingError] Failed to parse enum value for {full_path}:\n{enum_output_raw}")
+                else:
+                    final_fields[field_name] = span_values
+
             else:
                 final_fields[field_name] = span_values
 

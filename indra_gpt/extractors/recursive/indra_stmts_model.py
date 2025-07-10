@@ -76,7 +76,7 @@ class BoundCondition(BaseModel):
     )
     is_bound: Optional[bool] = Field(
         None,
-        description="whether the given Agent is bound or unbound in the current context."
+        description="Whether the given Agent is bound or unbound in the current context."
     )
 
 
@@ -217,7 +217,7 @@ class RegulateActivity(Statement):
     type: Optional[str] = Field(
         None,
         pattern=r"^((Activation)|(Inhibition))$",
-        description='The type of the statement.'
+        description='The specific type of the regulation of activity.'
     )
     subj: Optional[Agent] = Field(
         None,
@@ -253,7 +253,7 @@ class Modification(Statement):
             r"(Depalmitoylation)|(Myristoylation)|(Demyristoylation)|(Ribosylation)|"
             r"(Deribosylation)|(Methylation)|(Demethylation))$"
         ),
-        description='The type of the statement.'
+        description='The specific type of the modification.'
     )
     enz: Optional[Agent] = Field(
         None,
@@ -281,7 +281,7 @@ class SelfModification(Statement):
     type: Optional[str] = Field (
         None,
         pattern=r"^((Autophosphorylation)|(Transphosphorylation))$",
-        description="The type of the statement."
+        description="The specific type of the self-modification."
     )
     enz: Optional[Agent] = Field(
         None,
@@ -309,7 +309,7 @@ class ActiveForm(Statement):
     type: Optional[str] = Field(
         None,
         pattern=r"^ActiveForm$",
-        description="The type of the statement."
+        description="The specific type of the active form."
     )
     agent: Optional[Agent] = Field(
         None,
@@ -341,7 +341,7 @@ class Gef(Statement):
     type: Optional[str] = Field(
         None,
         pattern=r"^Gef$",
-        description="The type of the statement."
+        description="The specific type of the Gef statement."
     )
     gef: Optional[Agent] = Field(
         None,
@@ -365,7 +365,7 @@ class Gap(Statement):
     type: Optional[str] = Field(
         None,
         pattern=r"^Gap$",
-        description="The type of the statement."
+        description="The specific type of the Gap statement."
     )
     gap: Optional[Agent] = Field(
         None,
@@ -385,7 +385,7 @@ class Complex(Statement):
     type: Optional[str] = Field(
         None,
         pattern=r"^((Complex)|(Association))$",
-        description="The type of the statement."
+        description="The specific type of the complex statement."
     )
     members: Optional[List[Agent]] = Field(
         None,
@@ -401,7 +401,7 @@ class Translocation(Statement):
     type: Optional[str] = Field(
         None,
         pattern=r"^Translocation$",
-        description="The type of the statement."
+        description="The specific type of the translocation statement."
     )
     agent: Optional[Agent] = Field(
         None,
@@ -431,7 +431,7 @@ class RegulateAmount(Statement):
     type: Optional[str] = Field(
         None,
         pattern=r"^((IncreaseAmount)|(DecreaseAmount))$",
-        description="The type of the statement."
+        description="The specific type of the regulation of amount."
     )
     sub: Optional[Agent] = Field(
         None,
@@ -451,7 +451,7 @@ class Conversion(Statement):
     type: Optional[str] = Field(
         None,
         pattern=r"^Conversion$",
-        description="The type of the statement."
+        description="The specific type of the conversion statement."
     )
     subj: Optional[Agent] = Field(
         None,
