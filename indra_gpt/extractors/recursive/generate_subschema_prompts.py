@@ -62,17 +62,19 @@ def generate_span_extraction_prompt(model_cls: Type[BaseModel], text: str) -> st
 
         if pattern:
             choices = "|".join(pattern.split("|")).replace("(", "").replace(")", "").replace("^", "").replace("$", "")
-            base_desc += f"\nSelect one of: {choices.strip()}"
-            
+            base_desc += (
+                f"\nIf the input text directly mentions one of the following types, select exactly one of: {choices.strip()}."
+                " If the text does not directly mention any of them, return an empty string ('')."
+            )
         if is_list_type(annotation):
-            description = f"{base_desc}\nExtract relevant spans of text from the input text, else return an empty array."
+            description = f"{base_desc}\nExtract relevant spans of text if directly mentioned in the input text, else return an empty array."
             schema["properties"][name] = {
                 "type": "array",
                 "items": {"type": "string"},
                 "description": description
             }
         else:
-            description = f"{base_desc}\nExtract relevant span of text from the input text, else return empty string."
+            description = f"{base_desc}\nExtract relevant span of text if directly mentioned in the input text, else return empty string."
             schema["properties"][name] = {
                 "type": "string",
                 "description": description

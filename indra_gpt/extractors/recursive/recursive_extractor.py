@@ -66,22 +66,29 @@ def recursive_extract(
             if isinstance(span_values, bool):
                 final_fields[field_name] = span_values
             elif isinstance(span_values, str):
-                bool_prompt = prompt_boolean_normalization(field_name, span_values)
-                bool_output_raw = llm_client.call(bool_prompt).strip()
-                try:
-                    bool_output = json.loads(bool_output_raw)
-                    if isinstance(bool_output, dict) and "value" in bool_output:
-                        final_fields[field_name] = bool_output["value"]
-                    else:
-                        print(f"[BoolParsingError] No 'value' key found in boolean response for {full_path}: {bool_output}")
-                except json.JSONDecodeError:
-                    print(f"[BoolParsingError] Failed to parse boolean response for {full_path}:\n{bool_output_raw}")
+                if span_values.strip() == "":
+                    final_fields[field_name] = None
+                else:
+                    bool_prompt = prompt_boolean_normalization(field_name, span_values)
+                    bool_output_raw = llm_client.call(bool_prompt).strip()
+                    try:
+                        bool_output = json.loads(bool_output_raw)
+                        if isinstance(bool_output, dict) and "value" in bool_output:
+                            final_fields[field_name] = bool_output["value"]
+                        else:
+                            print(f"[BoolParsingError] No 'value' key found in boolean response for {full_path}: {bool_output}")
+                    except json.JSONDecodeError:
+                        print(f"[BoolParsingError] Failed to parse boolean response for {full_path}:\n{bool_output_raw}")
             else:
                 print(f"[UnexpectedType] Bool field {full_path} has type {type(span_values)}")
 
         else:
-            # Not a nested model → keep string or list of strings
-            final_fields[field_name] = span_values
+            # Handle Optional[str] fields that return an empty string
+            actual = unwrap_optional(annotation)
+            if actual is str and isinstance(span_values, str) and span_values.strip() == "":
+                final_fields[field_name] = None
+            else:
+                final_fields[field_name] = span_values
 
     try:
         instance = model_cls(**final_fields)

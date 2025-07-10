@@ -325,7 +325,7 @@ class ActiveForm(Statement):
     )
     is_active: Optional[bool] = Field(
         None,
-        description="Whether the conditions are activating (True) or inactivating (False)."
+        description="Whether the conditions are activating or not."
     )   
 
 

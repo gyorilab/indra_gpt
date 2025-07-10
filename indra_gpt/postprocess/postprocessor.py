@@ -5,7 +5,7 @@ class PostProcessor:
 
     def convert_to_indra_stmts(self, raw_output: str, text: str, pmid: str):
         return self.converter.raw_to_indra_statements(raw_output, text, pmid)
-    
+        
     def default_grounder(self, stmts):
         def _apply_grounding(obj):
             if isinstance(obj, dict):
@@ -19,10 +19,15 @@ class PostProcessor:
                 for item in obj:
                     _apply_grounding(item)
 
+        grounded_stmts = []
         for stmt in stmts:
-            _apply_grounding(stmt)
-
-        return stmts
+            try:
+                stmt_json = stmt.to_json()
+                _apply_grounding(stmt_json)
+                grounded_stmts.append(stmt)
+            except Exception as e:
+                continue
+        return grounded_stmts
 
 
     def preassemble(self, stmts):
