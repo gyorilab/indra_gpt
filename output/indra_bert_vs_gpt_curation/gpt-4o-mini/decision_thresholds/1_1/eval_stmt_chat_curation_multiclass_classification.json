@@ -1,0 +1,794 @@
+[
+  {
+    "english_stmt": "NF-\u03bab signal activates COVID-19.",
+    "pa_hash": "-32599288995876430",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Infiltration activates inflammatory response.",
+    "pa_hash": "-28715834116432266",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.83,
+    "num_evidences_curated": 6,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Nsp8 activates DNTT.",
+    "pa_hash": "-28799404028067293",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Cyclohexyl isocyanate activates cyclohexyl isocyanate.",
+    "pa_hash": "11814127194431385",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "L-alanine activates Hemoglobin subunit beta-.",
+    "pa_hash": "-15801322979934392",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Triglyceride activates Infections.",
+    "pa_hash": "-21524321211936794",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 2,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Phosphocholine activates CHRN.",
+    "pa_hash": "14195570850843980",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Luciferin activates Fluorescence.",
+    "pa_hash": "-27580018488723849",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Gallic acid activates thioflavine T.",
+    "pa_hash": "-4512993489545200",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Cidofovir anhydrous activates Mortality.",
+    "pa_hash": "-1097190423050031",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 3,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Temozolomide activates CASP9.",
+    "pa_hash": "-19217711549191049",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": null,
+    "num_evidences_curated": 0,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Thr-Thr activates B cell proliferation.",
+    "pa_hash": "10533701298183917",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Proteolysis activates necroptotic process.",
+    "pa_hash": "14329280875179189",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 2,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Protein sumoylation activates chromosome separation.",
+    "pa_hash": "8704329359574794",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "ACE2 activates control.",
+    "pa_hash": "-32565448977885499",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "DLK1 activates macrophage activation.",
+    "pa_hash": "22577928902811311",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "DNAAF1 activates imidacloprid.",
+    "pa_hash": "-1593088450296745",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "EGFR activates KDR.",
+    "pa_hash": "25774347173758303",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "FCAR activates phagocytosis.",
+    "pa_hash": "1720034134249184",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 2,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "FFAR2 activates interleukin-8 production.",
+    "pa_hash": "-27783897462351668",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.5,
+    "num_evidences_curated": 2,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "HCRT activates neurogenesis.",
+    "pa_hash": "-29259993770742989",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "MMP12 activates ADSL.",
+    "pa_hash": "-16161481128510452",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "OAZ1 activates ODC1.",
+    "pa_hash": "18059222166013034",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 2,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Bacteria, Anaerobic activates Lung abscess.",
+    "pa_hash": "-25142130263359825",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Fever activates ACSM3.",
+    "pa_hash": "14743588399019044",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Methods activates Movement.",
+    "pa_hash": "-23416308253291274",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Neoplasms activates PAH.",
+    "pa_hash": "27049552671564742",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Neutropenia activates Communicable Diseases.",
+    "pa_hash": "-14936825363748401",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 2,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Social Work activates Population Health.",
+    "pa_hash": "17589369432081522",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Wine activates digestion.",
+    "pa_hash": "-32951994826958354",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Purpura, Thrombocytopenic, Idiopathic activates activating antibodies.",
+    "pa_hash": "-20837690831622059",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Cardiovascular Abnormalities activates Chest Pain.",
+    "pa_hash": "32268133938005365",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Th1 Cells activates sensitization.",
+    "pa_hash": "-35435864013775780",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Medical Errors activates Quality of Health Care.",
+    "pa_hash": "17147676610448207",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Severe Acute Respiratory Syndrome activates humoral immune response.",
+    "pa_hash": "20195680221067507",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.67,
+    "num_evidences_curated": 3,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Lung Injury activates wzzB.",
+    "pa_hash": "10070440961278278",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Climate Change activates Animal Migration.",
+    "pa_hash": "19394922686250340",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Ageism activates Attitude.",
+    "pa_hash": "-26593003565290521",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "NIH activates CENPV.",
+    "pa_hash": "10172173244299815",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Locustatachykinin-1 activates response to drug.",
+    "pa_hash": "-3468044475569831",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "RbcG activates LTA.",
+    "pa_hash": "-32953074801358183",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 6,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "A3G2XYLT activates rutin.",
+    "pa_hash": "15887354238159480",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Sterol binds TMEM37.",
+    "pa_hash": "-6966850926095152",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Pectin binds wax.",
+    "pa_hash": "8198897694116066",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Isocyanic acid binds MPL.",
+    "pa_hash": "20411497666154207",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 2,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "C1 binds ERG and Spp1.",
+    "pa_hash": "15779488191557336",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 6,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "SLC7A4 binds CALHM3.",
+    "pa_hash": "19178566115318356",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "DYNLT1 binds DYNLL1.",
+    "pa_hash": "-34385356282308355",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.8,
+    "num_evidences_curated": 5,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "TNFRSF25 binds TNFSF15.",
+    "pa_hash": "-30399873885172180",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.4,
+    "num_evidences_curated": 5,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "HDAC6 binds Capsid.",
+    "pa_hash": "-19373395319005884",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "GNB4 binds YP_009227203.",
+    "pa_hash": "7384579158220963",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": null,
+    "num_evidences_curated": 0,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "PTF1A binds NFKB2.",
+    "pa_hash": "-33832565839654710",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 2,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "HMGN4 binds RdRp.",
+    "pa_hash": "-31433327111087237",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 2,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Fatty Acids, Nonesterified binds Heart Rate.",
+    "pa_hash": "35963370348734774",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 4,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "All-trans-retinoic acid decreases the amount of PPIF.",
+    "pa_hash": "21882241700396942",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": null,
+    "num_evidences_curated": 0,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Glycyrrhizinic acid decreases the amount of estrone.",
+    "pa_hash": "-28538653946725450",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Diethylstilbestrol decreases the amount of TRAF6.",
+    "pa_hash": "25111645330098288",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": null,
+    "num_evidences_curated": 0,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Sulfasalazine decreases the amount of XDH.",
+    "pa_hash": "29330014481641329",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": null,
+    "num_evidences_curated": 0,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "SRCIN1 decreases the amount of SLC6A2.",
+    "pa_hash": "5029889905031947",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "ANPEP decreases the amount of ANPEP.",
+    "pa_hash": "33606393639483346",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "HIPP22 decreases the amount of HMGB1.",
+    "pa_hash": "20532402955622660",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Testosterone increases the amount of AGRP.",
+    "pa_hash": "-22540697601315084",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": null,
+    "num_evidences_curated": 0,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Citral increases the amount of IL18.",
+    "pa_hash": "-8482445553706327",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Rotenone increases the amount of ATF6.",
+    "pa_hash": "-8731605335894667",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": null,
+    "num_evidences_curated": 0,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Dexamethasone increases the amount of CYP2E1.",
+    "pa_hash": "-3742269417950460",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": null,
+    "num_evidences_curated": 0,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Indometacin increases the amount of RTN2.",
+    "pa_hash": "-17406301501447251",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": null,
+    "num_evidences_curated": 0,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Phosphorylated AKT increases the amount of ACE2.",
+    "pa_hash": "-31220176446905299",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "NFASC increases the amount of BECN1.",
+    "pa_hash": "-20772871591009389",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Neutrophils increases the amount of CD300LF.",
+    "pa_hash": "21886130968523551",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "CQ inhibits endocytosis.",
+    "pa_hash": "-33950999327992403",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "PRR inhibits Asthma.",
+    "pa_hash": "2526976642469027",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "SP inhibits ACE2.",
+    "pa_hash": "-33190855319543330",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Methanol inhibits carrageenan.",
+    "pa_hash": "36006616268820357",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Anthraquinone inhibits platelet aggregation.",
+    "pa_hash": "-19964074495855057",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Inositol inhibits CHK.",
+    "pa_hash": "-29361728834904173",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.5,
+    "num_evidences_curated": 2,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Vitamin D inhibits Respiratory Distress Syndrome.",
+    "pa_hash": "-3929065723344572",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.22,
+    "num_evidences_curated": 9,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Cyclosporin A inhibits CD79A.",
+    "pa_hash": "10227066134519761",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Dexamethasone inhibits succinic acid.",
+    "pa_hash": "-20331957764660140",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Myriocin inhibits SPTLC1.",
+    "pa_hash": "-30514941131499610",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Celastrol inhibits TMPRSS2.",
+    "pa_hash": "21420928131343246",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 2,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Eckol inhibits melanin biosynthetic process.",
+    "pa_hash": "-8226313513650987",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 2,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Ruxolitinib inhibits MAP2K3.",
+    "pa_hash": "-15483743919830806",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": null,
+    "num_evidences_curated": 0,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Sugammadex inhibits rocuronium.",
+    "pa_hash": "15044621361683694",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Complication inhibits Blood Coagulation Disorders.",
+    "pa_hash": "11509157767409721",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "SOX2 inhibits NKX2-1.",
+    "pa_hash": "-29850401017975342",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "CD276 inhibits Recurrent infections.",
+    "pa_hash": "23130932982060049",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "IL1R1 inhibits dopamine.",
+    "pa_hash": "33763274498239064",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "SIGMAR1 inhibits CREB.",
+    "pa_hash": "-3241181424943545",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Immune Privilege inhibits inflammatory response.",
+    "pa_hash": "29630561992663508",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Antilymphocyte Serum inhibits T-Lymphocytes.",
+    "pa_hash": "12833679391866311",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Fishes inhibits Hypertension.",
+    "pa_hash": "-606162906456263",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Kidney inhibits inflammatory response.",
+    "pa_hash": "-21521733214288393",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Influenza A virus inhibits cytoplasmic stress granule.",
+    "pa_hash": "-3840453000009878",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 2,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Tea inhibits skeletal muscle atrophy.",
+    "pa_hash": "2285395685594043",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 2,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Vasectomy inhibits Leukocytes.",
+    "pa_hash": "-18254204746331380",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 2,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Drug Resistance, Multiple inhibits antimicrobial agent.",
+    "pa_hash": "6835405393812396",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Bleomycin phosphorylates GSK3B.",
+    "pa_hash": "15707835964433664",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": null,
+    "num_evidences_curated": 0,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "PINK1 leads to the phosphorylation of MFN2.",
+    "pa_hash": "-32394471335521317",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 3,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "S1PR1 leads to the phosphorylation of MYL.",
+    "pa_hash": "-2133579686298045",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 1,
+    "indra_curation": "correct"
+  }
+]

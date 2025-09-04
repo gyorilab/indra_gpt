@@ -1,0 +1,802 @@
+[
+  {
+    "english_stmt": "LCK activates STAT3.",
+    "pa_hash": "8621240135402808",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "KITLG activates KIT.",
+    "pa_hash": "33241402993253896",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "FBXL2 inhibits Cyclin.",
+    "pa_hash": "20074216280555808",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "MTOR phosphorylates AKT on T308.",
+    "pa_hash": "-34296103762419193",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.5,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "TNF activates NFkappaB.",
+    "pa_hash": "24925077976876453",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.62,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "SRC activates PXN.",
+    "pa_hash": "-5787946553593391",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "CXCL12 activates AKT.",
+    "pa_hash": "-34382679073582559",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.62,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "NLK phosphorylates MYB.",
+    "pa_hash": "-35251221911272910",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "MAP3K12 phosphorylates MAP2K7.",
+    "pa_hash": "-8224854636888394",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.2,
+    "num_evidences_curated": 5,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "PTEN dephosphorylates RAB7A.",
+    "pa_hash": "-1944160428190277",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.88,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "P14_3_3 binds TP53.",
+    "pa_hash": "26435505579084683",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "AKT1 phosphorylates SKP2 on S72.",
+    "pa_hash": "-12634097505122461",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "TNIK phosphorylates itself.",
+    "pa_hash": "22026567399689369",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.5,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "BANK1 binds GEN1.",
+    "pa_hash": "-35496576486678909",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "TP53 decreases the amount of TP53.",
+    "pa_hash": "-32833592732602694",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "STK33 phosphorylates VIM.",
+    "pa_hash": "32402890080970485",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "RAS activates NF1.",
+    "pa_hash": "528808884440542",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "SRC activates AKT.",
+    "pa_hash": "19269276675979348",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.38,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "PTPRJ activates SRC.",
+    "pa_hash": "30616341970583570",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "PBK phosphorylates MAPK1.",
+    "pa_hash": "-18172178490940883",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.25,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "MTOR inhibits autophagy.",
+    "pa_hash": "8826084938108976",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.62,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "NEURL1 activates CPEB3.",
+    "pa_hash": "18643600342139464",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "TGFB activates SMAD2_3.",
+    "pa_hash": "-16273394018758093",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.88,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "PRKCE phosphorylates KAT5.",
+    "pa_hash": "13538096739577672",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.88,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "AKT1 phosphorylates PAWR.",
+    "pa_hash": "-638597790034132",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "PRKN inhibits HIF1A.",
+    "pa_hash": "-2126775019653997",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "NFkappaB increases the amount of Chemokine.",
+    "pa_hash": "29919265328803060",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.88,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Caspase binds APAF1.",
+    "pa_hash": "13693599318095069",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "SLC6A4 binds HTT.",
+    "pa_hash": "23669058969552466",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "MTOR phosphorylates ESR1.",
+    "pa_hash": "9474601926271745",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "AMOT activates cell population proliferation.",
+    "pa_hash": "-29940290777334514",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.88,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "SLC9A1 binds EPB41.",
+    "pa_hash": "24098848671610213",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Actin binds SLC9A3R1.",
+    "pa_hash": "34169284719203191",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.38,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "PRKD1 activates NLRP3.",
+    "pa_hash": "18519158707459334",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.62,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "ZNF282 binds ESR1.",
+    "pa_hash": "-8568575060468294",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "CTTN binds PFN1.",
+    "pa_hash": "12216695026294071",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.88,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "EIF4EBP1 activates cell growth.",
+    "pa_hash": "7025625144472182",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.25,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "STAT1 activates JAK1.",
+    "pa_hash": "-14650171592969826",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "KRAS increases the amount of KRAS.",
+    "pa_hash": "28717534783868076",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.25,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "SRI binds PLK1.",
+    "pa_hash": "-26201872574996932",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "PLK4 phosphorylates TUBGCP6.",
+    "pa_hash": "35593162968033639",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "AMPK phosphorylates YAP1 on S94.",
+    "pa_hash": "28195789580781675",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "EGF activates MAPK7.",
+    "pa_hash": "27071633623157525",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "SRC phosphorylates GSN.",
+    "pa_hash": "31931913028651108",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "MAPK inhibits AKT.",
+    "pa_hash": "27794633127348955",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.12,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "NFE2L2 activates HMOX1.",
+    "pa_hash": "25211524417548080",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "MPO binds PON1.",
+    "pa_hash": "14820041984280044",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.5,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "MAPK activates RAS.",
+    "pa_hash": "-27745904913448469",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.12,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "JNK phosphorylates SMAD3.",
+    "pa_hash": "11729246003826578",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "YAP1 activates Wnt.",
+    "pa_hash": "-3911171848137632",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.5,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "STUB1 inhibits FOXP3.",
+    "pa_hash": "-15996311131387453",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.12,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "ANXA5 inhibits PKC.",
+    "pa_hash": "25862370226801029",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.88,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "CYP1A1 binds AHR.",
+    "pa_hash": "12569628287439677",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.38,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "TGFB activates p38.",
+    "pa_hash": "27192303037125434",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "TRIM62 ubiquitinates CARD9 on K125.",
+    "pa_hash": "-34874522176977963",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "GRB10 inhibits cell population proliferation.",
+    "pa_hash": "7231361167080938",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.38,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "ATR phosphorylates BLM.",
+    "pa_hash": "7261696182682824",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "LIMK2 inhibits SPOP.",
+    "pa_hash": "19871101379812674",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.25,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "MTOR binds INS.",
+    "pa_hash": "-15396645825529833",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.12,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "HIF1A activates TP53.",
+    "pa_hash": "32514898637890249",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.62,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Glu-Asp inhibits IFNB1.",
+    "pa_hash": "18347920883558582",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.12,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "BDNF binds CDK1.",
+    "pa_hash": "-34976309557666254",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "EC 3.4.15.1 (peptidyl-dipeptidase A) inhibitor decreases the amount of ACE2.",
+    "pa_hash": "17721428124907726",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "PRKCA inhibits CTNNB1.",
+    "pa_hash": "9269666645818901",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.5,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "SMAD binds CREBBP.",
+    "pa_hash": "-14737505471024591",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.62,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "TNF activates ERMAP.",
+    "pa_hash": "12976001660058723",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "TNF phosphorylates JNK.",
+    "pa_hash": "21601071321806716",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.5,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "SRC phosphorylates PRKCD on tyrosine.",
+    "pa_hash": "-1389200100746222",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "CTNNA binds JUP.",
+    "pa_hash": "33066123911099105",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.5,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "MIR155 decreases the amount of FOXO3.",
+    "pa_hash": "24477639752946169",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.88,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "MAP2K4 activates JUN.",
+    "pa_hash": "13834068753160247",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 6,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Pneumonia activates Syndrome.",
+    "pa_hash": "-23081075816846256",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "NOS2 inhibits ARG1.",
+    "pa_hash": "-30807419379684885",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Sorafenib inhibits EGFR.",
+    "pa_hash": "32065684857271370",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.62,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "TMPRSS2 activates SARS Virus.",
+    "pa_hash": "10536006844712854",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "RAS binds NF1.",
+    "pa_hash": "24357238705805134",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.38,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "CDK11B phosphorylates SRSF1.",
+    "pa_hash": "28565652038928239",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.62,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "ERK increases the amount of Cyclin.",
+    "pa_hash": "32803810360046853",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "ABL1 phosphorylates CLASP2.",
+    "pa_hash": "7685747744619230",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.5,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "CDK2 inhibits CDH1.",
+    "pa_hash": "-6232110267285013",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.62,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "PRICKLE1 inhibits CTNNB1.",
+    "pa_hash": "-16241033068601298",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "Berberine inhibits PCSK9.",
+    "pa_hash": "-18176138149392356",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "PRKAA1 phosphorylates DDIT3 on S30.",
+    "pa_hash": "-17102796426806920",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "IKBKB activates TP53.",
+    "pa_hash": "-16384692227504045",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.25,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "ACE2 binds Ad.",
+    "pa_hash": "1597546670108806",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "RFWD3 ubiquitinates RAD51.",
+    "pa_hash": "-1086295205732151",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.88,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "NF1 activates gamma-aminobutyric acid.",
+    "pa_hash": "-26396744730626932",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "CCR5 binds SCD5.",
+    "pa_hash": "11454707645817273",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "Arp2_3_protein binds RAC1.",
+    "pa_hash": "-11969480239825899",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.88,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "TNF binds IL1B and IL6.",
+    "pa_hash": "9313347547147591",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.12,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "ERK inhibits MAPK.",
+    "pa_hash": "29859335528612102",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "CHEK1 phosphorylates TICRR.",
+    "pa_hash": "18492518599518555",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.88,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "CDK1 inhibits PKMYT1.",
+    "pa_hash": "-30176041808314627",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.62,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "SH3RF1 ubiquitinates HGS.",
+    "pa_hash": "-28708109867446614",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.12,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "CYCS activates CASP8.",
+    "pa_hash": "12388909264255904",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.5,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "ATM phosphorylates HMGA1.",
+    "pa_hash": "23024802732429677",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "GLS2 binds RAC1.",
+    "pa_hash": "30626518946446947",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 1.0,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "SMAD3 phosphorylates TGFB.",
+    "pa_hash": "18608075720347884",
+    "llm_overall_prediction": "incorrect",
+    "llm_proportion_correct": 0.12,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  },
+  {
+    "english_stmt": "LRRK2 leads to the phosphorylation of EIF4EBP.",
+    "pa_hash": "18388834359268362",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.88,
+    "num_evidences_curated": 8,
+    "indra_curation": "correct"
+  },
+  {
+    "english_stmt": "IGF1 activates MAPK.",
+    "pa_hash": "-26904415341975939",
+    "llm_overall_prediction": "correct",
+    "llm_proportion_correct": 0.75,
+    "num_evidences_curated": 8,
+    "indra_curation": "incorrect"
+  }
+]

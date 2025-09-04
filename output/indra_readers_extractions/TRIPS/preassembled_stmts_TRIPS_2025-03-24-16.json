@@ -1,0 +1,2470 @@
+{
+  "stmts": [
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "19854137",
+          "text_refs": {},
+          "text": "Furthermore, acetylation of <span class=\"badge badge-object\">p53</span> K120 by the <span class=\"badge badge-subject\">MOF</span> and MSL1v1 complex greatly enhanced the transcription activity of <span class=\"badge badge-object\">p53</span> (XREF_FIG).",
+          "source_hash": "-8039475541342264140",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "19854137",
+            "text": "Furthermore, acetylation of p53 K120 by the MOF and MSL1v1 complex greatly enhanced the transcription activity of p53 (XREF_FIG).",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "MOF",
+                  "p53"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "MOF",
+                    "HGNC": "17933",
+                    "EGID": "84148",
+                    "UP": "Q9H7Z6"
+                  },
+                  {
+                    "TEXT": "p53",
+                    "HGNC": "11998",
+                    "EGID": "7157",
+                    "UP": "P04637"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "6ac1861e-42ff-41fb-a897-d3b45fe63028"
+              ]
+            },
+            "source_hash": -8039475541342264140
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:17933' target='_blank'>KAT8</a> acetylates <a href='https://identifiers.org/hgnc:11998' target='_blank'>TP53</a> on K120.",
+      "evidence_count": 1,
+      "hash": "-4539619476581116",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "15175157",
+          "text_refs": {},
+          "text": "Furthermore, acetylation of <span class=\"badge badge-object\">p53</span> K120 by the MOF and <span class=\"badge badge-subject\">MSL1v1</span> complex greatly enhanced the transcription activity of <span class=\"badge badge-object\">p53</span> (XREF_FIG).",
+          "source_hash": "-8039475541342264140",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "15175157",
+            "text": "Furthermore, acetylation of p53 K120 by the MOF and MSL1v1 complex greatly enhanced the transcription activity of p53 (XREF_FIG).",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "MSL1v1",
+                  "p53"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "MSL1v1",
+                    "HGNC": "24565",
+                    "UP": "Q7Z3B3",
+                    "EGID": "284058"
+                  },
+                  {
+                    "TEXT": "p53",
+                    "HGNC": "11998",
+                    "EGID": "7157",
+                    "UP": "P04637"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "01fb9f3e-81a1-4816-b276-22d8c2367737"
+              ]
+            },
+            "source_hash": -8039475541342264140
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:24565' target='_blank'>KANSL1</a> acetylates <a href='https://identifiers.org/hgnc:11998' target='_blank'>TP53</a> on K120.",
+      "evidence_count": 1,
+      "hash": "33874854159930949",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "11016947",
+          "text_refs": {},
+          "text": "Indeed, we show that upon treatment with chemotherapeutic drugs c-Abl enhances the phosphorylation-dependent interaction between Pin1 and <span class=\"badge badge-object\">p73</span>, and this in turn promotes <span class=\"badge badge-object\">p73</span> acetylation by <span class=\"badge badge-subject\">p300</span>.",
+          "source_hash": "5336365914679745338",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "11016947",
+            "text": "Indeed, we show that upon treatment with chemotherapeutic drugs c-Abl enhances the phosphorylation-dependent interaction between Pin1 and p73, and this in turn promotes p73 acetylation by p300.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "p300",
+                  "p73"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "p300",
+                    "HGNC": "3373",
+                    "UP": "Q09472",
+                    "EGID": "2033"
+                  },
+                  {
+                    "TEXT": "p73",
+                    "HGNC": "12003",
+                    "UP": "O15350",
+                    "EGID": "7161"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "fc3cc6b7-d0c3-4614-9f86-0bc7f6658de3"
+              ]
+            },
+            "source_hash": 5336365914679745338
+          },
+          "num_curations": 1,
+          "num_correct": 1,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:3373' target='_blank'>EP300</a> acetylates <a href='https://identifiers.org/hgnc:12003' target='_blank'>TP73</a>.",
+      "evidence_count": 1,
+      "hash": "25220799734998124",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "25659040",
+          "text_refs": {},
+          "text": "Activation of atypical <span class=\"badge badge-object\">protein kinase C zeta</span> by <span class=\"badge badge-subject\">caspase</span> processing and degradation by the ubiquitin-proteasome system.",
+          "source_hash": "-6903292044719117545",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "25659040",
+            "text": "Activation of atypical protein kinase C zeta by caspase processing and degradation by the ubiquitin-proteasome system.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "caspase",
+                  "protein kinase C zeta"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "caspase",
+                    "FPLX": "Caspase",
+                    "MESH": "D020169",
+                    "IP": "IPR002138",
+                    "GO": "GO:0004199",
+                    "PF": "PF00656",
+                    "NCIT": "C18153"
+                  },
+                  {
+                    "TEXT": "protein kinase C zeta",
+                    "HGNC": "9412",
+                    "EGID": "5590",
+                    "UP": "Q05513"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "5661b255-0538-478f-936c-43d01b5937e9"
+              ]
+            },
+            "source_hash": -6903292044719117545
+          },
+          "num_curations": 1,
+          "num_correct": 1,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/fplx:Caspase' target='_blank'>Caspase</a> activates <a href='https://identifiers.org/hgnc:9412' target='_blank'>PRKCZ</a>.",
+      "evidence_count": 1,
+      "hash": "12207101116287611",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "25721714",
+          "text_refs": {},
+          "text": "JAK1 activity was required for <span class=\"badge badge-subject\">IFN-\u03b2</span> to activate <span class=\"badge badge-object\">PI3K</span> and Akt1 that resulted in repression of glycogen synthase kinase 3 (GSK3)-\u03b2 activity.",
+          "source_hash": "-4245228441400105980",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "25721714",
+            "text": "JAK1 activity was required for IFN-\u03b2 to activate PI3K and Akt1 that resulted in repression of glycogen synthase kinase 3 (GSK3)-\u03b2 activity.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "IFN-\u03b2",
+                  "PI3K"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "IFN-\u03b2",
+                    "FPLX": "IFNB",
+                    "NCIT": "C20495",
+                    "IP": "IPR015588",
+                    "HGNC": "5434",
+                    "UP": "P01574",
+                    "EGID": "3456"
+                  },
+                  {
+                    "TEXT": "PI3K",
+                    "FPLX": "PI3K",
+                    "NCIT": "C17270"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "3e4a8636-3db2-4f36-a03a-9992996ac067"
+              ]
+            },
+            "source_hash": -4245228441400105980
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/fplx:IFNB' target='_blank'>IFNB</a> activates <a href='https://identifiers.org/fplx:PI3K' target='_blank'>PI3K</a>.",
+      "evidence_count": 1,
+      "hash": "-25224604945691352",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "25620967",
+          "text_refs": {},
+          "text": "JAK1 activity was required for <span class=\"badge badge-subject\">IFN-\u03b2</span> to activate PI3K and Akt1 that resulted in repression of glycogen synthase kinase 3 (GSK3)-\u03b2 activity.",
+          "source_hash": "-4245228441400105980",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "25620967",
+            "text": "JAK1 activity was required for IFN-\u03b2 to activate PI3K and Akt1 that resulted in repression of glycogen synthase kinase 3 (GSK3)-\u03b2 activity.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "IFN-\u03b2",
+                  "AKT1"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "IFN-\u03b2",
+                    "FPLX": "IFNB",
+                    "NCIT": "C20495",
+                    "IP": "IPR015588",
+                    "HGNC": "5434",
+                    "UP": "P01574",
+                    "EGID": "3456"
+                  },
+                  {
+                    "TEXT": "AKT1",
+                    "HGNC": "391",
+                    "EGID": "207",
+                    "UP": "P31749"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "378dc058-5117-4788-be03-55ff33877aec"
+              ]
+            },
+            "source_hash": -4245228441400105980
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/fplx:IFNB' target='_blank'>IFNB</a> activates <a href='https://identifiers.org/hgnc:391' target='_blank'>AKT1</a>.",
+      "evidence_count": 1,
+      "hash": "16086433650681890",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "22498566",
+          "text_refs": {},
+          "text": "An inside-out-signaling mechanism has previously been found to play a role in the activation of <span class=\"badge badge-object\">CD28</span> by the <span class=\"badge badge-subject\">TCR</span> ( xref ) and the regulation of integrin receptors such as LFA-1 ( xref ).",
+          "source_hash": "-2347198479158122979",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "22498566",
+            "text": "An inside-out-signaling mechanism has previously been found to play a role in the activation of CD28 by the TCR ( xref ) and the regulation of integrin receptors such as LFA-1 ( xref ).",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "TCR",
+                  "CD28"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "TCR",
+                    "FPLX": "TCR",
+                    "NCIT": "C17065"
+                  },
+                  {
+                    "TEXT": "CD28",
+                    "HGNC": "1653",
+                    "UP": "P10747",
+                    "EGID": "940"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "6e90e05b-29f6-4cd5-89c4-1ec7b41aed12"
+              ]
+            },
+            "source_hash": -2347198479158122979
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/fplx:TCR' target='_blank'>TCR</a> activates <a href='https://identifiers.org/hgnc:1653' target='_blank'>CD28</a>.",
+      "evidence_count": 1,
+      "hash": "-19011246291934089",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "24963139",
+          "text_refs": {},
+          "text": "FFA further facilitated <span class=\"badge badge-subject\">TGF-\u03b2</span>-induced <span class=\"badge badge-object\">ERK</span> activation, SMAD4 phosphorylation and nuclear retention, promoting <span class=\"badge badge-subject\">TGF-\u03b2</span>-dependent cancer progression.",
+          "source_hash": "-5097397702435831672",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "24963139",
+            "text": "FFA further facilitated TGF-\u03b2-induced ERK activation, SMAD4 phosphorylation and nuclear retention, promoting TGF-\u03b2-dependent cancer progression.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "TGF-\u03b2",
+                  "ERK"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "TGF-\u03b2",
+                    "FPLX": "TGFB",
+                    "IP": "IPR015615"
+                  },
+                  {
+                    "TEXT": "ERK",
+                    "FPLX": "ERK",
+                    "IP": "IPR008349",
+                    "NCIT": "C26360"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "193e5eca-66da-48d6-bac3-fadc932cda98"
+              ]
+            },
+            "epistemics": {
+              "direct": false
+            },
+            "source_hash": -5097397702435831672
+          },
+          "num_curations": 1,
+          "num_correct": 1,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/fplx:TGFB' target='_blank'>TGFB</a> activates <a href='https://identifiers.org/fplx:ERK' target='_blank'>ERK</a>.",
+      "evidence_count": 1,
+      "hash": "26399982537521271",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "28115363",
+          "text_refs": {},
+          "text": "Our data show that the uptake of apoptotic cells by murine AMs and human monocyte-derived macrophages is inhibited by depletion of <span class=\"badge badge-subject\">VEGF</span> and that <span class=\"badge badge-subject\">VEGF</span> activates Rac1.",
+          "source_hash": "-2808080822040901054",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "28115363",
+            "text": "Our data show that the uptake of apoptotic cells by murine AMs and human monocyte-derived macrophages is inhibited by depletion of VEGF and that VEGF activates Rac1.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "VEGF",
+                  "RAC1"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "VEGF",
+                    "FPLX": "VEGF",
+                    "NCIT": "C129646"
+                  },
+                  {
+                    "TEXT": "RAC1",
+                    "HGNC": "9801",
+                    "EGID": "5879",
+                    "UP": "P63000"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "50640098-460d-49b4-bff5-84e4ded51f7c"
+              ]
+            },
+            "source_hash": -2808080822040901054
+          },
+          "num_curations": 1,
+          "num_correct": 1,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/fplx:VEGF' target='_blank'>VEGF</a> activates <a href='https://identifiers.org/hgnc:9801' target='_blank'>RAC1</a>.",
+      "evidence_count": 1,
+      "hash": "19089169096311623",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "16803888",
+          "text_refs": {},
+          "text": "Membrane-associated Tiam1 Activates <span class=\"badge badge-object\">JNK</span>.",
+          "source_hash": "-6721313476811389428",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "16803888",
+            "text": "Membrane-associated Tiam1 Activates JNK.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "TIAM1",
+                  "JNK"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "TIAM1",
+                    "HGNC": "11805",
+                    "UP": "Q13009",
+                    "EGID": "7074"
+                  },
+                  {
+                    "TEXT": "JNK",
+                    "FPLX": "JNK",
+                    "IP": "IPR008351"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "34147489-f5f9-4c14-93b0-378244668e2b"
+              ]
+            },
+            "source_hash": -6721313476811389428
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:11805' target='_blank'>TIAM1</a> activates <a href='https://identifiers.org/fplx:JNK' target='_blank'>JNK</a>.",
+      "evidence_count": 1,
+      "hash": "29513813352026391",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "12775414",
+          "text_refs": {},
+          "text": "Given that an elevated interaction of Vav3 with <span class=\"badge badge-object\">AR</span>, P-Akt, and HER2 in both cytoplasm and nucleus upon the short-term of DHT stimulation, our data suggest that Vav3 may enhance non-genomic <span class=\"badge badge-object\">AR</span> activity via PI3K-Akt signaling in addition to <span class=\"badge badge-object\">AR</span> transcriptional activity and further support a role in androgen-independent growth in prostate cancer.",
+          "source_hash": "2203557718687235795",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "12775414",
+            "text": "Given that an elevated interaction of Vav3 with AR, P-Akt, and HER2 in both cytoplasm and nucleus upon the short-term of DHT stimulation, our data suggest that Vav3 may enhance non-genomic AR activity via PI3K-Akt signaling in addition to AR transcriptional activity and further support a role in androgen-independent growth in prostate cancer.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "VAV3",
+                  "AR"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "VAV3",
+                    "HGNC": "12659",
+                    "UP": "Q9UKW4",
+                    "EGID": "10451"
+                  },
+                  {
+                    "TEXT": "AR",
+                    "HGNC": "644",
+                    "EGID": "367",
+                    "UP": "P10275"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "6c0e6f35-65c7-40bf-9b76-9473f7024e17"
+              ]
+            },
+            "epistemics": {
+              "direct": false
+            },
+            "source_hash": 2203557718687235795
+          },
+          "num_curations": 1,
+          "num_correct": 1,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:12659' target='_blank'>VAV3</a> activates <a href='https://identifiers.org/hgnc:644' target='_blank'>AR</a>.",
+      "evidence_count": 1,
+      "hash": "-14656268282221236",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "26689987",
+          "text_refs": {},
+          "text": "Our study demonstrated that during macrophage differentiation from monocytes, Wnt1 promotes CD36 expression via activation of PPAR-\u03b3 and <span class=\"badge badge-object\">TCF4</span>.",
+          "source_hash": "9048483735619453881",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "26689987",
+            "text": "Our study demonstrated that during macrophage differentiation from monocytes, Wnt1 promotes CD36 expression via activation of PPAR-\u03b3 and TCF4.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "WNT1",
+                  "TCF4"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "WNT1",
+                    "HGNC": "12774",
+                    "UP": "P04628",
+                    "EGID": "7471"
+                  },
+                  {
+                    "TEXT": "TCF4",
+                    "HGNC": "11634",
+                    "UP": "P15884",
+                    "EGID": "6925"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "824e7106-8606-4f08-ac84-3ccbb16c8859"
+              ]
+            },
+            "source_hash": 9048483735619453881
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:12774' target='_blank'>WNT1</a> activates <a href='https://identifiers.org/hgnc:11634' target='_blank'>TCF4</a>.",
+      "evidence_count": 1,
+      "hash": "-247096482263071",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "20379791",
+          "text_refs": {},
+          "text": "Our study demonstrated that during macrophage differentiation from monocytes, Wnt1 promotes CD36 expression via activation of <span class=\"badge badge-object\">PPAR-\u03b3</span> and TCF4.",
+          "source_hash": "9048483735619453881",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "20379791",
+            "text": "Our study demonstrated that during macrophage differentiation from monocytes, Wnt1 promotes CD36 expression via activation of PPAR-\u03b3 and TCF4.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "WNT1",
+                  "PPAR-\u03b3"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "WNT1",
+                    "HGNC": "12774",
+                    "UP": "P04628",
+                    "EGID": "7471"
+                  },
+                  {
+                    "TEXT": "PPAR-\u03b3",
+                    "HGNC": "9236",
+                    "EGID": "5468",
+                    "UP": "P37231"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "e65cc1ad-1168-4d06-8bbd-ad614b7df256"
+              ]
+            },
+            "source_hash": 9048483735619453881
+          },
+          "num_curations": 2,
+          "num_correct": 2,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:12774' target='_blank'>WNT1</a> activates <a href='https://identifiers.org/hgnc:9236' target='_blank'>PPARG</a>.",
+      "evidence_count": 1,
+      "hash": "6061546894720332",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "16645187",
+          "text_refs": {},
+          "text": "In fact, activation of <span class=\"badge badge-object\">TLR</span>s by <span class=\"badge badge-subject\">PAMP</span>s induces the expression of several lncRNAs.",
+          "source_hash": "4595493035779348077",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "16645187",
+            "text": "In fact, activation of TLRs by PAMPs induces the expression of several lncRNAs.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "PAMP",
+                  "TLR"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "PAMP",
+                    "HGNC": "12843",
+                    "EGID": "10730",
+                    "UP": "Q96TA2"
+                  },
+                  {
+                    "TEXT": "TLR",
+                    "FPLX": "TLR"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "5f69d371-4c29-4b98-a39f-b0f069307b7e"
+              ]
+            },
+            "source_hash": 4595493035779348077
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:12843' target='_blank'>YME1L1</a> activates <a href='https://identifiers.org/fplx:TLR' target='_blank'>TLR</a>.",
+      "evidence_count": 1,
+      "hash": "-20795300248768118",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "8957070",
+          "text_refs": {},
+          "text": "Moreover, Rac activation by <span class=\"badge badge-subject\">DOCK2</span> facilitates T cell responsiveness to antigen, as disrupted Rac activation in <span class=\"badge badge-subject\">DOCK2</span> (-/-) and Rac2 (-/-) mice is associated with defective immunological synapse formation and depressed antigen specific responses.",
+          "source_hash": "3322292497771190644",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "8957070",
+            "text": "Moreover, Rac activation by DOCK2 facilitates T cell responsiveness to antigen, as disrupted Rac activation in DOCK2 (-/-) and Rac2 (-/-) mice is associated with defective immunological synapse formation and depressed antigen specific responses.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "DOCK2",
+                  "RAC"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "DOCK2",
+                    "HGNC": "2988",
+                    "EGID": "1794",
+                    "UP": "Q92608"
+                  },
+                  {
+                    "TEXT": "RAC",
+                    "FPLX": "RAC"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "c594f23e-bdb1-4a11-8676-e32255c400fb"
+              ]
+            },
+            "source_hash": 3322292497771190644
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:2988' target='_blank'>DOCK2</a> activates <a href='https://identifiers.org/fplx:RAC' target='_blank'>RAC</a>.",
+      "evidence_count": 1,
+      "hash": "-13598711463263511",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "12423676",
+          "text_refs": {},
+          "text": "Gas6 activates Axl, Tyro3, and Mer receptor tyrosine kinases in a concentration-dependent manner.",
+          "source_hash": "-387317649862139082",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "12423676",
+            "text": "Gas6 activates Axl, Tyro3, and Mer receptor tyrosine kinases in a concentration-dependent manner.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "GAS6",
+                  "TYRO3"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "GAS6",
+                    "HGNC": "4168",
+                    "EGID": "2621",
+                    "UP": "Q14393"
+                  },
+                  {
+                    "TEXT": "TYRO3",
+                    "HGNC": "12446",
+                    "UP": "Q06418",
+                    "EGID": "7301"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "e5c1c3d1-bd23-4b31-a300-ccd46f20f1e1"
+              ]
+            },
+            "source_hash": -387317649862139082
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:4168' target='_blank'>GAS6</a> activates <a href='https://identifiers.org/hgnc:12446' target='_blank'>TYRO3</a>.",
+      "evidence_count": 1,
+      "hash": "-21374288221353233",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "9128250",
+          "text_refs": {},
+          "text": "Gas6 activates Axl, Tyro3, and Mer receptor tyrosine kinases in a concentration-dependent manner.",
+          "source_hash": "-387317649862139082",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "9128250",
+            "text": "Gas6 activates Axl, Tyro3, and Mer receptor tyrosine kinases in a concentration-dependent manner.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "GAS6",
+                  "mer"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "GAS6",
+                    "HGNC": "4168",
+                    "EGID": "2621",
+                    "UP": "Q14393"
+                  },
+                  {
+                    "TEXT": "mer",
+                    "HGNC": "7027",
+                    "UP": "Q12866",
+                    "EGID": "10461"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "70caff2d-f81d-4b82-945f-4a41e6e8c062"
+              ]
+            },
+            "source_hash": -387317649862139082
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:4168' target='_blank'>GAS6</a> activates <a href='https://identifiers.org/hgnc:7027' target='_blank'>MERTK</a>.",
+      "evidence_count": 1,
+      "hash": "4893202819549249",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "19479087",
+          "text_refs": {},
+          "text": "Gas6 activates Axl, Tyro3, and Mer receptor tyrosine kinases in a concentration-dependent manner.",
+          "source_hash": "-387317649862139082",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "19479087",
+            "text": "Gas6 activates Axl, Tyro3, and Mer receptor tyrosine kinases in a concentration-dependent manner.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "GAS6",
+                  "AXL"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "GAS6",
+                    "HGNC": "4168",
+                    "EGID": "2621",
+                    "UP": "Q14393"
+                  },
+                  {
+                    "TEXT": "AXL",
+                    "HGNC": "905",
+                    "EGID": "558",
+                    "UP": "P30530"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "4a3bd639-1311-4661-9b1d-734213f9d605"
+              ]
+            },
+            "source_hash": -387317649862139082
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:4168' target='_blank'>GAS6</a> activates <a href='https://identifiers.org/hgnc:905' target='_blank'>AXL</a>.",
+      "evidence_count": 1,
+      "hash": "-29593512761032215",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "18836307",
+          "text_refs": {},
+          "text": "Ras-independent activation of <span class=\"badge badge-object\">JNK</span> was supported by the finding that <span class=\"badge badge-subject\">C3G</span>-induced <span class=\"badge badge-object\">JNK</span> activation was not inhibited by the dominant negative forms of Rac or Pak, which are components of the signaling pathway from Ras leading to <span class=\"badge badge-object\">JNK</span> activation.",
+          "source_hash": "-7714965506071983356",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "18836307",
+            "text": "Ras-independent activation of JNK was supported by the finding that C3G-induced JNK activation was not inhibited by the dominant negative forms of Rac or Pak, which are components of the signaling pathway from Ras leading to JNK activation.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "C3G",
+                  "JNK"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "C3G",
+                    "HGNC": "4568",
+                    "EGID": "2889",
+                    "UP": "Q13905"
+                  },
+                  {
+                    "TEXT": "JNK",
+                    "FPLX": "JNK",
+                    "IP": "IPR008351"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "79be5975-4de5-420e-8281-eeff983907f8"
+              ]
+            },
+            "epistemics": {
+              "direct": false
+            },
+            "source_hash": -7714965506071983356
+          },
+          "num_curations": 1,
+          "num_correct": 1,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:4568' target='_blank'>RAPGEF1</a> activates <a href='https://identifiers.org/fplx:JNK' target='_blank'>JNK</a>.",
+      "evidence_count": 1,
+      "hash": "21394618026963567",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "26933812",
+          "text_refs": {},
+          "text": "Although HIF-1alpha activates <span class=\"badge badge-object\">p53</span>, HIF-2alpha has been recently reported to inhibit <span class=\"badge badge-object\">p53</span> and ROS production.",
+          "source_hash": "6291403460790195753",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "26933812",
+            "text": "Although HIF-1alpha activates p53, HIF-2alpha has been recently reported to inhibit p53 and ROS production.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "HIF-1-alpha",
+                  "p53"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "HIF-1-alpha",
+                    "HGNC": "4910",
+                    "UP": "Q16665",
+                    "EGID": "3091"
+                  },
+                  {
+                    "TEXT": "p53",
+                    "HGNC": "11998",
+                    "EGID": "7157",
+                    "UP": "P04637"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "2c9517de-041a-40db-982c-4ee4610acbfb"
+              ]
+            },
+            "source_hash": 6291403460790195753
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:4910' target='_blank'>HIF1A</a> activates <a href='https://identifiers.org/hgnc:11998' target='_blank'>TP53</a>.",
+      "evidence_count": 1,
+      "hash": "32514898637890249",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "26473517",
+          "text_refs": {},
+          "text": "<span class=\"badge badge-subject\">IL-18</span> induced a time-dependent activation of c-Src, Ras, and Raf-1, suggesting this signaling cascade plays a role in ERK activation.",
+          "source_hash": "8601853024900446554",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "26473517",
+            "text": "IL-18 induced a time-dependent activation of c-Src, Ras, and Raf-1, suggesting this signaling cascade plays a role in ERK activation.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "IL-18",
+                  "RAS"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "IL-18",
+                    "HGNC": "5986",
+                    "UP": "Q14116",
+                    "EGID": "3606"
+                  },
+                  {
+                    "TEXT": "RAS",
+                    "FPLX": "RAS",
+                    "PF": "PF00071",
+                    "NCIT": "C17061"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "5dc67c5f-79df-40f9-af98-36e743bee5c2"
+              ]
+            },
+            "epistemics": {
+              "direct": false
+            },
+            "source_hash": 8601853024900446554
+          },
+          "num_curations": 1,
+          "num_correct": 1,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:5986' target='_blank'>IL18</a> activates <a href='https://identifiers.org/fplx:RAS' target='_blank'>RAS</a>.",
+      "evidence_count": 1,
+      "hash": "25324730115054463",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "22708077",
+          "text_refs": {},
+          "text": "<span class=\"badge badge-subject\">IL-18</span> induced a time-dependent activation of c-Src, Ras, and Raf-1, suggesting this signaling cascade plays a role in ERK activation.",
+          "source_hash": "8601853024900446554",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "22708077",
+            "text": "IL-18 induced a time-dependent activation of c-Src, Ras, and Raf-1, suggesting this signaling cascade plays a role in ERK activation.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "IL-18",
+                  "c-SRC"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "IL-18",
+                    "HGNC": "5986",
+                    "UP": "Q14116",
+                    "EGID": "3606"
+                  },
+                  {
+                    "TEXT": "c-SRC",
+                    "HGNC": "11283",
+                    "EGID": "6714",
+                    "UP": "P12931"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "d70db91e-6ef4-445f-8948-5362e7e486f5"
+              ]
+            },
+            "epistemics": {
+              "direct": false
+            },
+            "source_hash": 8601853024900446554
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:5986' target='_blank'>IL18</a> activates <a href='https://identifiers.org/hgnc:11283' target='_blank'>SRC</a>.",
+      "evidence_count": 1,
+      "hash": "-2683799413021014",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "23261939",
+          "text_refs": {},
+          "text": "<span class=\"badge badge-subject\">IL-18</span> induced a time-dependent activation of c-Src, Ras, and Raf-1, suggesting this signaling cascade plays a role in ERK activation.",
+          "source_hash": "8601853024900446554",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "23261939",
+            "text": "IL-18 induced a time-dependent activation of c-Src, Ras, and Raf-1, suggesting this signaling cascade plays a role in ERK activation.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "IL-18",
+                  "RAF1"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "IL-18",
+                    "HGNC": "5986",
+                    "UP": "Q14116",
+                    "EGID": "3606"
+                  },
+                  {
+                    "TEXT": "RAF1",
+                    "HGNC": "9829",
+                    "UP": "P04049",
+                    "EGID": "5894"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "1e32b30f-276c-45e0-badf-b91c5646df31"
+              ]
+            },
+            "epistemics": {
+              "direct": false
+            },
+            "source_hash": 8601853024900446554
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:5986' target='_blank'>IL18</a> activates <a href='https://identifiers.org/hgnc:9829' target='_blank'>RAF1</a>.",
+      "evidence_count": 1,
+      "hash": "10010209516087058",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "21106951",
+          "text_refs": {},
+          "text": "<span class=\"badge badge-subject\">KLK6</span> activated the ERK and Akt pathways and triggered the nuclear translocation of \u03b2-catenin.",
+          "source_hash": "7256959375564034328",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "21106951",
+            "text": "KLK6 activated the ERK and Akt pathways and triggered the nuclear translocation of \u03b2-catenin.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "KLK6",
+                  "AKT"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "KLK6",
+                    "HGNC": "6367",
+                    "EGID": "5653",
+                    "UP": "Q92876"
+                  },
+                  {
+                    "TEXT": "AKT",
+                    "FPLX": "AKT",
+                    "NCIT": "C41625"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "a463daab-46f8-4eed-a83d-3aac1bd87801"
+              ]
+            },
+            "source_hash": 7256959375564034328
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:6367' target='_blank'>KLK6</a> activates <a href='https://identifiers.org/fplx:AKT' target='_blank'>AKT</a>.",
+      "evidence_count": 1,
+      "hash": "-13492351395672880",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "26260321",
+          "text_refs": {},
+          "text": "<span class=\"badge badge-subject\">KLK6</span> activated the <span class=\"badge badge-object\">ERK</span> and Akt pathways and triggered the nuclear translocation of \u03b2-catenin.",
+          "source_hash": "7256959375564034328",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "26260321",
+            "text": "KLK6 activated the ERK and Akt pathways and triggered the nuclear translocation of \u03b2-catenin.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "KLK6",
+                  "ERK"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "KLK6",
+                    "HGNC": "6367",
+                    "EGID": "5653",
+                    "UP": "Q92876"
+                  },
+                  {
+                    "TEXT": "ERK",
+                    "FPLX": "ERK",
+                    "IP": "IPR008349",
+                    "NCIT": "C26360"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "3f968dcd-8777-4694-af91-9d55bbbe4848"
+              ]
+            },
+            "source_hash": 7256959375564034328
+          },
+          "num_curations": 1,
+          "num_correct": 1,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:6367' target='_blank'>KLK6</a> activates <a href='https://identifiers.org/fplx:ERK' target='_blank'>ERK</a>.",
+      "evidence_count": 1,
+      "hash": "-16614904339675969",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "19919900",
+          "text_refs": {},
+          "text": "In contrast, EP2 and EP4 activate Gs, which increases cyclic adenosine monophosphate (cAMP) levels, and <span class=\"badge badge-subject\">EP3</span> activates <span class=\"badge badge-object\">Gi</span>, which decreases cAMP concentrations (reviewed in Bos et al., 2004 ).",
+          "source_hash": "-8978678199135346026",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "19919900",
+            "text": "In contrast, EP2 and EP4 activate Gs, which increases cyclic adenosine monophosphate (cAMP) levels, and EP3 activates Gi, which decreases cAMP concentrations (reviewed in Bos et al., 2004 ).",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "EP3",
+                  "Gi"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "EP3",
+                    "HGNC": "9595",
+                    "EGID": "5733",
+                    "UP": "P43115"
+                  },
+                  {
+                    "TEXT": "Gi",
+                    "FPLX": "G_i",
+                    "NCIT": "C19275",
+                    "IP": "IPR001408"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "02bcce7d-0c31-481a-9917-3f53927f4568"
+              ]
+            },
+            "source_hash": -8978678199135346026
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:9595' target='_blank'>PTGER3</a> activates <a href='https://identifiers.org/fplx:G_i' target='_blank'>G_i</a>.",
+      "evidence_count": 1,
+      "hash": "-34433220403642451",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "27320730",
+          "text_refs": {},
+          "text": "Further analysis of the downstream signaling mechanisms involved in glycoprotein 120-induced migration revealed that Pyk2 activates p38 mitogen-activated protein kinase, which in turn activates the F-actin-binding protein, leukocyte-specific protein 1, and enhances its association with actin.",
+          "source_hash": "-2810087742716512904",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "27320730",
+            "text": "Further analysis of the downstream signaling mechanisms involved in glycoprotein 120-induced migration revealed that Pyk2 activates p38 mitogen-activated protein kinase, which in turn activates the F-actin-binding protein, leukocyte-specific protein 1, and enhances its association with actin.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "PYK2",
+                  "p38 mitogen activated protein kinase"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "PYK2",
+                    "HGNC": "9612",
+                    "UP": "Q14289",
+                    "EGID": "2185"
+                  },
+                  {
+                    "TEXT": "p38 mitogen activated protein kinase",
+                    "FPLX": "p38",
+                    "IP": "IPR008352"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "d2a0379e-ab05-49e2-8728-8fb32893a5da"
+              ]
+            },
+            "source_hash": -2810087742716512904
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:9612' target='_blank'>PTK2B</a> activates <a href='https://identifiers.org/fplx:p38' target='_blank'>p38</a>.",
+      "evidence_count": 1,
+      "hash": "16139028458344242",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "9430657",
+          "text_refs": {},
+          "text": "Binding of Impbeta to RanGTP not only prevents <span class=\"badge badge-object\">GTPase</span> activation by RanGAP1 (), but also inhibits the intrinsic <span class=\"badge badge-object\">GTPase</span> and RCC1 mediated guanine nucleotide exchange ().",
+          "source_hash": "-6956059484707512638",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "9430657",
+            "text": "Binding of Impbeta to RanGTP not only prevents GTPase activation by RanGAP1 (), but also inhibits the intrinsic GTPase and RCC1 mediated guanine nucleotide exchange ().",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "RANGAP1",
+                  "GTPase"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "RANGAP1",
+                    "HGNC": "9854",
+                    "UP": "P46060",
+                    "EGID": "5905"
+                  },
+                  {
+                    "TEXT": "GTPase",
+                    "FPLX": "GTPase",
+                    "ECCODE": "3.6.5",
+                    "NCIT": "C16650"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "a730a841-8d76-4194-aca2-4d91ad6dc435"
+              ]
+            },
+            "source_hash": -6956059484707512638
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:9854' target='_blank'>RANGAP1</a> activates <a href='https://identifiers.org/fplx:GTPase' target='_blank'>GTPase</a>.",
+      "evidence_count": 1,
+      "hash": "16683987632696980",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "21368894",
+          "text_refs": {},
+          "text": "This may be explained by previous studies showing that during ciliogenesis, Aurora-A is autophosphorylated at S51 ( xref ), which protects it from APC-mediated degradation ( xref ; xref ).",
+          "source_hash": "-8947144991038917984",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "21368894",
+            "text": "This may be explained by previous studies showing that during ciliogenesis, Aurora-A is autophosphorylated at S51 ( xref ), which protects it from APC-mediated degradation ( xref ; xref ).",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "aurora-A"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "aurora-A",
+                    "NCIT": "C30006",
+                    "UP": "O14965",
+                    "HGNC": "11393"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "c333ec93-7c28-4d6e-b7dc-054ed62872a8"
+              ]
+            },
+            "source_hash": -8947144991038917984
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:11393' target='_blank'>AURKA</a> phosphorylates itself on S51.",
+      "evidence_count": 1,
+      "hash": "30681958885786940",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "15194680",
+          "text_refs": {},
+          "text": "We performed in vitro autophosphorylation assays with full length <span class=\"badge badge-other\">LRRK2</span> in the absence of a substrate and analyzed the ability of the <span class=\"badge badge-other\">LRRK2</span> protein to phosphorylate itself over a time course of 60 min using immunoblot of the autophosphorylation sites as a readout.",
+          "source_hash": "2536201935422346538",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "15194680",
+            "text": "We performed in vitro autophosphorylation assays with full length LRRK2 in the absence of a substrate and analyzed the ability of the LRRK2 protein to phosphorylate itself over a time course of 60 min using immunoblot of the autophosphorylation sites as a readout.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "LRRK2"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "LRRK2",
+                    "HGNC": "18618",
+                    "UP": "Q5S007",
+                    "EGID": "120892"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "a00024f3-a766-4cf7-9d53-a1344774a05a"
+              ]
+            },
+            "source_hash": 2536201935422346538
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:18618' target='_blank'>LRRK2</a> phosphorylates itself.",
+      "evidence_count": 1,
+      "hash": "22397359352088795",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "21160051",
+          "text_refs": {},
+          "text": "We next compared <span class=\"badge badge-other\">LRRK2</span> autophosphorylation at Ser1292 in the amino terminal domain, at Thr1491 and Thr1503 in the central (Roc-COR) region and Thr2483 within the carboxy terminus.",
+          "source_hash": "-1011628424209091762",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "21160051",
+            "text": "We next compared LRRK2 autophosphorylation at Ser1292 in the amino terminal domain, at Thr1491 and Thr1503 in the central (Roc-COR) region and Thr2483 within the carboxy terminus.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "LRRK2"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "LRRK2",
+                    "HGNC": "18618",
+                    "UP": "Q5S007",
+                    "EGID": "120892"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "bea51f7f-43d8-4446-8415-43c0f9b06435"
+              ]
+            },
+            "source_hash": -1011628424209091762
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:18618' target='_blank'>LRRK2</a> phosphorylates itself on S1292.",
+      "evidence_count": 1,
+      "hash": "26272860865404613",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "26343374",
+          "text_refs": {},
+          "text": "Following ligand binding, <span class=\"badge badge-other\">KGFR</span> is rapidly autophosphorylated on specific tyrosine residues in the intracellular domain, recruits substrate proteins, and is rapidly internalized by clathrin-mediated endocytosis.",
+          "source_hash": "53939965592733413",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "26343374",
+            "text": "Following ligand binding, KGFR is rapidly autophosphorylated on specific tyrosine residues in the intracellular domain, recruits substrate proteins, and is rapidly internalized by clathrin-mediated endocytosis.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "KGFR"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "KGFR",
+                    "HGNC": "3689",
+                    "EGID": "2263",
+                    "UP": "P21802"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "b007f974-af40-44cc-83c2-960f3a2ba654"
+              ]
+            },
+            "source_hash": 53939965592733413
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:3689' target='_blank'>FGFR2</a> phosphorylates itself on tyrosine.",
+      "evidence_count": 1,
+      "hash": "21109905659442037",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "27109102",
+          "text_refs": {},
+          "text": "To extend these findings, we demonstrate that CK2 interacts with <span class=\"badge badge-other\">JAK2</span>V617F and that CK2 inhibitors suppress <span class=\"badge badge-other\">JAK2</span>V617F autophosphorylation and downstream signaling in HEL92.1.7 cells (HEL) and primary cells from polycythemia vera (PV) patients.",
+          "source_hash": "-2182674017464844326",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "27109102",
+            "text": "To extend these findings, we demonstrate that CK2 interacts with JAK2V617F and that CK2 inhibitors suppress JAK2V617F autophosphorylation and downstream signaling in HEL92.1.7 cells (HEL) and primary cells from polycythemia vera (PV) patients.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "JAK2"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "JAK2",
+                    "HGNC": "6192",
+                    "UP": "O60674",
+                    "EGID": "3717"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "d75df7c4-0d31-425b-a531-3b05238f3be6"
+              ]
+            },
+            "source_hash": -2182674017464844326
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:6192' target='_blank'>JAK2</a>-V617F phosphorylates itself.",
+      "evidence_count": 1,
+      "hash": "33845956577466895",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "25416949",
+          "text_refs": {},
+          "text": "Lck undergoes autophosphorylation on both Y394 and Y505 (a) Immunoblot analysis of Lck autophosphorylation on membranes versus in solution using WB.",
+          "source_hash": "-5979354861862684642",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "25416949",
+            "text": "Lck undergoes autophosphorylation on both Y394 and Y505 (a) Immunoblot analysis of Lck autophosphorylation on membranes versus in solution using WB.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "LCK"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "LCK",
+                    "HGNC": "6524",
+                    "EGID": "3932",
+                    "UP": "P06239"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "cf4440a9-73fe-4c0e-8aa8-79891f3a820f"
+              ]
+            },
+            "source_hash": -5979354861862684642
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:6524' target='_blank'>LCK</a> phosphorylates itself.",
+      "evidence_count": 1,
+      "hash": "13585893642595726",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "15115661",
+          "text_refs": {},
+          "text": "Given that an elevated interaction of Vav3 with AR, P-Akt, and HER2 in both cytoplasm and nucleus upon the short-term of DHT stimulation, our data suggest that Vav3 may enhance non-genomic AR activity via PI3K-Akt signaling in addition to AR transcriptional activity and further support a role in androgen-independent growth in prostate cancer.",
+          "source_hash": "2203557718687235795",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "15115661",
+            "text": "Given that an elevated interaction of Vav3 with AR, P-Akt, and HER2 in both cytoplasm and nucleus upon the short-term of DHT stimulation, our data suggest that Vav3 may enhance non-genomic AR activity via PI3K-Akt signaling in addition to AR transcriptional activity and further support a role in androgen-independent growth in prostate cancer.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "AKT",
+                  "VAV3"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "AKT",
+                    "FPLX": "AKT",
+                    "NCIT": "C41625"
+                  },
+                  {
+                    "TEXT": "VAV3",
+                    "HGNC": "12659",
+                    "UP": "Q9UKW4",
+                    "EGID": "10451"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "2aff2d62-b0e1-406e-817b-c094de8f99bf"
+              ]
+            },
+            "source_hash": 2203557718687235795
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "Phosphorylated <a href='https://identifiers.org/fplx:AKT' target='_blank'>AKT</a> binds <a href='https://identifiers.org/hgnc:12659' target='_blank'>VAV3</a>.",
+      "evidence_count": 1,
+      "hash": "-2492387583523146",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "21092188",
+          "text_refs": {},
+          "text": "Immunoprecipitation, <span class=\"badge badge-other\">calmodulin</span> affinity chromatography, and direct binding experiments indicated that <span class=\"badge badge-other\">calmodulin</span> associates with Cdk4 and <span class=\"badge badge-other\">cyclin D1</span> through a <span class=\"badge badge-other\">calmodulin</span>-binding protein.",
+          "source_hash": "22462320452265874",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "21092188",
+            "text": "Immunoprecipitation, calmodulin affinity chromatography, and direct binding experiments indicated that calmodulin associates with Cdk4 and cyclin D1 through a calmodulin-binding protein.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "calmodulin",
+                  "cyclin D1"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "calmodulin",
+                    "FPLX": "CALM",
+                    "UP": "P62158",
+                    "NCIT": "C16375"
+                  },
+                  {
+                    "TEXT": "cyclin D1",
+                    "HGNC": "1582",
+                    "UP": "P24385",
+                    "EGID": "595"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "f1570d2a-12da-4dca-9eb0-c508960f1169"
+              ]
+            },
+            "source_hash": 22462320452265874
+          },
+          "num_curations": 1,
+          "num_correct": 1,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/fplx:CALM' target='_blank'>CALM</a> binds <a href='https://identifiers.org/hgnc:1582' target='_blank'>CCND1</a>.",
+      "evidence_count": 1,
+      "hash": "12649300275544546",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "19700666",
+          "text_refs": {},
+          "text": "Immunoprecipitation, <span class=\"badge badge-other\">calmodulin</span> affinity chromatography, and direct binding experiments indicated that <span class=\"badge badge-other\">calmodulin</span> associates with Cdk4 and cyclin D1 through a <span class=\"badge badge-other\">calmodulin</span>-binding protein.",
+          "source_hash": "22462320452265874",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "19700666",
+            "text": "Immunoprecipitation, calmodulin affinity chromatography, and direct binding experiments indicated that calmodulin associates with Cdk4 and cyclin D1 through a calmodulin-binding protein.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "calmodulin",
+                  "CDK4"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "calmodulin",
+                    "FPLX": "CALM",
+                    "UP": "P62158",
+                    "NCIT": "C16375"
+                  },
+                  {
+                    "TEXT": "CDK4",
+                    "HGNC": "1773",
+                    "UP": "P11802",
+                    "EGID": "1019"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "28f83959-5ee5-482f-990b-5f46e0566609"
+              ]
+            },
+            "source_hash": 22462320452265874
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/fplx:CALM' target='_blank'>CALM</a> binds <a href='https://identifiers.org/hgnc:1773' target='_blank'>CDK4</a>.",
+      "evidence_count": 1,
+      "hash": "13094005110908695",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "21911363",
+          "text_refs": {},
+          "text": "To extend these findings, we demonstrate that <span class=\"badge badge-other\">CK2</span> interacts with <span class=\"badge badge-other\">JAK2</span>V617F and that <span class=\"badge badge-other\">CK2</span> inhibitors suppress <span class=\"badge badge-other\">JAK2</span>V617F autophosphorylation and downstream signaling in HEL92.1.7 cells (HEL) and primary cells from polycythemia vera (PV) patients.",
+          "source_hash": "-2182674017464844326",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "21911363",
+            "text": "To extend these findings, we demonstrate that CK2 interacts with JAK2V617F and that CK2 inhibitors suppress JAK2V617F autophosphorylation and downstream signaling in HEL92.1.7 cells (HEL) and primary cells from polycythemia vera (PV) patients.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "CK2",
+                  "JAK2"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "CK2",
+                    "FPLX": "CK2",
+                    "NCIT": "C107559",
+                    "GO": "GO:0005956"
+                  },
+                  {
+                    "TEXT": "JAK2",
+                    "HGNC": "6192",
+                    "UP": "O60674",
+                    "EGID": "3717"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "39b8d43a-fc7f-4c85-8b82-732e750c3a6d"
+              ]
+            },
+            "source_hash": -2182674017464844326
+          },
+          "num_curations": 1,
+          "num_correct": 1,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/fplx:CK2' target='_blank'>CK2</a> binds <a href='https://identifiers.org/hgnc:6192' target='_blank'>JAK2</a>-V617F.",
+      "evidence_count": 1,
+      "hash": "-16029541446404985",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "23123196",
+          "text_refs": {},
+          "text": "Cyclin A-Cdk2 complexes bind to Skp1 and Skp2 during S phase, but the function of Skp1 and Skp2 is unclear.",
+          "source_hash": "-2649396761853146460",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "23123196",
+            "text": "Cyclin A-Cdk2 complexes bind to Skp1 and Skp2 during S phase, but the function of Skp1 and Skp2 is unclear.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "cyclin A",
+                  "SKP1"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "cyclin A",
+                    "FPLX": "Cyclin_A"
+                  },
+                  {
+                    "TEXT": "SKP1",
+                    "HGNC": "10899",
+                    "EGID": "6500",
+                    "UP": "P63208"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "e0a8a97d-b5de-462e-a312-150ccb870ce8"
+              ]
+            },
+            "source_hash": -2649396761853146460
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/fplx:Cyclin_A' target='_blank'>Cyclin_A</a> bound to CDK2 binds <a href='https://identifiers.org/hgnc:10899' target='_blank'>SKP1</a>.",
+      "evidence_count": 1,
+      "hash": "-34158107371807491",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "26188701",
+          "text_refs": {},
+          "text": "Cyclin A-Cdk2 complexes bind to Skp1 and Skp2 during S phase, but the function of Skp1 and Skp2 is unclear.",
+          "source_hash": "-2649396761853146460",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "26188701",
+            "text": "Cyclin A-Cdk2 complexes bind to Skp1 and Skp2 during S phase, but the function of Skp1 and Skp2 is unclear.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "cyclin A",
+                  "SKP2"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "cyclin A",
+                    "FPLX": "Cyclin_A"
+                  },
+                  {
+                    "TEXT": "SKP2",
+                    "HGNC": "10901",
+                    "UP": "Q13309",
+                    "EGID": "6502"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "9339cdc3-3305-41d1-b0c6-d743d36001e9"
+              ]
+            },
+            "source_hash": -2649396761853146460
+          },
+          "num_curations": 1,
+          "num_correct": 1,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/fplx:Cyclin_A' target='_blank'>Cyclin_A</a> bound to CDK2 binds <a href='https://identifiers.org/hgnc:10901' target='_blank'>SKP2</a>.",
+      "evidence_count": 1,
+      "hash": "26296036645531948",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "23076139",
+          "text_refs": {},
+          "text": "In addition to its intrinsic ability to modulate angiogenesis by variably affecting the adhesion, migration, and proliferation of endothelial cells (see reviews above), <span class=\"badge badge-other\">TSP1</span> can bind basic <span class=\"badge badge-other\">FGF</span>, which could either present or sequester this potent proangiogenic growth factor.",
+          "source_hash": "-267273989854950612",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "23076139",
+            "text": "In addition to its intrinsic ability to modulate angiogenesis by variably affecting the adhesion, migration, and proliferation of endothelial cells (see reviews above), TSP1 can bind basic FGF, which could either present or sequester this potent proangiogenic growth factor.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "FGF",
+                  "TSP1"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "FGF",
+                    "FPLX": "FGF",
+                    "PF": "PF00167",
+                    "IP": "IPR002209",
+                    "GO": "GO:0005162"
+                  },
+                  {
+                    "TEXT": "TSP1",
+                    "HGNC": "11785",
+                    "UP": "P07996",
+                    "EGID": "7057"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "b8634c9d-a245-4ede-b21c-40fd03da43f6"
+              ]
+            },
+            "source_hash": -267273989854950612
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/fplx:FGF' target='_blank'>FGF</a> binds <a href='https://identifiers.org/hgnc:11785' target='_blank'>THBS1</a>.",
+      "evidence_count": 1,
+      "hash": "11235156364345732",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "10367892",
+          "text_refs": {},
+          "text": "In the presence of hypoxia, stabilized <span class=\"badge badge-other\">HIF</span>alpha binds to <span class=\"badge badge-other\">HIF-1</span>beta, and the resulting complex regulates the expression of downstream genes involved in adaptation to and protection against low oxygen levels [XREF_BIBR].",
+          "source_hash": "1607509920294782192",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "10367892",
+            "text": "In the presence of hypoxia, stabilized HIFalpha binds to HIF-1beta, and the resulting complex regulates the expression of downstream genes involved in adaptation to and protection against low oxygen levels [XREF_BIBR].",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "HIF",
+                  "HIF-1"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "HIF",
+                    "FPLX": "HIF",
+                    "NCIT": "C113839"
+                  },
+                  {
+                    "TEXT": "HIF-1",
+                    "FPLX": "HIF1",
+                    "PF": "PF11413",
+                    "NCIT": "C17690"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "6d668b8d-1a9a-4f83-8438-9a228bb47540"
+              ]
+            },
+            "source_hash": 1607509920294782192
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/fplx:HIF' target='_blank'>HIF</a> binds <a href='https://identifiers.org/fplx:HIF1' target='_blank'>HIF1</a>.",
+      "evidence_count": 1,
+      "hash": "5051347627560186",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "10500304",
+          "text_refs": {},
+          "text": "After rapid priming and washing, the primed GR.hsp70 complex rapidly binds hsp90 in the second step reaction in a nucleotide-independent manner.",
+          "source_hash": "-6825703462116924216",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "10500304",
+            "text": "After rapid priming and washing, the primed GR.hsp70 complex rapidly binds hsp90 in the second step reaction in a nucleotide-independent manner.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "HSP90",
+                  "HSP70"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "HSP90",
+                    "FPLX": "HSP90",
+                    "PF": "PF00183",
+                    "NCIT": "C17766"
+                  },
+                  {
+                    "TEXT": "HSP70",
+                    "FPLX": "HSPA",
+                    "PF": "PF00012"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "63afe6ea-19e2-4797-8bb2-d4935af4983d"
+              ]
+            },
+            "source_hash": -6825703462116924216
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/fplx:HSP90' target='_blank'>HSP90</a> binds <a href='https://identifiers.org/fplx:HSPA' target='_blank'>HSPA</a> bound to NR3C1.",
+      "evidence_count": 1,
+      "hash": "7989839320638366",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "15007095",
+          "text_refs": {},
+          "text": "Of note, Tiam1 directly interacts with activated Ras through a Ras binding domain and has also been identified as a target of Wnt signaling [XREF_BIBR], suggesting two potential areas of overlap with known OPN regulators for further study.",
+          "source_hash": "-6124341643530009959",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "15007095",
+            "text": "Of note, Tiam1 directly interacts with activated Ras through a Ras binding domain and has also been identified as a target of Wnt signaling [XREF_BIBR], suggesting two potential areas of overlap with known OPN regulators for further study.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "RAS",
+                  "TIAM1"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "RAS",
+                    "FPLX": "RAS",
+                    "PF": "PF00071",
+                    "NCIT": "C17061"
+                  },
+                  {
+                    "TEXT": "TIAM1",
+                    "HGNC": "11805",
+                    "UP": "Q13009",
+                    "EGID": "7074"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "15fb457d-b126-4bb0-bfe4-8d4b495df26a"
+              ]
+            },
+            "source_hash": -6124341643530009959
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "Active <a href='https://identifiers.org/fplx:RAS' target='_blank'>RAS</a> binds <a href='https://identifiers.org/hgnc:11805' target='_blank'>TIAM1</a>.",
+      "evidence_count": 1,
+      "hash": "14448323331809586",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "25139956",
+          "text_refs": {},
+          "text": "Given that <span class=\"badge badge-other\">RPAP2</span> does not directly bind the S5P carboxyl-terminal domain , we thought other factors might be required for <span class=\"badge badge-other\">RPAP2</span> binding to <span class=\"badge badge-other\">RNA polymerase II</span>.",
+          "source_hash": "-5686488551330688475",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "25139956",
+            "text": "Given that RPAP2 does not directly bind the S5P carboxyl-terminal domain , we thought other factors might be required for RPAP2 binding to RNA polymerase II.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "RNA polymerase II",
+                  "RPAP2"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "RNA polymerase II",
+                    "FPLX": "RNApo_II",
+                    "NCIT": "C95948",
+                    "GO": "GO:0005665"
+                  },
+                  {
+                    "TEXT": "RPAP2",
+                    "HGNC": "25791",
+                    "UP": "Q8IXW5",
+                    "EGID": "79871"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "93b3324c-a925-404a-b2f6-d4e02da95d5b"
+              ]
+            },
+            "source_hash": -5686488551330688475
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/fplx:RNApo_II' target='_blank'>RNApo_II</a> binds <a href='https://identifiers.org/hgnc:25791' target='_blank'>RPAP2</a>.",
+      "evidence_count": 1,
+      "hash": "-35508525441903305",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "28060750",
+          "text_refs": {},
+          "text": "<span class=\"badge badge-other\">BID</span> binds to replication protein A and stimulates ATR function following replicative stress.",
+          "source_hash": "8870969407653563432",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "28060750",
+            "text": "BID binds to replication protein A and stimulates ATR function following replicative stress.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "Replication protein A",
+                  "BID"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "Replication protein A",
+                    "FPLX": "RPA"
+                  },
+                  {
+                    "TEXT": "BID",
+                    "HGNC": "1050",
+                    "UP": "P55957",
+                    "EGID": "637"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "2d0d07ef-a051-4aca-88f8-a759e5909ce1"
+              ]
+            },
+            "source_hash": 8870969407653563432
+          },
+          "num_curations": 2,
+          "num_correct": 2,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/fplx:RPA' target='_blank'>RPA</a> binds <a href='https://identifiers.org/hgnc:1050' target='_blank'>BID</a>.",
+      "evidence_count": 1,
+      "hash": "32030906894239020",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "12105209",
+          "text_refs": {},
+          "text": "Moreover, binding of <span class=\"badge badge-other\">TRAF1</span> to <span class=\"badge badge-other\">IKK2</span> may also directly influence <span class=\"badge badge-other\">IKK2</span> activity by affecting proximity-induced auto-phosphorylation and self-activation of <span class=\"badge badge-other\">IKK2</span>.",
+          "source_hash": "-7027181288063423850",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "12105209",
+            "text": "Moreover, binding of TRAF1 to IKK2 may also directly influence IKK2 activity by affecting proximity-induced auto-phosphorylation and self-activation of IKK2.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "TRAF1",
+                  "IKK2"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "TRAF1",
+                    "HGNC": "12031",
+                    "UP": "Q13077",
+                    "EGID": "7185"
+                  },
+                  {
+                    "TEXT": "IKK2",
+                    "HGNC": "5960",
+                    "UP": "O14920",
+                    "EGID": "3551"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "aeaea579-5b52-4fb1-8deb-a01e1854b11b"
+              ]
+            },
+            "source_hash": -7027181288063423850
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:12031' target='_blank'>TRAF1</a> binds <a href='https://identifiers.org/hgnc:5960' target='_blank'>IKBKB</a>.",
+      "evidence_count": 1,
+      "hash": "6832035987308006",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "17343736",
+          "text_refs": {},
+          "text": "Given that an elevated interaction of Vav3 with AR, P-Akt, and <span class=\"badge badge-other\">HER2</span> in both cytoplasm and nucleus upon the short-term of DHT stimulation, our data suggest that Vav3 may enhance non-genomic AR activity via PI3K-Akt signaling in addition to AR transcriptional activity and further support a role in androgen-independent growth in prostate cancer.",
+          "source_hash": "2203557718687235795",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "17343736",
+            "text": "Given that an elevated interaction of Vav3 with AR, P-Akt, and HER2 in both cytoplasm and nucleus upon the short-term of DHT stimulation, our data suggest that Vav3 may enhance non-genomic AR activity via PI3K-Akt signaling in addition to AR transcriptional activity and further support a role in androgen-independent growth in prostate cancer.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "VAV3",
+                  "HER2"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "VAV3",
+                    "HGNC": "12659",
+                    "UP": "Q9UKW4",
+                    "EGID": "10451"
+                  },
+                  {
+                    "TEXT": "HER2",
+                    "HGNC": "3430",
+                    "EGID": "2064",
+                    "UP": "P04626"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "6b7cac55-0ec2-4560-ac2b-8eb620905a97"
+              ]
+            },
+            "source_hash": 2203557718687235795
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:12659' target='_blank'>VAV3</a> binds <a href='https://identifiers.org/hgnc:3430' target='_blank'>ERBB2</a>.",
+      "evidence_count": 1,
+      "hash": "-15549188268791853",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "23564079",
+          "text_refs": {},
+          "text": "Given that an elevated interaction of Vav3 with <span class=\"badge badge-other\">AR</span>, P-Akt, and HER2 in both cytoplasm and nucleus upon the short-term of DHT stimulation, our data suggest that Vav3 may enhance non-genomic <span class=\"badge badge-other\">AR</span> activity via PI3K-Akt signaling in addition to <span class=\"badge badge-other\">AR</span> transcriptional activity and further support a role in androgen-independent growth in prostate cancer.",
+          "source_hash": "2203557718687235795",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "23564079",
+            "text": "Given that an elevated interaction of Vav3 with AR, P-Akt, and HER2 in both cytoplasm and nucleus upon the short-term of DHT stimulation, our data suggest that Vav3 may enhance non-genomic AR activity via PI3K-Akt signaling in addition to AR transcriptional activity and further support a role in androgen-independent growth in prostate cancer.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "VAV3",
+                  "AR"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "VAV3",
+                    "HGNC": "12659",
+                    "UP": "Q9UKW4",
+                    "EGID": "10451"
+                  },
+                  {
+                    "TEXT": "AR",
+                    "HGNC": "644",
+                    "EGID": "367",
+                    "UP": "P10275"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "4e49392a-7dfb-4b2b-a3c5-b90b456d30fa"
+              ]
+            },
+            "source_hash": 2203557718687235795
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:12659' target='_blank'>VAV3</a> binds <a href='https://identifiers.org/hgnc:644' target='_blank'>AR</a>.",
+      "evidence_count": 1,
+      "hash": "-5565387319431412",
+      "source_count": null
+    },
+    {
+      "evidence": [
+        {
+          "source_api": "trips",
+          "pmid": "14737186",
+          "text_refs": {},
+          "text": "Here, we demonstrate that <span class=\"badge badge-subject\">MPO</span>, <span class=\"badge badge-object\">PON1</span>, and HDL bind to one another, forming a ternary complex, wherein <span class=\"badge badge-object\">PON1</span> partially inhibits <span class=\"badge badge-subject\">MPO</span> activity, while <span class=\"badge badge-subject\">MPO</span> inactivates <span class=\"badge badge-object\">PON1</span>.",
+          "source_hash": "150711883956205735",
+          "original_json": {
+            "source_api": "trips",
+            "pmid": "14737186",
+            "text": "Here, we demonstrate that MPO, PON1, and HDL bind to one another, forming a ternary complex, wherein PON1 partially inhibits MPO activity, while MPO inactivates PON1.",
+            "annotations": {
+              "agents": {
+                "raw_text": [
+                  "MPO",
+                  "PON1"
+                ],
+                "raw_grounding": [
+                  {
+                    "TEXT": "MPO",
+                    "HGNC": "7218",
+                    "EGID": "4353",
+                    "UP": "P05164"
+                  },
+                  {
+                    "TEXT": "PON1",
+                    "HGNC": "9204",
+                    "UP": "P27169",
+                    "EGID": "5444"
+                  }
+                ]
+              },
+              "prior_uuids": [
+                "b1591ca2-0f64-430b-974a-d7ece6aa4ecf"
+              ]
+            },
+            "source_hash": 150711883956205735
+          },
+          "num_curations": 0,
+          "num_correct": 0,
+          "num_incorrect": 0,
+          "source_url": ""
+        }
+      ],
+      "english": "<a href='https://identifiers.org/hgnc:7218' target='_blank'>MPO</a> inhibits <a href='https://identifiers.org/hgnc:9204' target='_blank'>PON1</a>.",
+      "evidence_count": 1,
+      "hash": "-10936524089486881",
+      "source_count": null
+    }
+  ],
+  "grouped": false
+}

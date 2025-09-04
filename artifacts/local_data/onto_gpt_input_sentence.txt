@@ -1,0 +1,1 @@
+We further found that DYRK2 phosphorylated Ser527 of TBK1, which is essential for the recruitment of NLRP4 and for the E3 ubiquitin ligase DTX4 to degrade TBK1.

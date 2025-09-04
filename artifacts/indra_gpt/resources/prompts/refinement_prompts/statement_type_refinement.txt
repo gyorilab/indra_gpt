@@ -1,0 +1,5 @@
+Review your generated response and verify whether the extracted statements conform to the provided INDRA JSON schema. 
+Ensure that each statement type is directly inferred from or clearly implied by the input text. 
+If a statement type is incorrect, modify it to the most appropriate INDRA statement type that accurately reflects the text. 
+If no valid INDRA statement type is directly referenced or implied, set the statements field to an empty array ([]). 
+Maintain strict adherence to the JSON schema.

@@ -1,0 +1,5 @@
+Extract the relation from the following sentence and put it in a JSON object
+matching the provided schema. The JSON object needs to be able to pass validation against the schema.
+If the statement type is 'RegulateActivity', list it as either 'Activation' or 'Inhibition'. 
+If the statement type is 'RegulateAmount', list it as either 'IncreaseAmount' or 'DecreaseAmount'.
+Only respond with the JSON object.\n\nSentence: "

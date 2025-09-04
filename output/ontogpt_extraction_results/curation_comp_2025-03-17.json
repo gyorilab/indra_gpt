@@ -1,0 +1,1451 @@
+[
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 02:47:34 GMT",
+    "ev_json": null,
+    "id": 15281,
+    "pa_hash": 15545860542144430,
+    "pa_json": {
+      "belief": 1,
+      "id": "3c97a2e8-8c16-46a9-83bb-5bcbd329a50d",
+      "matches_hash": "15545860542144430",
+      "members": [
+        {
+          "db_refs": {
+            "HGNC": "7230",
+            "TEXT": "Mre11",
+            "UP": "P49959"
+          },
+          "name": "MRE11"
+        },
+        {
+          "db_refs": {
+            "HGNC": "7652",
+            "TEXT": "NBS1",
+            "UP": "O60934"
+          },
+          "name": "NBN"
+        },
+        {
+          "db_refs": {
+            "HGNC": "9816",
+            "TEXT": "Rad50",
+            "UP": "Q92878"
+          },
+          "name": "RAD50"
+        }
+      ],
+      "type": "Complex"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": -2512904556245620711,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Previous study showed that CtIP interacts with the MRE11-RAD50-NBS1 (MRN) complex and USP4 which is required for CtIP recruitment to DNA damage sites ( xref , xref ).\"\nStatement: \"MRE11 binds NBN and RAD50.\"\nThe statement assumes that \"NBN\" is the same as \"\"AT-V1\", \"hNbs1\", \"nibrin\", \"Nijmegen breakage syndrome protein 1\", \"ATV\", \"AT-V2\", \"Cell cycle regulatory protein p95\", \"NBS1\", \"NBS\", \"P95\", and \"Nibrin\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The sentence discusses the interaction of CtIP with the MRN complex and does not imply that MRE11 binds specifically to NBN and RAD50. The statement is an assumption that is not supported by the information given in the sentence.\"\n}",
+    "english": "MRE11 binds NBN and RAD50.",
+    "text": "Previous study showed that CtIP interacts with the MRE11-RAD50-NBS1 (MRN) complex and USP4 which is required for CtIP recruitment to DNA damage sites ( xref , xref ).",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The sentence discusses the interaction of CtIP with the MRN complex and does not imply that MRE11 binds specifically to NBN and RAD50. The statement is an assumption that is not supported by the information given in the sentence."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Mon, 10 Mar 2025 19:10:32 GMT",
+    "ev_json": null,
+    "id": 15159,
+    "pa_hash": 26272860865404613,
+    "pa_json": {
+      "belief": 1,
+      "enz": {
+        "db_refs": {
+          "HGNC": "18618",
+          "TEXT": "LRRK2",
+          "UP": "Q5S007"
+        },
+        "name": "LRRK2"
+      },
+      "id": "4b172c8f-2d23-48bb-b1a4-7119fd4cee37",
+      "matches_hash": "26272860865404613",
+      "position": "1292",
+      "residue": "S",
+      "type": "Autophosphorylation"
+    },
+    "source": "indra_gpt_extraction_results_2025-03-10.pkl",
+    "source_hash": 6633879158824740491,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"We next compared LRRK2 autophosphorylation at Ser1292 in the amino terminal domain, at Thr1491 and Thr1503 in the central (Roc-COR) region and Thr2483 within the carboxy terminus. We performed in vitro autophosphorylation assays with full length LRRK2 in the absence of a substrate and analyzed the ability of the LRRK2 protein to phosphorylate itself over a time course of 60 min using immunoblot of the autophosphorylation sites as a readout.\"\nStatement: \"LRRK2 phosphorylates itself on S1292.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The sentence explicitly describes the autophosphorylation of LRRK2, indicating that LRRK2 can phosphorylate itself, which supports the statement.\"\n}",
+    "english": "LRRK2 phosphorylates itself on S1292.",
+    "text": "We next compared LRRK2 autophosphorylation at Ser1292 in the amino terminal domain, at Thr1491 and Thr1503 in the central (Roc-COR) region and Thr2483 within the carboxy terminus. We performed in vitro autophosphorylation assays with full length LRRK2 in the absence of a substrate and analyzed the ability of the LRRK2 protein to phosphorylate itself over a time course of 60 min using immunoblot of the autophosphorylation sites as a readout.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The sentence explicitly describes the autophosphorylation of LRRK2, indicating that LRRK2 can phosphorylate itself, which supports the statement."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Mon, 10 Mar 2025 19:10:55 GMT",
+    "ev_json": null,
+    "id": 15160,
+    "pa_hash": 28444604403070860,
+    "pa_json": {
+      "belief": 1,
+      "enz": {
+        "db_refs": {
+          "HGNC": "18618",
+          "TEXT": "LRRK2",
+          "UP": "Q5S007"
+        },
+        "name": "LRRK2"
+      },
+      "id": "38b292a5-52e4-4ece-b58d-82c5b88fcdbf",
+      "matches_hash": "28444604403070860",
+      "position": "1491",
+      "residue": "T",
+      "type": "Autophosphorylation"
+    },
+    "source": "indra_gpt_extraction_results_2025-03-10.pkl",
+    "source_hash": 6633879158824740491,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"We next compared LRRK2 autophosphorylation at Ser1292 in the amino terminal domain, at Thr1491 and Thr1503 in the central (Roc-COR) region and Thr2483 within the carboxy terminus. We performed in vitro autophosphorylation assays with full length LRRK2 in the absence of a substrate and analyzed the ability of the LRRK2 protein to phosphorylate itself over a time course of 60 min using immunoblot of the autophosphorylation sites as a readout.\"\nStatement: \"LRRK2 phosphorylates itself on T1491.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The sentence describes an experiment where LRRK2 autophosphorylation is analyzed, which implies that LRRK2 can phosphorylate itself, including the specific site T1491 mentioned in the statement.\"\n}",
+    "english": "LRRK2 phosphorylates itself on T1491.",
+    "text": "We next compared LRRK2 autophosphorylation at Ser1292 in the amino terminal domain, at Thr1491 and Thr1503 in the central (Roc-COR) region and Thr2483 within the carboxy terminus. We performed in vitro autophosphorylation assays with full length LRRK2 in the absence of a substrate and analyzed the ability of the LRRK2 protein to phosphorylate itself over a time course of 60 min using immunoblot of the autophosphorylation sites as a readout.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The sentence describes an experiment where LRRK2 autophosphorylation is analyzed, which implies that LRRK2 can phosphorylate itself, including the specific site T1491 mentioned in the statement."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Mon, 10 Mar 2025 19:11:07 GMT",
+    "ev_json": null,
+    "id": 15161,
+    "pa_hash": -777215331654492,
+    "pa_json": {
+      "belief": 1,
+      "enz": {
+        "db_refs": {
+          "HGNC": "18618",
+          "TEXT": "LRRK2",
+          "UP": "Q5S007"
+        },
+        "name": "LRRK2"
+      },
+      "id": "c023d60e-2dbb-4a71-be76-efb35ac4dd09",
+      "matches_hash": "-777215331654492",
+      "position": "1503",
+      "residue": "T",
+      "type": "Autophosphorylation"
+    },
+    "source": "indra_gpt_extraction_results_2025-03-10.pkl",
+    "source_hash": 6633879158824740491,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"We next compared LRRK2 autophosphorylation at Ser1292 in the amino terminal domain, at Thr1491 and Thr1503 in the central (Roc-COR) region and Thr2483 within the carboxy terminus. We performed in vitro autophosphorylation assays with full length LRRK2 in the absence of a substrate and analyzed the ability of the LRRK2 protein to phosphorylate itself over a time course of 60 min using immunoblot of the autophosphorylation sites as a readout.\"\nStatement: \"LRRK2 phosphorylates itself on T1503.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The sentence describes experiments to analyze LRRK2's autophosphorylation at multiple sites, implicitly indicating that LRRK2 is capable of self-phosphorylation, including on the site T1503 mentioned in the statement.\"\n}",
+    "english": "LRRK2 phosphorylates itself on T1503.",
+    "text": "We next compared LRRK2 autophosphorylation at Ser1292 in the amino terminal domain, at Thr1491 and Thr1503 in the central (Roc-COR) region and Thr2483 within the carboxy terminus. We performed in vitro autophosphorylation assays with full length LRRK2 in the absence of a substrate and analyzed the ability of the LRRK2 protein to phosphorylate itself over a time course of 60 min using immunoblot of the autophosphorylation sites as a readout.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The sentence describes experiments to analyze LRRK2's autophosphorylation at multiple sites, implicitly indicating that LRRK2 is capable of self-phosphorylation, including on the site T1503 mentioned in the statement."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Mon, 10 Mar 2025 19:11:45 GMT",
+    "ev_json": null,
+    "id": 15162,
+    "pa_hash": 32583878053712062,
+    "pa_json": null,
+    "source": "indra_gpt_extraction_results_2025-03-10.pkl",
+    "source_hash": 6633879158824740491,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"We next compared LRRK2 autophosphorylation at Ser1292 in the amino terminal domain, at Thr1491 and Thr1503 in the central (Roc-COR) region and Thr2483 within the carboxy terminus. We performed in vitro autophosphorylation assays with full length LRRK2 in the absence of a substrate and analyzed the ability of the LRRK2 protein to phosphorylate itself over a time course of 60 min using immunoblot of the autophosphorylation sites as a readout.\"\nStatement: \"LRRK2 phosphorylates itself on T2483.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The sentence describes experiments involving LRRK2 autophosphorylation, indicating that LRRK2 can phosphorylate itself, specifically referencing the phosphorylation sites, including T2483.\"\n}",
+    "english": "LRRK2 phosphorylates itself on T2483.",
+    "text": "We next compared LRRK2 autophosphorylation at Ser1292 in the amino terminal domain, at Thr1491 and Thr1503 in the central (Roc-COR) region and Thr2483 within the carboxy terminus. We performed in vitro autophosphorylation assays with full length LRRK2 in the absence of a substrate and analyzed the ability of the LRRK2 protein to phosphorylate itself over a time course of 60 min using immunoblot of the autophosphorylation sites as a readout.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The sentence describes experiments involving LRRK2 autophosphorylation, indicating that LRRK2 can phosphorylate itself, specifically referencing the phosphorylation sites, including T2483."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Mon, 10 Mar 2025 19:11:56 GMT",
+    "ev_json": null,
+    "id": 15163,
+    "pa_hash": 17673876333806216,
+    "pa_json": {
+      "belief": 1,
+      "enz": {
+        "db_refs": {
+          "HGNC": "11283",
+          "TEXT": "c-Src",
+          "UP": "P12931"
+        },
+        "name": "SRC"
+      },
+      "id": "a8169909-f214-4f5d-86db-d6ca3cf5ffe7",
+      "matches_hash": "17673876333806216",
+      "position": "104",
+      "residue": "Y",
+      "sub": {
+        "db_refs": {
+          "HGNC": "10886",
+          "MESH": "D056565",
+          "TEXT": "SIRT2",
+          "UP": "Q8IXJ6"
+        },
+        "name": "SIRT2"
+      },
+      "type": "Phosphorylation"
+    },
+    "source": "indra_gpt_extraction_results_2025-03-10.pkl",
+    "source_hash": -6337302437985482112,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"The c-Src interacts with and phosphorylates SIRT2 at Tyr104.\"\nStatement: \"SRC leads to the phosphorylation of SIRT2 on Y104.\"\nThe statement assumes that \"SRC\" is the same as \"\"Proto-oncogene tyrosine-protein kinase Src\", \"p60-Src\", \"Proto-oncogene c-Src\", \"SRC1\", \"pp60c-src\", \"ASV\", \"SRC proto-oncogene, non-receptor tyrosine kinase\", \"Src kinase\", \"c-Src\", \"c-src\", and \"Src\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The statement 'SRC leads to the phosphorylation of SIRT2 on Y104' is implied by the sentence 'The c-Src interacts with and phosphorylates SIRT2 at Tyr104.' Both the sentence and statement convey the same relationship between SRC and SIRT2 regarding the phosphorylation at the specified tyrosine residue.\"\n}",
+    "english": "SRC leads to the phosphorylation of SIRT2 on Y104.",
+    "text": "The c-Src interacts with and phosphorylates SIRT2 at Tyr104.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The statement 'SRC leads to the phosphorylation of SIRT2 on Y104' is implied by the sentence 'The c-Src interacts with and phosphorylates SIRT2 at Tyr104.' Both the sentence and statement convey the same relationship between SRC and SIRT2 regarding the phosphorylation at the specified tyrosine residue."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Mon, 10 Mar 2025 19:15:50 GMT",
+    "ev_json": null,
+    "id": 15169,
+    "pa_hash": 31969710921816545,
+    "pa_json": {
+      "belief": 1,
+      "enz": {
+        "db_refs": {
+          "HGNC": "11283",
+          "UP": "P12931"
+        },
+        "name": "SRC"
+      },
+      "id": "4bdb6d3c-78f5-48a5-ac3d-c377fd32c330",
+      "matches_hash": "31969710921816545",
+      "position": "74",
+      "residue": "Y",
+      "sub": {
+        "db_refs": {
+          "HGNC": "18282",
+          "UP": "Q96KB5"
+        },
+        "name": "PBK"
+      },
+      "type": "Phosphorylation"
+    },
+    "source": "indra_gpt_extraction_results_2025-03-10.pkl",
+    "source_hash": -3857511355710482025,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"The results of Western Blot using prepared p-TOPK (Y74) antibody showed that Src could phosphorylate TOPK at Y74, and the signal disappeared in the single mutant TOPK-74F and the double mutant TOPK-FF (Figure 1D).\"\nStatement: \"SRC leads to the phosphorylation of PBK on Y74.\"\nThe statement assumes that \"PBK\" is the same as \"\"CT84\", \"cancer/testis antigen 84\", \"PBK enzyme\", \"T-LAK cell-originated protein kinase\", \"spermatogenesis-related protein kinase\", \"MAPKK-like protein kinase\", \"TOPK\", \"Lymphokine-activated killer T-cell-originated protein kinase\", \"FLJ14385\", \"Cancer/testis antigen 84\", \"SPK\", \"PDZ binding kinase\", \"Spermatogenesis-related protein kinase\", \"Nori-3\", and \"PDZ-binding kinase\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The statement incorrectly refers to PBK instead of TOPK, as the sentence specifically mentions phosphorylating TOPK at Y74, not PBK.\"\n}",
+    "english": "SRC leads to the phosphorylation of PBK on Y74.",
+    "text": "The results of Western Blot using prepared p-TOPK (Y74) antibody showed that Src could phosphorylate TOPK at Y74, and the signal disappeared in the single mutant TOPK-74F and the double mutant TOPK-FF (Figure 1D).",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The statement incorrectly refers to PBK instead of TOPK, as the sentence specifically mentions phosphorylating TOPK at Y74, not PBK."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 02:48:28 GMT",
+    "ev_json": null,
+    "id": 15282,
+    "pa_hash": -2848543704498744,
+    "pa_json": null,
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": 1530304191468653360,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"For instance, GSK-3beta- and ERK mediated phosphorylations at the Ser 108 and Ser 112 of RCAN1 activate calcineurin signaling.\"\nStatement: \"ERK leads to the phosphorylation of RCAN1 on S112.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The sentence discusses phosphorylations at Ser 108 and Ser 112 of RCAN1 activated by GSK-3beta and ERK, but does not directly imply that ERK leads to the phosphorylation of RCAN1 specifically on S112.\"\n}",
+    "english": "ERK leads to the phosphorylation of RCAN1 on S112.",
+    "text": "For instance, GSK-3beta- and ERK mediated phosphorylations at the Ser 108 and Ser 112 of RCAN1 activate calcineurin signaling.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The sentence discusses phosphorylations at Ser 108 and Ser 112 of RCAN1 activated by GSK-3beta and ERK, but does not directly imply that ERK leads to the phosphorylation of RCAN1 specifically on S112."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 02:48:47 GMT",
+    "ev_json": null,
+    "id": 15283,
+    "pa_hash": 8641015224983420,
+    "pa_json": null,
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": 1530304191468653360,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"For instance, GSK-3beta- and ERK mediated phosphorylations at the Ser 108 and Ser 112 of RCAN1 activate calcineurin signaling.\"\nStatement: \"GSK3B leads to the phosphorylation of RCAN1 on S108.\"\nThe statement assumes that \"GSK3B\" is the same as \"\"Glycogen Synthase Kinase 3 beta\", \"Serine/threonine-protein kinase GSK3B\", \"Glycogen synthase kinase-3 beta\", \"GSK-3\u03b2\", \"GSK3beta\", \"GSK3\u03b2\", \"GSK 3beta\", \"GSK3B Protein\", \"glycogen synthase kinase 3 beta\", \"GSK-3 beta\", and \"GSK-3beta\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The statement is implied by the sentence as it specifies that GSK-3beta phosphorylates RCAN1 at Ser 108, which is consistent with the information provided in the sentence regarding GSK-3beta's role in the phosphorylation of RCAN1.\"\n}",
+    "english": "GSK3B leads to the phosphorylation of RCAN1 on S108.",
+    "text": "For instance, GSK-3beta- and ERK mediated phosphorylations at the Ser 108 and Ser 112 of RCAN1 activate calcineurin signaling.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The statement is implied by the sentence as it specifies that GSK-3beta phosphorylates RCAN1 at Ser 108, which is consistent with the information provided in the sentence regarding GSK-3beta's role in the phosphorylation of RCAN1."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 02:51:57 GMT",
+    "ev_json": null,
+    "id": 15284,
+    "pa_hash": 29393296436952952,
+    "pa_json": null,
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": 3385388556935034444,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"The His----Ala substitutions, however, do not have any significant effect on the interaction of angiogenin with human placental ribonuclease inhibitor, an extremely potent inhibitor of angiogenin (Ki approximately 7 x 10(-16 M) previously shown to interact with another active-site residue, Lys-40.\"\nStatement: \"ANGactive.\"\nThe statement assumes that \"ANG\" is the same as \"\"ribonuclease A family member 5\", \"angiogenin\", \"angiogenin-1\", \"RNase 5\", \"RNase-5\", \"RAA1\", \"Ribonuclease 5\", \"RNASE5\", \"ribonuclease 5\", and \"Angiogenin\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The statement 'ANGactive' is not implied by the sentence provided, as the sentence discusses the effects of His----Ala substitutions on angiogenin's interaction with human placental ribonuclease inhibitor, without making any claim about 'ANGactive'.\"\n}",
+    "english": "ANGactive.",
+    "text": "The His----Ala substitutions, however, do not have any significant effect on the interaction of angiogenin with human placental ribonuclease inhibitor, an extremely potent inhibitor of angiogenin (Ki approximately 7 x 10(-16 M) previously shown to interact with another active-site residue, Lys-40.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The statement 'ANGactive' is not implied by the sentence provided, as the sentence discusses the effects of His----Ala substitutions on angiogenin's interaction with human placental ribonuclease inhibitor, without making any claim about 'ANGactive'."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 02:55:44 GMT",
+    "ev_json": null,
+    "id": 15285,
+    "pa_hash": 8774824965758069,
+    "pa_json": {
+      "belief": 1,
+      "id": "b70f8340-e9cd-4acd-a0e4-c40b35cd194d",
+      "matches_hash": "8774824965758069",
+      "members": [
+        {
+          "db_refs": {
+            "HGNC": "18466",
+            "TEXT": "RNH1",
+            "UP": "O60930"
+          },
+          "name": "RNASEH1"
+        },
+        {
+          "db_refs": {
+            "HGNC": "483",
+            "TEXT": "ANG",
+            "UP": "P03950"
+          },
+          "name": "ANG"
+        }
+      ],
+      "type": "Complex"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": 3385388556935034444,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"The His----Ala substitutions, however, do not have any significant effect on the interaction of angiogenin with human placental ribonuclease inhibitor, an extremely potent inhibitor of angiogenin (Ki approximately 7 x 10(-16 M) previously shown to interact with another active-site residue, Lys-40.\"\nStatement: \"RNASEH1 binds ANG.\"\nThe statement assumes that \"RNASEH1\" is the same as \"\"Ribonuclease H1\", \"RNase H1\", \"Ribonuclease H type II\", \"ribonuclease H1\", and \"RNH1\"\" and \"ANG\" is the same as \"\"ribonuclease A family member 5\", \"angiogenin\", \"angiogenin-1\", \"RNase 5\", \"RNase-5\", \"RAA1\", \"Ribonuclease 5\", \"RNASE5\", \"ribonuclease 5\", and \"Angiogenin\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The sentence discusses the interaction of angiogenin with a ribonuclease inhibitor, but does not imply that RNASEH1 (Ribonuclease H1) binds to angiogenin (ANG). The focus is on the lack of significant effect from the His----Ala substitutions on the interaction, which does not support the statement.\"\n}",
+    "english": "RNASEH1 binds ANG.",
+    "text": "The His----Ala substitutions, however, do not have any significant effect on the interaction of angiogenin with human placental ribonuclease inhibitor, an extremely potent inhibitor of angiogenin (Ki approximately 7 x 10(-16 M) previously shown to interact with another active-site residue, Lys-40.",
+    "tag": "agent_conditions",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The sentence discusses the interaction of angiogenin with a ribonuclease inhibitor, but does not imply that RNASEH1 (Ribonuclease H1) binds to angiogenin (ANG). The focus is on the lack of significant effect from the His----Ala substitutions on the interaction, which does not support the statement."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 02:56:20 GMT",
+    "ev_json": null,
+    "id": 15286,
+    "pa_hash": -32841084952679835,
+    "pa_json": {
+      "belief": 1,
+      "id": "d003413d-ba9f-4134-9342-a5ce4169ed02",
+      "matches_hash": "-32841084952679835",
+      "members": [
+        {
+          "db_refs": {
+            "HGNC": "10821",
+            "TEXT": "TSAd",
+            "UP": "Q9NP31"
+          },
+          "name": "SH2D2A"
+        },
+        {
+          "db_refs": {
+            "HGNC": "6524",
+            "TEXT": "Lck",
+            "UP": "P06239"
+          },
+          "name": "LCK"
+        }
+      ],
+      "type": "Complex"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": -410294264774490015,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Activation of the T cell receptor promotes complex formation between TSAd and the Src kinase family member Lck.\"\nStatement: \"SH2D2A binds LCK.\"\nThe statement assumes that \"SH2D2A\" is the same as \"\"F2771\", \"SCAP\", \"T cell specific adapter protein TSAd\", \"VRAP\", \"T lymphocyte specific adaptor protein\", \"TSAD\", \"TSAd\", \"VEGF receptor-associated protein\", \"T cell specific adpater protein TSAd\", \"SH2 domain containing 2A\", \"SH2 domain-containing adapter protein\", \"T cell-specific adapter protein\", and \"SH2 domain-containing protein 2A\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The sentence does not imply that SH2D2A binds LCK. It discusses the activation of the T cell receptor and the formation of a complex between TSAd and Lck, but does not provide direct evidence for binding between SH2D2A and LCK.\"\n}",
+    "english": "SH2D2A binds LCK.",
+    "text": "Activation of the T cell receptor promotes complex formation between TSAd and the Src kinase family member Lck.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The sentence does not imply that SH2D2A binds LCK. It discusses the activation of the T cell receptor and the formation of a complex between TSAd and Lck, but does not provide direct evidence for binding between SH2D2A and LCK."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Mon, 10 Mar 2025 19:21:54 GMT",
+    "ev_json": null,
+    "id": 15174,
+    "pa_hash": -25880199732934503,
+    "pa_json": {
+      "belief": 1,
+      "enz": {
+        "db_refs": {
+          "FPLX": "ROCK",
+          "IP": "IPR015008",
+          "MESH": "D054460",
+          "TEXT": "Rho-kinase and Aurora-B"
+        },
+        "name": "ROCK"
+      },
+      "id": "8ed01db2-84fb-494f-8256-672089912724",
+      "matches_hash": "-25880199732934503",
+      "sub": {
+        "db_refs": {
+          "HGNC": "12692",
+          "MESH": "D014746",
+          "TEXT": "vimentin",
+          "UP": "P08670"
+        },
+        "name": "VIM"
+      },
+      "type": "Phosphorylation"
+    },
+    "source": "indra_gpt_extraction_results_2025-03-10.pkl",
+    "source_hash": 7783212355940479114,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"We found that vimentin, the most widely expressed intermediate filament protein, served as an excellent substrate for Rho-associated kinase (Rho-kinase) and that vimentin phosphorylated by Rho-kinase lost its ability to form filaments in vitro.\"\nStatement: \"ROCK leads to the phosphorylation of VIM.\"\nThe statement assumes that \"ROCK\" is the same as \"\"ROCK Protein Kinases\", \"rho Associated Coiled Coil Kinase\", \"rho-Kinase\", \"Rho-kinase\", \"Rho kinase\", \"rho-Associated Coiled-Coil Kinase\", \"rho-Associated Kinases\", \"rho Associated Kinases\", \"rho-Associated Kinase\", \"Protein Kinases, ROCK\", \"ROK Kinase\", \"rho Associated Kinase\", \"Coiled-Coil Kinase, rho-Associated\", and \"rho Kinase\"\" and \"VIM\" is the same as \"\"Vimentin\" and \"vimentin\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The sentence indicates that vimentin is phosphorylated by Rho-kinase, which directly supports the statement that ROCK leads to the phosphorylation of VIM, as both terms refer to the same entities.\"\n}",
+    "english": "ROCK leads to the phosphorylation of VIM.",
+    "text": "We found that vimentin, the most widely expressed intermediate filament protein, served as an excellent substrate for Rho-associated kinase (Rho-kinase) and that vimentin phosphorylated by Rho-kinase lost its ability to form filaments in vitro.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The sentence indicates that vimentin is phosphorylated by Rho-kinase, which directly supports the statement that ROCK leads to the phosphorylation of VIM, as both terms refer to the same entities."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 02:57:13 GMT",
+    "ev_json": null,
+    "id": 15287,
+    "pa_hash": 1223016322188051,
+    "pa_json": {
+      "belief": 1,
+      "id": "32df96c6-2998-4576-8133-3a8784806e62",
+      "matches_hash": "1223016322188051",
+      "members": [
+        {
+          "db_refs": {
+            "HGNC": "12556",
+            "TEXT": "ICBP90",
+            "UP": "Q96T88"
+          },
+          "name": "UHRF1"
+        },
+        {
+          "db_refs": {
+            "HGNC": "2976",
+            "MESH": "D000076123",
+            "TEXT": "DNMT1",
+            "UP": "P26358"
+          },
+          "name": "DNMT1"
+        }
+      ],
+      "type": "Complex"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": -8696637238372945876,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Thus, we noted that the degree of phosphorylation of Dnmt1 at S127 by PKC decreased the Dnmt1/UHRF1 interactions without affected the Dnmt1/PCNA interactions ().\"\nStatement: \"UHRF1 binds DNMT1.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The sentence describes a decrease in Dnmt1/UHRF1 interactions due to phosphorylation, which does not imply that UHRF1 binds DNMT1.\"\n}",
+    "english": "UHRF1 binds DNMT1.",
+    "text": "Thus, we noted that the degree of phosphorylation of Dnmt1 at S127 by PKC decreased the Dnmt1/UHRF1 interactions without affected the Dnmt1/PCNA interactions ().",
+    "tag": "wrong_relation",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The sentence describes a decrease in Dnmt1/UHRF1 interactions due to phosphorylation, which does not imply that UHRF1 binds DNMT1."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 02:57:38 GMT",
+    "ev_json": null,
+    "id": 15288,
+    "pa_hash": -23383637119779653,
+    "pa_json": {
+      "belief": 1,
+      "id": "2680a1c7-a0a6-4c88-bd9f-575bd5677c9f",
+      "matches_hash": "-23383637119779653",
+      "members": [
+        {
+          "db_refs": {
+            "HGNC": "2976",
+            "MESH": "D000076123",
+            "TEXT": "DNMT1",
+            "UP": "P26358"
+          },
+          "name": "DNMT1"
+        },
+        {
+          "db_refs": {
+            "HGNC": "8729",
+            "MESH": "D018809",
+            "TEXT": "proliferating cell nuclear antigen",
+            "UP": "P12004"
+          },
+          "name": "PCNA"
+        }
+      ],
+      "type": "Complex"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": -8696637238372945876,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Thus, we noted that the degree of phosphorylation of Dnmt1 at S127 by PKC decreased the Dnmt1/UHRF1 interactions without affected the Dnmt1/PCNA interactions ().\"\nStatement: \"DNMT1 binds PCNA.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The sentence describes a decrease in interactions between Dnmt1 and UHRF1 due to phosphorylation, but it does not imply or confirm that Dnmt1 binds PCNA.\"\n}",
+    "english": "DNMT1 binds PCNA.",
+    "text": "Thus, we noted that the degree of phosphorylation of Dnmt1 at S127 by PKC decreased the Dnmt1/UHRF1 interactions without affected the Dnmt1/PCNA interactions ().",
+    "tag": "wrong_relation",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The sentence describes a decrease in interactions between Dnmt1 and UHRF1 due to phosphorylation, but it does not imply or confirm that Dnmt1 binds PCNA."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 02:58:27 GMT",
+    "ev_json": null,
+    "id": 15289,
+    "pa_hash": 25407337448412352,
+    "pa_json": null,
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": -7351268279078249822,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"c-Abl, a nonreceptor tyrosine kinase, interacts with ATM and is activated by ATM following I-R.\"\nStatement: \"ABL1active.\"\nThe statement assumes that \"ABL\" is the same as \"\"ABL proto-oncogene 1, non-receptor tyrosine kinase\", \"Abelson murine leukemia viral oncogene homolog 1\", \"JTK7\", \"Proto-oncogene c-Abl\", \"c-Abl Kinase\", \"p150\", \"Tyrosine-protein kinase ABL1\", \"c-Abl\", \"c-ABL\", \"ABL1\", \"Abl\", and \"Abelson tyrosine-protein kinase 1\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The statement 'ABL1active' is not explicitly implied by the sentence. While the sentence mentions c-Abl, it does not confirm that c-Abl is active, which is a necessary condition for the statement to be true.\"\n}",
+    "english": "ABL1active.",
+    "text": "c-Abl, a nonreceptor tyrosine kinase, interacts with ATM and is activated by ATM following I-R.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The statement 'ABL1active' is not explicitly implied by the sentence. While the sentence mentions c-Abl, it does not confirm that c-Abl is active, which is a necessary condition for the statement to be true."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 11 Mar 2025 05:53:20 GMT",
+    "ev_json": null,
+    "id": 15233,
+    "pa_hash": 34485052128780494,
+    "pa_json": {
+      "belief": 1,
+      "enz": {
+        "db_refs": {
+          "HGNC": "1774",
+          "MESH": "D051360",
+          "TEXT": "CDK5",
+          "UP": "Q00535"
+        },
+        "name": "CDK5"
+      },
+      "id": "2149f465-49af-4edb-b4fa-7609c6e4be09",
+      "matches_hash": "34485052128780494",
+      "position": "687",
+      "residue": "S",
+      "sub": {
+        "db_refs": {
+          "HGNC": "4910",
+          "TEXT": "HIF-1alpha",
+          "UP": "Q16665"
+        },
+        "name": "HIF1A"
+      },
+      "type": "Phosphorylation"
+    },
+    "source": "indra_gpt_extracted_statements_2025-03-11",
+    "source_hash": -4986498872068023651,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"CDK5 phosphorylates HIF-1\u03b1 at serine 687 causing its stabilization.\"\nStatement: \"CDK5 leads to the phosphorylation of HIF1A on S687.\"\nThe statement assumes that \"HIF1A\" is the same as \"\"Hypoxia-inducible factor 1-alpha\", \"hypoxia inducible factor 1 subunit alpha\", \"HIF-1-alpha\", \"HIF1alpha\", \"Member of PAS protein 1\", \"HIF1\u03b1 protein\", \"Class E basic helix-loop-helix protein 78\", \"PASD8\", \"MOP1\", \"HIF-1alpha\", \"HIF1\u03b1\", \"HIF1-alpha\", \"HIF-1\u03b1\", \"HIF-1\u03b1 protein\", \"BHLHE78\", \"ARNT-interacting protein\", \"HIF1alpha protein\", \"HIF-1alpha protein\", \"HIF1\", \"Basic-helix-loop-helix-PAS protein MOP1\", \"PAS domain-containing protein 8\", and \"bHLHe78\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The sentence clearly states that CDK5 phosphorylates HIF-1\u03b1, which aligns with the statement that CDK5 leads to the phosphorylation of HIF1A on S687. Since HIF1A is synonymous with HIF-1\u03b1, the implication holds true.\"\n}",
+    "english": "CDK5 leads to the phosphorylation of HIF1A on S687.",
+    "text": "CDK5 phosphorylates HIF-1\u03b1 at serine 687 causing its stabilization.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The sentence clearly states that CDK5 phosphorylates HIF-1\u03b1, which aligns with the statement that CDK5 leads to the phosphorylation of HIF1A on S687. Since HIF1A is synonymous with HIF-1\u03b1, the implication holds true."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Mon, 10 Mar 2025 19:24:11 GMT",
+    "ev_json": null,
+    "id": 15177,
+    "pa_hash": 34342371677438639,
+    "pa_json": null,
+    "source": "indra_gpt_extraction_results_2025-03-10.pkl",
+    "source_hash": -5141025935466353686,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Here we show that PAR1b induces phosphorylation of GEF-H1 on serine 885 and serine 959.\"\nStatement: \"MARK2 leads to the phosphorylation of ARHGEF2 on S885.\"\nThe statement assumes that \"MARK2\" is the same as \"\"EMK1\", \"Par-1b\", \"ELKL motif kinase 1\", \"PAR1b\", \"Par1b\", \"PAR-1\", \"Ser/Thr protein kinase PAR-1B\", \"Serine/threonine-protein kinase MARK2\", \"EMK-1\", \"PAR-1B\", \"microtubule affinity regulating kinase 2\", \"PAR1 homolog b\", \"MAP/microtubule affinity-regulating kinase 2\", \"serine/threonine kinase\", \"PAR1 homolog\", and \"protein-serine/threonine kinase\"\" and \"ARHGEF2\" is the same as \"\"P40\", \"Guanine nucleotide exchange factor H1\", \"LFP40\", \"Rho guanine nucleotide exchange factor 2\", \"Microtubule-regulated Rho-GEF\", \"Lfc\", \"Rho/Rac guanine nucleotide exchange factor 2\", \"Proliferating cell nucleolar antigen p40\", \"GEF-H1\", \"GEFH1\", and \"KIAA0651\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The statement assumes a different relationship and entities than what is presented in the sentence. PAR1b induces phosphorylation of GEF-H1, while the statement claims MARK2 leads to the phosphorylation of ARHGEF2, which introduces a different kinase and target.\"\n}",
+    "english": "MARK2 leads to the phosphorylation of ARHGEF2 on S885.",
+    "text": "Here we show that PAR1b induces phosphorylation of GEF-H1 on serine 885 and serine 959.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The statement assumes a different relationship and entities than what is presented in the sentence. PAR1b induces phosphorylation of GEF-H1, while the statement claims MARK2 leads to the phosphorylation of ARHGEF2, which introduces a different kinase and target."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Mon, 10 Mar 2025 19:24:16 GMT",
+    "ev_json": null,
+    "id": 15178,
+    "pa_hash": 12009334134581953,
+    "pa_json": null,
+    "source": "indra_gpt_extraction_results_2025-03-10.pkl",
+    "source_hash": -5141025935466353686,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Here we show that PAR1b induces phosphorylation of GEF-H1 on serine 885 and serine 959.\"\nStatement: \"MARK2 leads to the phosphorylation of ARHGEF2 on S959.\"\nThe statement assumes that \"MARK2\" is the same as \"\"EMK1\", \"Par-1b\", \"ELKL motif kinase 1\", \"PAR1b\", \"Par1b\", \"PAR-1\", \"Ser/Thr protein kinase PAR-1B\", \"Serine/threonine-protein kinase MARK2\", \"EMK-1\", \"PAR-1B\", \"microtubule affinity regulating kinase 2\", \"PAR1 homolog b\", \"MAP/microtubule affinity-regulating kinase 2\", \"serine/threonine kinase\", \"PAR1 homolog\", and \"protein-serine/threonine kinase\"\" and \"ARHGEF2\" is the same as \"\"P40\", \"Guanine nucleotide exchange factor H1\", \"LFP40\", \"Rho guanine nucleotide exchange factor 2\", \"Microtubule-regulated Rho-GEF\", \"Lfc\", \"Rho/Rac guanine nucleotide exchange factor 2\", \"Proliferating cell nucleolar antigen p40\", \"GEF-H1\", \"GEFH1\", and \"KIAA0651\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The statement implies a relationship between MARK2 and the phosphorylation of ARHGEF2, which is not directly supported by the sentence about PAR1b inducing phosphorylation of GEF-H1. The terms used in the statement do not accurately reflect the entities described in the sentence.\"\n}",
+    "english": "MARK2 leads to the phosphorylation of ARHGEF2 on S959.",
+    "text": "Here we show that PAR1b induces phosphorylation of GEF-H1 on serine 885 and serine 959.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The statement implies a relationship between MARK2 and the phosphorylation of ARHGEF2, which is not directly supported by the sentence about PAR1b inducing phosphorylation of GEF-H1. The terms used in the statement do not accurately reflect the entities described in the sentence."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 11 Mar 2025 14:30:46 GMT",
+    "ev_json": null,
+    "id": 15260,
+    "pa_hash": 19392899835473228,
+    "pa_json": null,
+    "source": "indra_gpt_extracted_statements_2025-03-11-02",
+    "source_hash": 3545517563690652686,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"RBP1 is phosphorylated by CDK2 on serines 864 and 1007, which are N- and C-terminal to the LXCXE motif, respectively.\"\nStatement: \"CDK2 leads to the phosphorylation of RBP1 on S1007.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The statement is not implied by the sentence because it specifically mentions phosphorylation on S1007, but the sentence indicates that both S864 and S1007 are phosphorylated by CDK2 without implying that CDK2 leads to the phosphorylation specifically on S1007.\"\n}",
+    "english": "CDK2 leads to the phosphorylation of RBP1 on S1007.",
+    "text": "RBP1 is phosphorylated by CDK2 on serines 864 and 1007, which are N- and C-terminal to the LXCXE motif, respectively.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The statement is not implied by the sentence because it specifically mentions phosphorylation on S1007, but the sentence indicates that both S864 and S1007 are phosphorylated by CDK2 without implying that CDK2 leads to the phosphorylation specifically on S1007."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 11 Mar 2025 14:30:52 GMT",
+    "ev_json": null,
+    "id": 15261,
+    "pa_hash": -4317509398029303,
+    "pa_json": null,
+    "source": "indra_gpt_extracted_statements_2025-03-11-02",
+    "source_hash": 3545517563690652686,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"RBP1 is phosphorylated by CDK2 on serines 864 and 1007, which are N- and C-terminal to the LXCXE motif, respectively.\"\nStatement: \"CDK2 leads to the phosphorylation of RBP1 on S864.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The statement accurately reflects the information in the sentence, indicating that CDK2 is responsible for the phosphorylation of RBP1 on serine 864.\"\n}",
+    "english": "CDK2 leads to the phosphorylation of RBP1 on S864.",
+    "text": "RBP1 is phosphorylated by CDK2 on serines 864 and 1007, which are N- and C-terminal to the LXCXE motif, respectively.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The statement accurately reflects the information in the sentence, indicating that CDK2 is responsible for the phosphorylation of RBP1 on serine 864."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:02:47 GMT",
+    "ev_json": null,
+    "id": 15290,
+    "pa_hash": -30785595665390426,
+    "pa_json": {
+      "belief": 1,
+      "enz": {
+        "db_refs": {
+          "HGNC": "8804",
+          "MESH": "D020797",
+          "TEXT": "PDGFRbeta",
+          "UP": "P09619"
+        },
+        "name": "PDGFRB"
+      },
+      "id": "0c19d1dc-133b-47ac-9555-321032b4141a",
+      "matches_hash": "-30785595665390426",
+      "sub": {
+        "db_refs": {
+          "HGNC": "8804",
+          "MESH": "D020797",
+          "TEXT": "PDGFRbeta",
+          "UP": "P09619"
+        },
+        "name": "PDGFRB"
+      },
+      "type": "Phosphorylation"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": -2988712159774731117,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"While the A1096V mutant behaved like the wild-type and was assumed to represent a benign variant, the L658P and R695C mutations resulted in defective PDGFR\u03b2 autophosphorylation.\"\nStatement: \"PDGFRB leads to the phosphorylation of PDGFRB.\"\nThe statement assumes that \"PDGFRB\" is the same as \"\"Beta platelet-derived growth factor receptor\", \"CD140 antigen-like family member B\", \"PDGFRbeta\", \"Receptor, Platelet-Derived Growth Factor beta\", \"PDGF beta Receptor\", \"PDGFR-1\", \"CD antigen CD140b\", \"JTK12\", \"CD140b Antigens\", \"PDGFR beta\", \"platelet derived growth factor receptor beta\", \"PDGFR\", \"Receptor, PDGF beta\", \"CD140b Antigen\", \"Beta-type platelet-derived growth factor receptor\", \"Platelet-derived growth factor receptor beta\", \"Receptor, Platelet Derived Growth Factor beta\", \"Antigens, CD140b\", \"PDGF-R-beta\", \"Antigen, CD140b\", \"PDGFR1\", \"Platelet-derived growth factor receptor 1\", \"CD140b\", \"PDGFR\u03b2\", \"PDGFR-beta\", \"beta, PDGFR\", \"Platelet-Derived Growth Factor beta Receptor\", and \"Platelet Derived Growth Factor beta Receptor\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The statement 'PDGFRB leads to the phosphorylation of PDGFRB' is not implied by the sentence provided. The sentence discusses the behavior of specific mutations in relation to PDGFR\u03b2 autophosphorylation but does not assert that PDGFRB itself phosphorylates anything, rather it suggests defective autophosphorylation in the context of mutations.\"\n}",
+    "english": "PDGFRB leads to the phosphorylation of PDGFRB.",
+    "text": "While the A1096V mutant behaved like the wild-type and was assumed to represent a benign variant, the L658P and R695C mutations resulted in defective PDGFR\u03b2 autophosphorylation.",
+    "tag": "wrong_relation",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The statement 'PDGFRB leads to the phosphorylation of PDGFRB' is not implied by the sentence provided. The sentence discusses the behavior of specific mutations in relation to PDGFR\u03b2 autophosphorylation but does not assert that PDGFRB itself phosphorylates anything, rather it suggests defective autophosphorylation in the context of mutations."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:02:56 GMT",
+    "ev_json": null,
+    "id": 15291,
+    "pa_hash": -24496369153876801,
+    "pa_json": {
+      "belief": 1,
+      "enz": {
+        "db_refs": {
+          "ECCODE": "2.7.11.11",
+          "FPLX": "PKA",
+          "MESH": "D017868",
+          "NCIT": "C16479",
+          "TEXT": "PKA"
+        },
+        "name": "PKA"
+      },
+      "id": "b83b0b18-4228-4fa2-a633-6c5481e19311",
+      "matches_hash": "-24496369153876801",
+      "position": "183",
+      "residue": "S",
+      "sub": {
+        "db_refs": {
+          "HGNC": "1511",
+          "MESH": "D053453",
+          "TEXT": "caspase-9",
+          "UP": "P55211"
+        },
+        "name": "CASP9"
+      },
+      "type": "Phosphorylation"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": 5534858555544226147,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Protein kinase A directly phosphorylates human caspase-9 at serines 99, 183, and 195.\"\nStatement: \"PKA leads to the phosphorylation of CASP9 on S183.\"\nThe statement assumes that \"PKA\" is the same as \"\"PK-A\", \"cyclic-AMP-dependent protein kinase\", \"Adenosine Cyclic Monophosphate Dependent Protein Kinases\", \"cyclic AMP-dependent protein kinase\", \"Protein kinase A\", \"Cyclic AMP-Dependent Protein Kinase\", \"cAMP Dependent Protein Kinases\", \"cAMP-Dependent Protein Kinase\", \"Protein Kinase, cAMP-Dependent\", \"cAMP Protein Kinase\", \"Adenosine Cyclic Monophosphate-Dependent Protein Kinases\", \"cAMP-dependent protein kinase\", \"cAMP Dependent Protein Kinase\", \"cAMP-Dependent Protein Kinases\", \"cAMP-dependent PK\", \"Cyclic AMP Dependent Protein Kinase\", \"Protein Kinases, cAMP-Dependent\", \"protein kinase A\", \"Cyclic AMP Dependent Protein Kinases\", \"Cyclic AMP-Dependent Protein Kinases\", \"Protein Kinase, cAMP\", and \"Protein Kinase A\"\" and \"CASP9\" is the same as \"\"PPP1R56\", \"Apoptotic protease-activating factor 3\", \"ICE-Like Apoptotic Protease 6\", \"ICE-like apoptotic protease 6\", \"MCH6\", \"ICE-LAP6\", \"protein phosphatase 1, regulatory subunit 56\", \"APAF-3\", \"Caspase-9\", \"ICE LAP6 Protein\", \"Caspase 9\", \"caspase-9\", \"ICE-LAP6 Protein\", \"CASP-9\", \"caspase 9\", \"Apoptotic Protease Activating Factor 3\", \"ICE Like Apoptotic Protease 6\", and \"Apoptotic protease Mch-6\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The statement is implied by the sentence as it specifies that PKA leads to the phosphorylation of CASP9 at a specific site (S183), which is consistent with the information provided in the sentence regarding PKA phosphorylating human caspase-9 at multiple serine sites.\"\n}",
+    "english": "PKA leads to the phosphorylation of CASP9 on S183.",
+    "text": "Protein kinase A directly phosphorylates human caspase-9 at serines 99, 183, and 195.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The statement is implied by the sentence as it specifies that PKA leads to the phosphorylation of CASP9 at a specific site (S183), which is consistent with the information provided in the sentence regarding PKA phosphorylating human caspase-9 at multiple serine sites."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:03:01 GMT",
+    "ev_json": null,
+    "id": 15292,
+    "pa_hash": -23807612974554027,
+    "pa_json": null,
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": 5534858555544226147,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Protein kinase A directly phosphorylates human caspase-9 at serines 99, 183, and 195.\"\nStatement: \"PKA leads to the phosphorylation of CASP9 on S195.\"\nThe statement assumes that \"PKA\" is the same as \"\"PK-A\", \"cyclic-AMP-dependent protein kinase\", \"Adenosine Cyclic Monophosphate Dependent Protein Kinases\", \"cyclic AMP-dependent protein kinase\", \"Protein kinase A\", \"Cyclic AMP-Dependent Protein Kinase\", \"cAMP Dependent Protein Kinases\", \"cAMP-Dependent Protein Kinase\", \"Protein Kinase, cAMP-Dependent\", \"cAMP Protein Kinase\", \"Adenosine Cyclic Monophosphate-Dependent Protein Kinases\", \"cAMP-dependent protein kinase\", \"cAMP Dependent Protein Kinase\", \"cAMP-Dependent Protein Kinases\", \"cAMP-dependent PK\", \"Cyclic AMP Dependent Protein Kinase\", \"Protein Kinases, cAMP-Dependent\", \"protein kinase A\", \"Cyclic AMP Dependent Protein Kinases\", \"Cyclic AMP-Dependent Protein Kinases\", \"Protein Kinase, cAMP\", and \"Protein Kinase A\"\" and \"CASP9\" is the same as \"\"PPP1R56\", \"Apoptotic protease-activating factor 3\", \"ICE-Like Apoptotic Protease 6\", \"ICE-like apoptotic protease 6\", \"MCH6\", \"ICE-LAP6\", \"protein phosphatase 1, regulatory subunit 56\", \"APAF-3\", \"Caspase-9\", \"ICE LAP6 Protein\", \"Caspase 9\", \"caspase-9\", \"ICE-LAP6 Protein\", \"CASP-9\", \"caspase 9\", \"Apoptotic Protease Activating Factor 3\", \"ICE Like Apoptotic Protease 6\", and \"Apoptotic protease Mch-6\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The statement is implied by the sentence as it indicates that Protein Kinase A (PKA) is responsible for the phosphorylation of human caspase-9 (CASP9) at serine 195, which is consistent with the information provided in the sentence.\"\n}",
+    "english": "PKA leads to the phosphorylation of CASP9 on S195.",
+    "text": "Protein kinase A directly phosphorylates human caspase-9 at serines 99, 183, and 195.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The statement is implied by the sentence as it indicates that Protein Kinase A (PKA) is responsible for the phosphorylation of human caspase-9 (CASP9) at serine 195, which is consistent with the information provided in the sentence."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:03:05 GMT",
+    "ev_json": null,
+    "id": 15293,
+    "pa_hash": 31432838065698444,
+    "pa_json": null,
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": 5534858555544226147,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Protein kinase A directly phosphorylates human caspase-9 at serines 99, 183, and 195.\"\nStatement: \"PKA leads to the phosphorylation of CASP9 on S99.\"\nThe statement assumes that \"PKA\" is the same as \"\"PK-A\", \"cyclic-AMP-dependent protein kinase\", \"Adenosine Cyclic Monophosphate Dependent Protein Kinases\", \"cyclic AMP-dependent protein kinase\", \"Protein kinase A\", \"Cyclic AMP-Dependent Protein Kinase\", \"cAMP Dependent Protein Kinases\", \"cAMP-Dependent Protein Kinase\", \"Protein Kinase, cAMP-Dependent\", \"cAMP Protein Kinase\", \"Adenosine Cyclic Monophosphate-Dependent Protein Kinases\", \"cAMP-dependent protein kinase\", \"cAMP Dependent Protein Kinase\", \"cAMP-Dependent Protein Kinases\", \"cAMP-dependent PK\", \"Cyclic AMP Dependent Protein Kinase\", \"Protein Kinases, cAMP-Dependent\", \"protein kinase A\", \"Cyclic AMP Dependent Protein Kinases\", \"Cyclic AMP-Dependent Protein Kinases\", \"Protein Kinase, cAMP\", and \"Protein Kinase A\"\" and \"CASP9\" is the same as \"\"PPP1R56\", \"Apoptotic protease-activating factor 3\", \"ICE-Like Apoptotic Protease 6\", \"ICE-like apoptotic protease 6\", \"MCH6\", \"ICE-LAP6\", \"protein phosphatase 1, regulatory subunit 56\", \"APAF-3\", \"Caspase-9\", \"ICE LAP6 Protein\", \"Caspase 9\", \"caspase-9\", \"ICE-LAP6 Protein\", \"CASP-9\", \"caspase 9\", \"Apoptotic Protease Activating Factor 3\", \"ICE Like Apoptotic Protease 6\", and \"Apoptotic protease Mch-6\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The statement accurately reflects the information in the sentence, indicating that Protein Kinase A (PKA) leads to the phosphorylation of human caspase-9 at specific serine residues.\"\n}",
+    "english": "PKA leads to the phosphorylation of CASP9 on S99.",
+    "text": "Protein kinase A directly phosphorylates human caspase-9 at serines 99, 183, and 195.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The statement accurately reflects the information in the sentence, indicating that Protein Kinase A (PKA) leads to the phosphorylation of human caspase-9 at specific serine residues."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:03:34 GMT",
+    "ev_json": null,
+    "id": 15294,
+    "pa_hash": -25149252575312530,
+    "pa_json": null,
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": 6249935748452559569,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"To verify that tyrosine phosphorylation of \u03b2-catenin is specifically due to activation of the HGF/c-Met pathway we examined the expression of tyrosine 1234 and 1235-phosphorylated c-Met. These tyrosine residues become auto-phosphorylated specifically in response to HGF ligand binding.\"\nStatement: \"MET phosphorylates itself on Y1234, 1235.\"\nThe statement assumes that \"MET\" is the same as \"\"MET Receptor Tyrosine Kinase\", \"Proto-Oncogene Proteins c-met\", \"c-MET\", \"c-met\", \"Scatter factor receptor\", \"MET Proto Oncogene, Receptor Tyrosine Kinase\", \"Receptor, Scatter Factor\", \"DFNB97\", \"c-Met\", \"Proto-Oncogene Proteins, met\", \"Receptor, HGF\", \"MET Proto-Oncogene, Receptor Tyrosine Kinase\", \"c met Proteins\", \"HGF/SF receptor\", \"Receptor, Hepatocyte Growth Factor\", \"c Met Receptor Tyrosine Kinase\", \"Hepatocyte Growth Factor Receptor\", \"RCCP2\", \"HGF Receptor\", \"Proto Oncogene Proteins c met\", \"MET proto-oncogene, receptor tyrosine kinase\", \"Scatter Factor Receptor\", \"Met\", \"c-met Proteins\", \"cMet receptor\", \"Hepatocyte growth factor receptor\", \"Proto-oncogene c-Met\", \"HGF receptor\", \"SF receptor\", \"HGFR\", \"Tyrosine-protein kinase Met\", \"hepatocyte growth factor receptor\", \"c-Met Receptor Tyrosine Kinase\", \"met Proto Oncogene Proteins\", and \"met Proto-Oncogene Proteins\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The sentence implies that MET phosphorylates itself on Y1234 and 1235 because it explicitly states that these tyrosine residues become auto-phosphorylated due to the activation of the HGF/c-Met pathway.\"\n}",
+    "english": "MET phosphorylates itself on Y1234, 1235.",
+    "text": "To verify that tyrosine phosphorylation of \u03b2-catenin is specifically due to activation of the HGF/c-Met pathway we examined the expression of tyrosine 1234 and 1235-phosphorylated c-Met. These tyrosine residues become auto-phosphorylated specifically in response to HGF ligand binding.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The sentence implies that MET phosphorylates itself on Y1234 and 1235 because it explicitly states that these tyrosine residues become auto-phosphorylated due to the activation of the HGF/c-Met pathway."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:05:12 GMT",
+    "ev_json": null,
+    "id": 15295,
+    "pa_hash": 25563011067932304,
+    "pa_json": {
+      "belief": 1,
+      "id": "ab809b50-47e0-4650-88ed-1125fc1de73c",
+      "matches_hash": "25563011067932304",
+      "members": [
+        {
+          "db_refs": {
+            "HGNC": "10003",
+            "TEXT": "RGS7",
+            "UP": "P49802"
+          },
+          "name": "RGS7"
+        },
+        {
+          "db_refs": {
+            "HGNC": "4401",
+            "TEXT": "Gbeta5",
+            "UP": "O14775"
+          },
+          "name": "GNB5"
+        }
+      ],
+      "type": "Complex"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": 4300889135293628709,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"RGS7 and RGS9 invariably co-purify as tightly associated dimers with Gbeta5 and Gbeta5L, respectively.\"\nStatement: \"RGS7 binds GNB5.\"\nThe statement assumes that \"GNB5\" is the same as \"\"Guanine nucleotide-binding protein subunit beta-5\", \"GB5\", \"G protein subunit beta 5\", \"Transducin beta chain 5\", and \"Gbeta5\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The sentence states that RGS7 and RGS9 co-purify with Gbeta5, but it does not explicitly imply that RGS7 binds to GNB5. The binding relationship is not stated or necessarily inferred from the co-purification information.\"\n}",
+    "english": "RGS7 binds GNB5.",
+    "text": "RGS7 and RGS9 invariably co-purify as tightly associated dimers with Gbeta5 and Gbeta5L, respectively.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The sentence states that RGS7 and RGS9 co-purify with Gbeta5, but it does not explicitly imply that RGS7 binds to GNB5. The binding relationship is not stated or necessarily inferred from the co-purification information."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:05:25 GMT",
+    "ev_json": null,
+    "id": 15296,
+    "pa_hash": 6063495094900250,
+    "pa_json": {
+      "belief": 1,
+      "id": "9c2add70-5252-4d22-a30c-b857ebbbfb0f",
+      "matches_hash": "6063495094900250",
+      "members": [
+        {
+          "db_refs": {
+            "HGNC": "6118",
+            "TEXT": "IRF3",
+            "UP": "Q14653"
+          },
+          "name": "IRF3"
+        },
+        {
+          "db_refs": {
+            "HGNC": "959",
+            "TEXT": "Bax",
+            "UP": "Q07812"
+          },
+          "name": "BAX"
+        }
+      ],
+      "type": "Complex"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": -3206458290462839696,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"The key proapoptotic protein in this pathway is interferon regulatory factor 3 (IRF-3), which upon activation by virus infection binds BAX, translocates it to mitochondria, and triggers apoptosis.\"\nStatement: \"IRF3 binds BAX.\"\nThe statement assumes that \"IRF3\" is the same as \"\"Transcription Factor, IRF-3\", \"IFN Regulatory Factor 3\", \"IRF-3\", \"interferon regulatory factor 3\", \"Interferon Regulatory Factor-3\", \"Interferon regulatory factor 3\", \"Interferon Regulatory Factor 3\", \"IRF 3 Transcription Factor\", \"IRF-3 Transcription Factor\", and \"IFN-Regulatory Factor 3\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The sentence clearly states that IRF-3 binds BAX, which is the same as the statement provided.\"\n}",
+    "english": "IRF3 binds BAX.",
+    "text": "The key proapoptotic protein in this pathway is interferon regulatory factor 3 (IRF-3), which upon activation by virus infection binds BAX, translocates it to mitochondria, and triggers apoptosis.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The sentence clearly states that IRF-3 binds BAX, which is the same as the statement provided."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:06:21 GMT",
+    "ev_json": null,
+    "id": 15297,
+    "pa_hash": -33035433007946648,
+    "pa_json": null,
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": -3206458290462839696,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"The key proapoptotic protein in this pathway is interferon regulatory factor 3 (IRF-3), which upon activation by virus infection binds BAX, translocates it to mitochondria, and triggers apoptosis.\"\nStatement: \"BAX translocates to the mitochondria.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The sentence explicitly states that IRF-3 triggers the translocation of BAX to the mitochondria, which implies that BAX translocates to the mitochondria.\"\n}",
+    "english": "BAX translocates to the mitochondria.",
+    "text": "The key proapoptotic protein in this pathway is interferon regulatory factor 3 (IRF-3), which upon activation by virus infection binds BAX, translocates it to mitochondria, and triggers apoptosis.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The sentence explicitly states that IRF-3 triggers the translocation of BAX to the mitochondria, which implies that BAX translocates to the mitochondria."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:06:36 GMT",
+    "ev_json": null,
+    "id": 15298,
+    "pa_hash": 14393191552620733,
+    "pa_json": {
+      "belief": 1,
+      "enz": {
+        "db_refs": {
+          "HGNC": "9077",
+          "TEXT": "PLK1",
+          "UP": "P53350"
+        },
+        "name": "PLK1"
+      },
+      "id": "725f6a8e-9746-4d87-9064-da761f889a42",
+      "matches_hash": "14393191552620733",
+      "position": "216",
+      "residue": "S",
+      "sub": {
+        "db_refs": {
+          "HGNC": "5224",
+          "TEXT": "HSF1",
+          "UP": "Q00613"
+        },
+        "name": "HSF1"
+      },
+      "type": "Phosphorylation"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": 246138282358396430,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"HSF1 was phosphorylated by Plk1 at Ser(216) of the DSGXXS motif during the timing of mitosis and a phospho-defective mutant form of HSF1 inhibited mitotic progression.\"\nStatement: \"PLK1 leads to the phosphorylation of HSF1 on S216.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The sentence explicitly states that HSF1 was phosphorylated by Plk1 at a specific site, which directly implies that PLK1 leads to the phosphorylation of HSF1 on S216.\"\n}",
+    "english": "PLK1 leads to the phosphorylation of HSF1 on S216.",
+    "text": "HSF1 was phosphorylated by Plk1 at Ser(216) of the DSGXXS motif during the timing of mitosis and a phospho-defective mutant form of HSF1 inhibited mitotic progression.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The sentence explicitly states that HSF1 was phosphorylated by Plk1 at a specific site, which directly implies that PLK1 leads to the phosphorylation of HSF1 on S216."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:07:03 GMT",
+    "ev_json": null,
+    "id": 15299,
+    "pa_hash": 25025296514609484,
+    "pa_json": null,
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": -4673783619321030797,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"FKBP51 associates with cyclin-dependent kinase 5 (CDK5), which is one of several kinases that phosphorylates and activates DNA methyltransferase 1 (DNMT1).\"\nStatement: \"CDK5 binds FKBP5.\"\nThe statement assumes that \"FKBP5\" is the same as \"\"51 kDa FK506-binding protein\", \"HSP90-binding immunophilin\", \"FF1 antigen\", \"54 kDa progesterone receptor-associated immunophilin\", \"Androgen-regulated protein 6\", \"Ptg-10\", \"P54\", \"PPIase FKBP5\", \"Rotamase\", \"Peptidyl-prolyl cis-trans isomerase FKBP5\", \"AIG6\", \"FKBP-51\", \"FK506-binding protein 5\", \"FKBP-5\", \"PPIase\", \"p54\", \"FKBP54\", \"FKBP prolyl isomerase 5\", \"FKBP51\", and \"51 kDa FKBP\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The statement 'CDK5 binds FKBP5' is not directly implied by the sentence provided. The sentence states that FKBP51 associates with CDK5, which suggests a relationship but does not confirm a direct binding as stated.\"\n}",
+    "english": "CDK5 binds FKBP5.",
+    "text": "FKBP51 associates with cyclin-dependent kinase 5 (CDK5), which is one of several kinases that phosphorylates and activates DNA methyltransferase 1 (DNMT1).",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The statement 'CDK5 binds FKBP5' is not directly implied by the sentence provided. The sentence states that FKBP51 associates with CDK5, which suggests a relationship but does not confirm a direct binding as stated."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:07:18 GMT",
+    "ev_json": null,
+    "id": 15300,
+    "pa_hash": -29415098045592940,
+    "pa_json": {
+      "belief": 1,
+      "enz": {
+        "db_refs": {
+          "HGNC": "1774",
+          "MESH": "D051360",
+          "TEXT": "CDK5",
+          "UP": "Q00535"
+        },
+        "name": "CDK5"
+      },
+      "id": "7749c97b-cc2d-445e-9953-45fafe478881",
+      "matches_hash": "-29415098045592940",
+      "sub": {
+        "db_refs": {
+          "HGNC": "2976",
+          "MESH": "D000076123",
+          "TEXT": "DNMT1",
+          "UP": "P26358"
+        },
+        "name": "DNMT1"
+      },
+      "type": "Phosphorylation"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": -4673783619321030797,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"FKBP51 associates with cyclin-dependent kinase 5 (CDK5), which is one of several kinases that phosphorylates and activates DNA methyltransferase 1 (DNMT1).\"\nStatement: \"CDK5 leads to the phosphorylation of DNMT1.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The sentence implies that CDK5 phosphorylates DNMT1 by stating that CDK5 is one of several kinases that activate DNMT1.\"\n}",
+    "english": "CDK5 leads to the phosphorylation of DNMT1.",
+    "text": "FKBP51 associates with cyclin-dependent kinase 5 (CDK5), which is one of several kinases that phosphorylates and activates DNA methyltransferase 1 (DNMT1).",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The sentence implies that CDK5 phosphorylates DNMT1 by stating that CDK5 is one of several kinases that activate DNMT1."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:08:44 GMT",
+    "ev_json": null,
+    "id": 15301,
+    "pa_hash": -18753511260430587,
+    "pa_json": null,
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": 3593345658358308755,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Nuclear claudin-2 formed a complex with ZO-1, ZONAB, and cyclin D1.\"\nStatement: \"TJP1 binds CCND1, CLDN2 in the nucleus, and YBX3.\"\nThe statement assumes that \"TJP1\" is the same as \"\"Tight Junction Protein ZO-1\", \"Zona Occludens 1 Protein\", \"tight junction protein ZO-1\", \"Zonula occludens protein 1\", \"Occludens-1 Protein, Zonula\", \"Zona occludens protein 1\", \"Tight junction protein 1\", \"zona occludens 1\", \"DKFZp686M05161\", \"ZO1\", \"Tight junction protein ZO-1\", \"ZO-1\", \"Tight Junction Protein 1\", \"Tight Junction Protein ZO 1\", \"Zonula Occludens 1 Protein\", \"tight junction protein 1\", \"MGC133289\", and \"Zonula Occludens-1 Protein\"\", \"CCND1\" is the same as \"\"Proto Oncogene Products bcl 1\", \"bcl1 Proto Oncogene Proteins\", \"c bcl 1 Proteins\", \"BCL-1\", \"G1/S-specific cyclin D1\", \"Proto-Oncogene Products bcl-1\", \"B-cell lymphoma 1 protein\", \"U21B31\", \"G1/S-specific cyclin-D1\", \"BCL1\", \"D11S287E\", \"PRAD1 oncogene\", \"bcl-1 Proto-Oncogene Products\", \"Proto-Oncogene Protein bcl-1\", \"bcl 1 Proto Oncogene Proteins\", \"B-cell CLL/lymphoma 1\", \"c-bcl-1 Proteins\", \"bcl-1 Proto-Oncogene Proteins\", \"Cyclin D1\", \"Proto-Oncogene Proteins c-bcl-1\", \"Proto Oncogene Proteins c bcl 1\", \"Proto-Oncogene Proteins, bcl1\", \"bcl1 Proto-Oncogene Proteins\", \"cyclin D1\", \"bcl 1 Proto Oncogene Products\", \"parathyroid adenomatosis 1\", \"PRAD1\", \"Proto Oncogene Protein bcl 1\", \"PRAD1 Protein\", \"bcl-1, Proto-Oncogene Protein\", \"CCND1 Protein\", \"c-bcl-1, Proto-Oncogene Proteins\", \"Proto-Oncogene Products, bcl-1\", \"Proto-Oncogene Proteins, bcl-1\", and \"BCL-1 oncogene\"\", \"CLDN2\" is the same as \"\"claudin 2\", \"Claudin 2\", \"SP82\", and \"Claudin-2\"\", and \"YBX3\" is the same as \"\"CSDA\", \"Y-box-binding protein 3\", \"cold-shock domain containing A1\", \"ZONAB\", \"Single-strand DNA-binding protein NF-GMB\", \"DNA-binding protein A\", \"Y-box binding protein 3\", \"Cold shock domain-containing protein A\", \"dbpA\", \"DBPA\", and \"CSDA1\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The statement does not accurately imply the relationships suggested in the sentence. While it mentions bindings involving TJP1, CCND1, and CLDN2, the original sentence specifies a complex formation rather than direct binding, leading to an incorrect assumption.\"\n}",
+    "english": "TJP1 binds CCND1, CLDN2 in the nucleus, and YBX3.",
+    "text": "Nuclear claudin-2 formed a complex with ZO-1, ZONAB, and cyclin D1.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The statement does not accurately imply the relationships suggested in the sentence. While it mentions bindings involving TJP1, CCND1, and CLDN2, the original sentence specifies a complex formation rather than direct binding, leading to an incorrect assumption."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:10:48 GMT",
+    "ev_json": null,
+    "id": 15302,
+    "pa_hash": -18251968142842306,
+    "pa_json": null,
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": 778910169201019788,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"RAGE blockade reduced MMP-2 activity to control level, while TGF-beta1 antibody blockade impacted both the gelatinase 's activity and protein expression (XREF_FIG).\"\nStatement: \"Active AGER inhibits MMP2.\"\nThe statement assumes that \"AGER\" is the same as \"\"receptor for advanced glycation end-products\", \"Advanced glycosylation end product-specific receptor\", \"Receptor for Advanced Glycation End Products\", \"Receptor for advanced glycosylation end products\", \"AGER Protein\", \"Advanced Glycation End Product Receptors\", \"Advanced Glycation End Product Receptor\", \"SCARJ1\", \"RAGE (Receptor for Advanced Glycation End Products)\", \"RAGE\", \"Receptor For Advanced Glycation End Product\", \"AGE Receptor\", \"sRAGE\", \"Receptor for Advanced Glycation Endproduct\", \"Receptor for Advanced Glycation End Products (RAGE)\", \"Receptor, Amphoterin\", \"Amphoterin Receptor\", \"Receptor for Advanced Glycation Endproducts\", and \"advanced glycosylation end-product specific receptor\"\" and \"MMP2\" is the same as \"\"72 kDa gelatinase\", \"72-kDa Gelatinase\", \"MMP-2\", \"72-kDa Type IV Collagenase\", \"Gelatinase A\", \"72 kDa Gelatinase\", \"Gelatinase, 72-kDa\", \"MMP-2 Metalloproteinase\", \"Matrix Metalloproteinase-2\", \"TBE-1\", \"Metalloproteinase, MMP-2\", \"MMP2 Metalloproteinase\", \"CLG4A\", \"matrix metallopeptidase 2\", \"Matrix Metalloproteinase 2\", \"CLG4\", \"72 kDa Type IV Collagenase\", \"72 kDa type IV collagenase\", \"Matrix metalloproteinase-2\", \"Metalloproteinase 2, Matrix\", \"Metalloproteinase, MMP2\", and \"MMP 2 Metalloproteinase\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The sentence discusses the effects of RAGE blockade on MMP-2 activity but does not imply that active AGER inhibits MMP2. The relationship between AGER and MMP2 is not established in the provided sentence.\"\n}",
+    "english": "Active AGER inhibits MMP2.",
+    "text": "RAGE blockade reduced MMP-2 activity to control level, while TGF-beta1 antibody blockade impacted both the gelatinase 's activity and protein expression (XREF_FIG).",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The sentence discusses the effects of RAGE blockade on MMP-2 activity but does not imply that active AGER inhibits MMP2. The relationship between AGER and MMP2 is not established in the provided sentence."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:11:14 GMT",
+    "ev_json": null,
+    "id": 15303,
+    "pa_hash": 8090778520485668,
+    "pa_json": {
+      "belief": 1,
+      "enz": {
+        "db_refs": {
+          "FPLX": "AKT",
+          "NCIT": "C41625",
+          "TEXT": "Akt"
+        },
+        "name": "AKT"
+      },
+      "id": "6fe1ab06-3028-4e85-8302-ab18ab1400e2",
+      "matches_hash": "8090778520485668",
+      "position": "473",
+      "residue": "S",
+      "sub": {
+        "db_refs": {
+          "FPLX": "AKT",
+          "NCIT": "C41625",
+          "TEXT": "Akt"
+        },
+        "name": "AKT"
+      },
+      "type": "Phosphorylation"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": 6424349002674503031,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Mechanistically, ACK1 phosphorylated AKT at Thr 308 and Ser 473 and activated the AKT pathway to up-regulate the transcription factor POU2F1, which directly bound to the promoter region of its novel target gene ecdysoneless homologue and thus regulated ecdysoneless homologue expression in gastric cancer cells.\"\nStatement: \"AKT leads to the phosphorylation of AKT on S473.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The statement incorrectly implies that AKT leads to its own phosphorylation on S473, while the sentence indicates that ACK1 is the kinase that phosphorylates AKT at that site.\"\n}",
+    "english": "AKT leads to the phosphorylation of AKT on S473.",
+    "text": "Mechanistically, ACK1 phosphorylated AKT at Thr 308 and Ser 473 and activated the AKT pathway to up-regulate the transcription factor POU2F1, which directly bound to the promoter region of its novel target gene ecdysoneless homologue and thus regulated ecdysoneless homologue expression in gastric cancer cells.",
+    "tag": "no_relation",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The statement incorrectly implies that AKT leads to its own phosphorylation on S473, while the sentence indicates that ACK1 is the kinase that phosphorylates AKT at that site."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:11:24 GMT",
+    "ev_json": null,
+    "id": 15304,
+    "pa_hash": 31063662021719116,
+    "pa_json": null,
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": -4884620785072786610,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Autophosphorylation sites Y992, Y1045 and Y1148 on EGFR revealed constitutive basal level of phosphorylation compared to untreated cells in the presence of cetuximab.\"\nStatement: \"EGFR phosphorylates itself on Y1045.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The sentence does not imply that EGFR phosphorylates itself on Y1045. It discusses autophosphorylation sites and levels of phosphorylation in the context of treatment but does not confirm self-phosphorylation on that specific site.\"\n}",
+    "english": "EGFR phosphorylates itself on Y1045.",
+    "text": "Autophosphorylation sites Y992, Y1045 and Y1148 on EGFR revealed constitutive basal level of phosphorylation compared to untreated cells in the presence of cetuximab.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The sentence does not imply that EGFR phosphorylates itself on Y1045. It discusses autophosphorylation sites and levels of phosphorylation in the context of treatment but does not confirm self-phosphorylation on that specific site."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:11:28 GMT",
+    "ev_json": null,
+    "id": 15305,
+    "pa_hash": -23406525900061676,
+    "pa_json": null,
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": -4884620785072786610,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Autophosphorylation sites Y992, Y1045 and Y1148 on EGFR revealed constitutive basal level of phosphorylation compared to untreated cells in the presence of cetuximab.\"\nStatement: \"EGFR phosphorylates itself on Y1148.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The sentence describes the autophosphorylation of EGFR at specific sites but does not imply that EGFR phosphorylates itself on Y1148 specifically, as it only indicates a comparison of phosphorylation levels without establishing a direct self-phosphorylation claim.\"\n}",
+    "english": "EGFR phosphorylates itself on Y1148.",
+    "text": "Autophosphorylation sites Y992, Y1045 and Y1148 on EGFR revealed constitutive basal level of phosphorylation compared to untreated cells in the presence of cetuximab.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The sentence describes the autophosphorylation of EGFR at specific sites but does not imply that EGFR phosphorylates itself on Y1148 specifically, as it only indicates a comparison of phosphorylation levels without establishing a direct self-phosphorylation claim."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:11:33 GMT",
+    "ev_json": null,
+    "id": 15306,
+    "pa_hash": 31811181690508474,
+    "pa_json": null,
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": -4884620785072786610,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Autophosphorylation sites Y992, Y1045 and Y1148 on EGFR revealed constitutive basal level of phosphorylation compared to untreated cells in the presence of cetuximab.\"\nStatement: \"EGFR phosphorylates itself on Y992.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The statement 'EGFR phosphorylates itself on Y992' is not directly implied by the sentence provided. The sentence mentions autophosphorylation sites and the level of phosphorylation but does not explicitly state that EGFR phosphorylates itself at Y992.\"\n}",
+    "english": "EGFR phosphorylates itself on Y992.",
+    "text": "Autophosphorylation sites Y992, Y1045 and Y1148 on EGFR revealed constitutive basal level of phosphorylation compared to untreated cells in the presence of cetuximab.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The statement 'EGFR phosphorylates itself on Y992' is not directly implied by the sentence provided. The sentence mentions autophosphorylation sites and the level of phosphorylation but does not explicitly state that EGFR phosphorylates itself at Y992."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:11:54 GMT",
+    "ev_json": null,
+    "id": 15307,
+    "pa_hash": 31833213893939585,
+    "pa_json": {
+      "belief": 1,
+      "enz": {
+        "db_refs": {
+          "ECCODE": "2.7.11.13",
+          "FPLX": "PKC",
+          "IP": "IPR012233",
+          "MESH": "D011493",
+          "NCIT": "C17017",
+          "TEXT": "protein kinase C"
+        },
+        "name": "PKC"
+      },
+      "id": "70e142c7-c69d-4d17-b04d-fa62805cfe65",
+      "matches_hash": "31833213893939585",
+      "position": "209",
+      "residue": "S",
+      "sub": {
+        "db_refs": {
+          "HGNC": "3287",
+          "MESH": "D039561",
+          "NCIT": "C105124",
+          "TEXT": "eIF-4E",
+          "UP": "P06730"
+        },
+        "name": "EIF4E"
+      },
+      "type": "Phosphorylation"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": 5984718871719182267,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Phosphorylation of eIF-4E on serine 209 by protein kinase C is inhibited by the translational repressors, 4E-binding proteins.\"\nStatement: \"PKC leads to the phosphorylation of EIF4E on S209.\"\nThe statement assumes that \"PKC\" is the same as \"\"Calcium Phospholipid-Dependent Protein Kinase\", \"PKC Serine-Threonine Kinase\", \"Protein Kinase C\", \"Phospholipid-Dependent Kinase, Calcium-Activated\", \"Calcium Phospholipid Dependent Protein Kinase\", \"protein kinase C\", \"Serine-Threonine Kinase, PKC\", \"Phospholipid Sensitive Calcium Dependent Protein Kinase\", \"PKC Serine Threonine Kinase\", \"Calcium-Activated Phospholipid-Dependent Kinase\", \"Calcium Activated Phospholipid Dependent Kinase\", and \"Phospholipid-Sensitive Calcium-Dependent Protein Kinase\"\" and \"EIF4E\" is the same as \"\"EIF-4E\", \"Eukaryotic Initiation Factor 4E\", \"eIF-4E\", \"eukaryotic translation initiation factor 4E\", \"Factor-4E, Eukaryotic Initiation\", \"eIF4E\", \"Eukaryotic translation initiation factor 4E\", \"Eukaryotic Initiation Factor-4E\", \"CDC33 Gene Product\", \"Peptide Initiation Factor EIF 4E\", \"EIF 4E\", \"eIF-4F 25 kDa subunit\", \"Eukaryotic Peptide Initiation Factor-4E\", \"EIF4F\", \"mRNA cap-binding protein\", \"Eukaryotic Peptide Initiation Factor 4E\", \"EIF4EL1\", \"Peptide Initiation Factor EIF-4E\", \"EIF4E1\", \"eukaryotic initiation factor 4E\", and \"Initiation Factor-4E, Eukaryotic\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The statement accurately reflects the information provided in the sentence regarding the phosphorylation of eIF-4E by PKC, indicating that PKC is responsible for this action.\"\n}",
+    "english": "PKC leads to the phosphorylation of EIF4E on S209.",
+    "text": "Phosphorylation of eIF-4E on serine 209 by protein kinase C is inhibited by the translational repressors, 4E-binding proteins.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The statement accurately reflects the information provided in the sentence regarding the phosphorylation of eIF-4E by PKC, indicating that PKC is responsible for this action."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:12:15 GMT",
+    "ev_json": null,
+    "id": 15308,
+    "pa_hash": -29347983629822836,
+    "pa_json": {
+      "belief": 1,
+      "id": "13880540-b6a3-491d-9f1f-b3d432dee366",
+      "matches_hash": "-29347983629822836",
+      "members": [
+        {
+          "db_refs": {
+            "HGNC": "10659",
+            "MESH": "D053669",
+            "TEXT": "HSPG",
+            "UP": "P34741"
+          },
+          "name": "SDC2"
+        },
+        {
+          "db_refs": {
+            "HGNC": "3676",
+            "MESH": "D016222",
+            "TEXT": "FGF-2",
+            "UP": "P09038"
+          },
+          "name": "FGF2"
+        }
+      ],
+      "type": "Complex"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": -3647807763238660952,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"This NaCl concentration detaches FGF-2 bound to HS or HSPG but does not elute FGF-2 bound to the high-affinity FGFRs.\"\nStatement: \"SDC2 binds FGF2.\"\nThe statement assumes that \"SDC2\" is the same as \"\"HSPG\", \"CD antigen CD362\", \"Fibroglycan\", \"Syndecan-2\", \"Heparan sulfate proteoglycan core protein\", \"HSPG1\", \"Syndecan 2\", \"syndecan 2\", \"fibroglycan\", \"syndecan proteoglycan 2\", \"Heparan Sulfate Proteoglycan Core Protein\", \"SYND2\", and \"CD362\"\" and \"FGF2\" is the same as \"\"bFGF\", \"Basic Fibroblast Growth Factor\", \"Fibroblast Growth Factor-2\", \"Fibroblast growth factor 2\", \"FGF 2\", \"Cartilage-Derived Growth Factor\", \"FGF-2\", \"fibroblast growth factor 2\", \"Class II Heparin-Binding Growth Factor\", \"Cartilage Derived Growth Factor\", \"Heparin-Binding Growth Factor Class II\", \"Fibroblast Growth Factor 2\", \"HBGF-2\", \"FGFB\", \"Basic fibroblast growth factor\", \"Fibroblast Growth Factor, Basic\", \"Heparin-binding growth factor 2\", \"Prostate Epithelial Cell Growth Factor\", and \"Prostatropin\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The statement 'SDC2 binds FGF2' is not implied by the sentence because the sentence discusses the detachment of FGF-2 from HS or HSPG without confirming a direct binding relationship between SDC2 and FGF2.\"\n}",
+    "english": "SDC2 binds FGF2.",
+    "text": "This NaCl concentration detaches FGF-2 bound to HS or HSPG but does not elute FGF-2 bound to the high-affinity FGFRs.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The statement 'SDC2 binds FGF2' is not implied by the sentence because the sentence discusses the detachment of FGF-2 from HS or HSPG without confirming a direct binding relationship between SDC2 and FGF2."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Mon, 10 Mar 2025 19:55:02 GMT",
+    "ev_json": null,
+    "id": 15207,
+    "pa_hash": 34997400460830964,
+    "pa_json": {
+      "belief": 1,
+      "id": "12685457-0f1c-49c9-818f-6f589fc532ee",
+      "matches_hash": "34997400460830964",
+      "members": [
+        {
+          "db_refs": {
+            "HGNC": "11957",
+            "TEXT": "MED12",
+            "UP": "Q93074"
+          },
+          "name": "MED12"
+        },
+        {
+          "db_refs": {
+            "HGNC": "22474",
+            "TEXT": "MED13",
+            "UP": "Q9UHV7"
+          },
+          "name": "MED13"
+        }
+      ],
+      "type": "Complex"
+    },
+    "source": "indra_gpt_extraction_results_2025-03-10.pkl",
+    "source_hash": 1205568566129133406,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"MED12 also binds to MED13, which does not bind to either Cyclin C or CDK8 ( xref ; xref ).\"\nStatement: \"MED12 binds MED13.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The sentence explicitly states that MED12 binds to MED13, thus the statement is directly implied.\"\n}",
+    "english": "MED12 binds MED13.",
+    "text": "MED12 also binds to MED13, which does not bind to either Cyclin C or CDK8 ( xref ; xref ).",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The sentence explicitly states that MED12 binds to MED13, thus the statement is directly implied."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:12:56 GMT",
+    "ev_json": null,
+    "id": 15309,
+    "pa_hash": -17385185065236646,
+    "pa_json": {
+      "belief": 1,
+      "id": "5565a9f5-1284-4856-9a83-4bb5978534e5",
+      "matches_hash": "-17385185065236646",
+      "members": [
+        {
+          "db_refs": {
+            "FPLX": "NFkappaB",
+            "IP": "IPR000451",
+            "MESH": "D016328",
+            "NCIT": "C17380",
+            "TEXT": "NFkB"
+          },
+          "name": "NFkappaB"
+        },
+        {
+          "db_refs": {
+            "HGNC": "7797",
+            "MESH": "D000072000",
+            "TEXT": "kappaB",
+            "UP": "P25963"
+          },
+          "name": "NFKBIA"
+        }
+      ],
+      "type": "Complex"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": 233489487246381432,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Deacetylation of RelA by HDAC3 thus acts as an intranuclear molecular switch that both controls the duration of the NF-kappaB transcriptional response and contributes to the replenishment of the depleted cytoplasmic pool of latent NF-kappaB-IkappaBalpha complexes.\"\nStatement: \"NFkappaB binds NFKBIA.\"\nThe statement assumes that \"NFkappaB\" is the same as \"\"NF-\u03baB subunits\", \"Transcription Factor NF kB\", \"Factor NF-kB, Transcription\", \"NF-kappaB factors\", \"NF-kappaBs\", \"NF\u03baB complexes\", \"NF-\u03baB complexes\", \"NF-\u03ba\u03b2\", \"NF-\u03baBs\", \"Factor-Kappab, Nuclear\", \"NF-\u03baB\", \"NF-\u03baB factors\", \"Enhancer-Binding Protein, Immunoglobulin\", \"NF-kB, Transcription Factor\", \"NF-kappaB TFs\", \"NF-\u03baB genes\", \"NF-kappaB subunits\", \"Nuclear Factor Kappab\", \"NF-kappa B\", \"Immunoglobulin Enhancer-Binding Protein\", \"NF-kappabeta\", \"NF-\u03baB Factors\", \"Nuclear Factor kappa B\", \"NF-kB\", \"NF kappaB\", \"NFkappaB complexes\", \"kappa B Enhancer Binding Protein\", \"NF-kappaB Factors\", \"NF kB\", \"Transcription Factor NF-kB\", \"NF-\u03baB TFs\", \"NF-kappaB\", \"NF-\u03baB dimers\", \"NF-kappaB dimers\", \"NF\u03baB\", \"NF-kappaB genes\", \"Nuclear Factor-Kappab\", \"Immunoglobulin Enhancer Binding Protein\", and \"NF-kappaB complexes\"\" and \"NFKBIA\" is the same as \"\"alpha, NF-KappaB Inhibitor\", \"IkappaB-alpha\", \"NF-KappaB Inhibitor alpha\", \"I Kappa B alpha Protein\", \"I Kappa B-alpha Protein\", \"I\u03baB\u03b1\", \"IkappaBalpha\", \"IKappaB alpha\", \"IKBA\", \"Major Histocompatibility Complex Enhancer-Binding Protein MAD3\", \"MAD-3\", \"IKappaBalpha\", \"NFKB inhibitor alpha\", \"Major Histocompatibility Complex Enhancer Binding Protein MAD3\", \"IkB-alpha\", \"Inhibitor alpha, NF-KappaB\", \"I\u03baB-\u03b1\", \"NF-kappa-B inhibitor alpha\", \"MAD3\", \"NFKBI\", \"Major histocompatibility complex enhancer-binding protein MAD3\", \"NF KappaB Inhibitor alpha\", \"p40 Protein (IKappaB-alpha)\", \"I-kappa-B-alpha\", and \"IKappaB-alpha\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The statement 'NFkappaB binds NFKBIA' is not directly implied by the sentence regarding the deacetylation of RelA by HDAC3. The sentence discusses the role of HDAC3 in controlling the NF-kappaB transcriptional response and does not explicitly state or imply a binding relationship between NF-kappaB and NFKBIA.\"\n}",
+    "english": "NFkappaB binds NFKBIA.",
+    "text": "Deacetylation of RelA by HDAC3 thus acts as an intranuclear molecular switch that both controls the duration of the NF-kappaB transcriptional response and contributes to the replenishment of the depleted cytoplasmic pool of latent NF-kappaB-IkappaBalpha complexes.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The statement 'NFkappaB binds NFKBIA' is not directly implied by the sentence regarding the deacetylation of RelA by HDAC3. The sentence discusses the role of HDAC3 in controlling the NF-kappaB transcriptional response and does not explicitly state or imply a binding relationship between NF-kappaB and NFKBIA."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 11 Mar 2025 06:00:42 GMT",
+    "ev_json": null,
+    "id": 15248,
+    "pa_hash": -26736945827333372,
+    "pa_json": {
+      "belief": 1,
+      "enz": {
+        "db_refs": {
+          "HGNC": "4854",
+          "TEXT": "HDAC3",
+          "UP": "O15379"
+        },
+        "name": "HDAC3"
+      },
+      "id": "80ac1710-d5ed-48a9-8e39-f670b61ee073",
+      "matches_hash": "-26736945827333372",
+      "sub": {
+        "db_refs": {
+          "HGNC": "9955",
+          "MESH": "D051996",
+          "TEXT": "p65",
+          "UP": "Q04206"
+        },
+        "name": "RELA"
+      },
+      "type": "Deacetylation"
+    },
+    "source": "indra_gpt_extracted_statements_2025-03-11",
+    "source_hash": 233489487246381432,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Deacetylation of RelA by HDAC3 thus acts as an intranuclear molecular switch that both controls the duration of the NF-kappaB transcriptional response and contributes to the replenishment of the depleted cytoplasmic pool of latent NF-kappaB-IkappaBalpha complexes.\"\nStatement: \"HDAC3 leads to the deacetylation of RELA.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The sentence implies that HDAC3 is responsible for the deacetylation of RelA (RELA), as it explicitly states that deacetylation of RelA is acted upon by HDAC3.\"\n}",
+    "english": "HDAC3 leads to the deacetylation of RELA.",
+    "text": "Deacetylation of RelA by HDAC3 thus acts as an intranuclear molecular switch that both controls the duration of the NF-kappaB transcriptional response and contributes to the replenishment of the depleted cytoplasmic pool of latent NF-kappaB-IkappaBalpha complexes.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The sentence implies that HDAC3 is responsible for the deacetylation of RelA (RELA), as it explicitly states that deacetylation of RelA is acted upon by HDAC3."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:13:04 GMT",
+    "ev_json": null,
+    "id": 15310,
+    "pa_hash": 16461911042401564,
+    "pa_json": {
+      "belief": 1,
+      "id": "64de3d04-d094-4f8f-89ac-9a755d260ec5",
+      "matches_hash": "16461911042401564",
+      "members": [
+        {
+          "db_refs": {
+            "HGNC": "1078",
+            "TEXT": "BMPRII",
+            "UP": "Q13873"
+          },
+          "name": "BMPR2"
+        },
+        {
+          "db_refs": {
+            "HGNC": "7865",
+            "TEXT": "Nodal",
+            "UP": "Q96S42"
+          },
+          "name": "NODAL"
+        }
+      ],
+      "type": "Complex"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": -4641944768109202881,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Nodal binds ALK4, BMPRII and Cripto-1.\"\nStatement: \"BMPR2 binds NODAL.\"\nThe statement assumes that \"BMPR2\" is the same as \"\"PPH1\", \"T-ALK\", \"BMPRII\", \"BRK-3\", \"BMP type-2 receptor\", \"BMPR3\", \"Bone morphogenetic protein receptor type-2\", \"bone morphogenetic protein receptor type 2\", \"BMPR-2\", \"Bone morphogenetic protein receptor type II\", \"BMP type II receptor\", and \"BMPR-II\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The statement 'BMPR2 binds NODAL' does not logically follow from the sentence 'Nodal binds ALK4, BMPRII and Cripto-1.' The sentence does not imply that BMPR2 binds NODAL; it simply states that Nodal interacts with BMPRII, along with other proteins.\"\n}",
+    "english": "BMPR2 binds NODAL.",
+    "text": "Nodal binds ALK4, BMPRII and Cripto-1.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The statement 'BMPR2 binds NODAL' does not logically follow from the sentence 'Nodal binds ALK4, BMPRII and Cripto-1.' The sentence does not imply that BMPR2 binds NODAL; it simply states that Nodal interacts with BMPRII, along with other proteins."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:13:11 GMT",
+    "ev_json": null,
+    "id": 15311,
+    "pa_hash": -12417880212349298,
+    "pa_json": {
+      "belief": 1,
+      "id": "042e0285-140d-4b8d-a6a7-609cd4bde495",
+      "matches_hash": "-12417880212349298",
+      "members": [
+        {
+          "db_refs": {
+            "HGNC": "11701",
+            "TEXT": "Cripto",
+            "UP": "P13385"
+          },
+          "name": "TDGF1"
+        },
+        {
+          "db_refs": {
+            "HGNC": "7865",
+            "TEXT": "Nodal",
+            "UP": "Q96S42"
+          },
+          "name": "NODAL"
+        }
+      ],
+      "type": "Complex"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": -4641944768109202881,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Nodal binds ALK4, BMPRII and Cripto-1.\"\nStatement: \"CRIPTO binds NODAL.\"\nThe statement assumes that \"CRIPTO\" is the same as \"\"CR\", \"Cripto-1\", \"Cripto-1 growth factor\", \"TDGF1\", \"CRIPTO-1\", \"CRGF\", \"Protein Cripto\", \"Teratocarcinoma-derived growth factor 1\", \"Epidermal growth factor-like cripto protein CR1\", \"Cripto, EGF-CFC family member\", \"cripto, EGF-CFC family member\", and \"CR-1\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The statement 'CRIPTO binds NODAL' is not implied by the sentence 'Nodal binds ALK4, BMPRII and Cripto-1.' The sentence indicates that Nodal interacts with Cripto-1, but it does not establish a binding relationship in the reverse direction.\"\n}",
+    "english": "CRIPTO binds NODAL.",
+    "text": "Nodal binds ALK4, BMPRII and Cripto-1.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The statement 'CRIPTO binds NODAL' is not implied by the sentence 'Nodal binds ALK4, BMPRII and Cripto-1.' The sentence indicates that Nodal interacts with Cripto-1, but it does not establish a binding relationship in the reverse direction."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:13:20 GMT",
+    "ev_json": null,
+    "id": 15312,
+    "pa_hash": 14435596618665726,
+    "pa_json": {
+      "belief": 1,
+      "id": "8c1b5308-4ee8-4ff9-86e4-71e8104385e2",
+      "matches_hash": "14435596618665726",
+      "members": [
+        {
+          "db_refs": {
+            "HGNC": "172",
+            "TEXT": "ALK4",
+            "UP": "P36896"
+          },
+          "name": "ACVR1B"
+        },
+        {
+          "db_refs": {
+            "HGNC": "7865",
+            "TEXT": "Nodal",
+            "UP": "Q96S42"
+          },
+          "name": "NODAL"
+        }
+      ],
+      "type": "Complex"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": -4641944768109202881,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"Nodal binds ALK4, BMPRII and Cripto-1.\"\nStatement: \"ACVR1B binds NODAL.\"\nThe statement assumes that \"ACVR1B\" is the same as \"\"ActRIB\", \"ALK4\", \"ACVRLK4\", \"Activin receptor type-1B\", \"ALK-4\", \"ACTR-IB\", \"Serine/threonine-protein kinase receptor R2\", \"Activin receptor type IB\", \"Activin receptor-like kinase 4\", \"activin A receptor type 1B\", and \"SKR2\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The statement 'ACVR1B binds NODAL' does not follow from the sentence 'Nodal binds ALK4, BMPRII and Cripto-1', as it incorrectly implies a binding relationship that is not supported by the information provided.\"\n}",
+    "english": "ACVR1B binds NODAL.",
+    "text": "Nodal binds ALK4, BMPRII and Cripto-1.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The statement 'ACVR1B binds NODAL' does not follow from the sentence 'Nodal binds ALK4, BMPRII and Cripto-1', as it incorrectly implies a binding relationship that is not supported by the information provided."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Tue, 18 Mar 2025 03:14:40 GMT",
+    "ev_json": null,
+    "id": 15313,
+    "pa_hash": -30186523112720075,
+    "pa_json": {
+      "belief": 1,
+      "enz": {
+        "db_refs": {
+          "HGNC": "882",
+          "TEXT": "ATR",
+          "UP": "Q13535"
+        },
+        "name": "ATR"
+      },
+      "id": "adc12b01-cb0d-4e4b-bc8a-ff0a2c166168",
+      "matches_hash": "-30186523112720075",
+      "type": "Autophosphorylation"
+    },
+    "source": "ontogpt_statements_2025-03-17.pkl",
+    "source_hash": 3991044075289098211,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"TopBP1 forms a complex with ATRIP and claspin, which binds ATR and regulates its activation through autophosphorylation.\"\nStatement: \"ATR phosphorylates itself.\"\n\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"incorrect\",\n  \"explanation\": \"The statement 'ATR phosphorylates itself' is not implied by the sentence, which describes a complex involving TopBP1, ATRIP, claspin, and ATR without indicating self-phosphorylation.\"\n}",
+    "english": "ATR phosphorylates itself.",
+    "text": "TopBP1 forms a complex with ATRIP and claspin, which binds ATR and regulates its activation through autophosphorylation.",
+    "tag": "correct",
+    "predicted_tag": "incorrect",
+    "predicted_tag_explanation": "The statement 'ATR phosphorylates itself' is not implied by the sentence, which describes a complex involving TopBP1, ATRIP, claspin, and ATR without indicating self-phosphorylation."
+  },
+  {
+    "curator": "thomaslim6793@gmail.com",
+    "date": "Mon, 10 Mar 2025 20:20:13 GMT",
+    "ev_json": null,
+    "id": 15221,
+    "pa_hash": -32544616237559061,
+    "pa_json": null,
+    "source": "indra_gpt_extraction_results_2025-03-10.pkl",
+    "source_hash": 3991044075289098211,
+    "prompt": "\nRespond to the following prompt using the provided schema.\nThe output response should be a valid JSON object that adheres to the schema.\nONLY respond with the JSON object, do not add any formatting indicator or additional text.\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tag\": {\n      \"type\": \"string\",\n      \"description\": \"The curation tag indicating the classification of the sentence-statement pair.\"\n    },\n    \"explanation\": {\n      \"type\": \"string\",\n      \"description\": \"An explanation for the curation tag.\"\n    }\n  },\n  \"required\": [\n    \"tag\",\n    \"explanation\"\n  ],\n  \"additionalProperties\": false,\n  \"description\": \"A JSON schema for the curation tags for the sentence-statement pair.\"\n}\n\nPROMPT:\nThe following sentences are paired with statements that are implied from their sentence:\n\nSentence1: \"Bottom, quantified PAK4 autophosphorylation relative to the zero time point of PAK4 autophosphorylation are indicated below.\"\nStatement1: \"PAK4 phosphorylates itself.\"\nThe definition of PAK4 is: \"p21 (RAC1) activated kinase 4\".\n\n\nThe following sentences do not imply the statements they are paired with:\n\nSentence2: \"In contrast, an association between HDAC2, YY1, and SAP30 was not detected.\"\nStatement2: \"SAP30 binds YY1.\"\nThe definition of SAP30 is: \"Sin3A associated protein 30\".\nThe definition of YY1 is: \"YY1 transcription factor\".\n\n\n\n=======\n\nIs the following statement implied by the sentence assuming the sentence and the statement follow the same pattern as in the examples above?\n\nSentence: \"TopBP1 forms a complex with ATRIP and claspin, which binds ATR and regulates its activation through autophosphorylation.\"\nStatement: \"TOPBP1 binds CLSPN and ATRIP.\"\nThe statement assumes that \"CLSPN\" is the same as \"\"claspin\", \"hClaspin\", and \"Claspin\"\"\n\nPlease answer with just 'correct' or 'incorrect'.\n\nRESPONSE:\n",
+    "raw_response": "{\n  \"tag\": \"correct\",\n  \"explanation\": \"The statement accurately reflects the relationships described in the sentence, as the sentence indicates that TopBP1 forms a complex with claspin (CLSPN) and ATRIP, implying that TopBP1 binds these proteins.\"\n}",
+    "english": "TOPBP1 binds CLSPN and ATRIP.",
+    "text": "TopBP1 forms a complex with ATRIP and claspin, which binds ATR and regulates its activation through autophosphorylation.",
+    "tag": "correct",
+    "predicted_tag": "correct",
+    "predicted_tag_explanation": "The statement accurately reflects the relationships described in the sentence, as the sentence indicates that TopBP1 forms a complex with claspin (CLSPN) and ATRIP, implying that TopBP1 binds these proteins."
+  }
+]
